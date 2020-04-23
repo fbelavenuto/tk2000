@@ -1,25 +1,28 @@
 
 #include <cstdio>
 #include <cstring>
+#include <mutex>
 #include "Audio.h"
+
+std::mutex myMutex;
 
 /*************************************************************************************************/
 void playCallback(void *userdata, uint8_t * stream, int len) {
-	static short soundPos = -32000;
+	static short soundPos = -32767;
 	auto obj = reinterpret_cast<CAudio *>(userdata);
 	int16_t *buffer = (int16_t *)stream;
 	size_t bufferLen = len / sizeof(uint16_t);
 	memset(stream, 0, len);
-	// Em 44100, temos 44100 bytes em 1 segundo, ou seja, cada sample tem 22,67 us de duração
-	// 1 ciclo de máquina do 6502 tem 0,977 us
-	// A cada sample de áudio dura 23.2 ciclos de máquina
-	if (obj->mCyclesQueue.size() < 2) {
+	const std::lock_guard<std::mutex> lock(myMutex);
+	if (obj->mCyclesQueue.size() < 1) {
 		SDL_PauseAudioDevice(obj->playbackDeviceId, SDL_TRUE);
 		return;
 	}
-	static unsigned long long audioCycleStart = obj->mCyclesQueue.front();
+	static unsigned long long audioCycleStart = 0;
+	if (audioCycleStart == 0) {
+		audioCycleStart = obj->mCyclesQueue.front();
+	}
 	unsigned long long cycleActual;
-//	obj->mCyclesQueue.pop();
 	unsigned long long nextCycle = obj->mCyclesQueue.front();
 	for (int i = 0; i < bufferLen; i++) {
 		cycleActual = audioCycleStart + (unsigned long long)((double)i * 23.2);
@@ -27,11 +30,13 @@ void playCallback(void *userdata, uint8_t * stream, int len) {
 			soundPos = -soundPos;
 			if (obj->mCyclesQueue.size() == 0) {
 				SDL_PauseAudioDevice(obj->playbackDeviceId, SDL_TRUE);
+				audioCycleStart = 0;
 				return;
 			} else {
 				obj->mCyclesQueue.pop();
 				if (obj->mCyclesQueue.size()== 0) {
 					SDL_PauseAudioDevice(obj->playbackDeviceId, SDL_TRUE);
+					audioCycleStart = 0;
 					return;
 				}
 				nextCycle = obj->mCyclesQueue.front();
@@ -52,7 +57,7 @@ CAudio::CAudio(CBus *bus) {
 	desiredPlaybackSpec.freq = 44100;
 	desiredPlaybackSpec.format = AUDIO_S16;
 	desiredPlaybackSpec.channels = 1;
-	desiredPlaybackSpec.samples = 720;
+	desiredPlaybackSpec.samples = 720;	// 16.66 ms
 	desiredPlaybackSpec.userdata = this;
 	desiredPlaybackSpec.callback = playCallback;
 
@@ -67,6 +72,7 @@ CAudio::CAudio(CBus *bus) {
 
 /*************************************************************************************************/
 byte CAudio::read(word addr) {
+	const std::lock_guard<std::mutex> lock(myMutex);
 	mCyclesQueue.emplace(mCumulativeCycles + mCycles);
 	return 0xFF;
 }
@@ -79,6 +85,7 @@ void CAudio::write(word addr, byte data) {
 /*************************************************************************************************/
 void CAudio::update(unsigned long cycles) {
 	mCumulativeCycles += cycles;
+	const std::lock_guard<std::mutex> lock(myMutex);
 	if (SDL_GetAudioDeviceStatus(playbackDeviceId) == SDL_AUDIO_PAUSED) {
 		if (mCyclesQueue.size() > 0) {
 			unsigned long long first = mCyclesQueue.front();
@@ -86,12 +93,20 @@ void CAudio::update(unsigned long cycles) {
 			if (last - first > (16667 * 2)) {
 				SDL_PauseAudioDevice(playbackDeviceId, SDL_FALSE);
 			}
+			if (mCumulativeCycles - last > (16667 * 2)) {
+				mCyclesQueue.emplace(mCumulativeCycles);	// force update
+			}
 		}
 	}
 }
 
 /*************************************************************************************************/
 void CAudio::reset() {
+	const std::lock_guard<std::mutex> lock(myMutex);
 	mCumulativeCycles = 0;
+	SDL_PauseAudioDevice(playbackDeviceId, SDL_TRUE);
+	while (mCyclesQueue.size() > 0) {
+		mCyclesQueue.pop();
+	}
 }
 

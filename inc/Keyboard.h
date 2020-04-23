@@ -14,10 +14,9 @@ public:
 	void reset();
 	void processEvent(SDL_KeyboardEvent e);
 private:
+	byte mMatrix[8];
 	bool mCtrl = false;
 	bool mShift = false;
-	int mCol = 0;
-	int mRow = 0;
 	byte mKbOut = 0;
 	bool mKbOutCtrl = 0;
 };

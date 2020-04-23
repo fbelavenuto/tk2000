@@ -2,6 +2,23 @@
 
 #include "Keyboard.h"
 
+/*
+ *   TK2000 Keyboard Matrix
+ *   ======================
+ *
+ *                         KBIN
+ *             0   1   2   3   4   5
+ *         0       B   V   C   X   Z
+ *     K   1  SHFT G   F   D   S   A
+ *     B   2  " "  T   R   E   W   Q
+ *     O   3  LFT  5   4   3   2   1
+ *     U   4  RGT  6   7   8   9   0
+ *     T   5  DWN  Y   U   I   O   P
+ *         6  UP   H   J   K   L   :
+ *         7  RTN  N   M   ,   .   ?
+*/
+
+
 /*************************************************************************************************/
 CKeyboard::CKeyboard(CBus *bus) {
 	bus->addDevice(0xC000, 0xC01F, this);
@@ -10,16 +27,19 @@ CKeyboard::CKeyboard(CBus *bus) {
 
 /*************************************************************************************************/
 byte CKeyboard::read(word addr) {
-	if (mKbOutCtrl && mCtrl) {
-		return 1;
+	if (mKbOutCtrl) {
+		return (mCtrl ? 1 : 0);
 	} else if (mKbOut == 1 && mShift) {
 		return 1;
 	}
-
-	if (mKbOut == (byte)(1 << mRow)) {
-		return (byte)(1 << mCol);
+	byte result = 0;
+	for (int l = 0; l < 8; l++) {
+		if (mKbOut & (1 << l)) {
+			result |= mMatrix[l];
+		}
 	}
-	return 0;
+
+	return result;
 }
 
 /*************************************************************************************************/
@@ -41,8 +61,9 @@ void CKeyboard::update(unsigned long cycles) {
 
 /*************************************************************************************************/
 void CKeyboard::reset() {
-	mCol = 10;
-	mRow = 10;
+	for (int i = 0; i < 8; i++) {
+		mMatrix[i] = 0;
+	}
 	mCtrl = false;
 	mShift = false;
 }
@@ -53,357 +74,553 @@ void CKeyboard::processEvent(SDL_KeyboardEvent e) {
 	if (e.repeat) {
 		return;
 	}
-	if (e.state == SDL_RELEASED) {
-		mRow = 10;
-		mCol = 10;
-		mCtrl = false;
-		mShift = false;
-		return;
-	}
+	mShift = e.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT);
+	bool down = e.state == SDL_PRESSED;
+
 	switch (e.keysym.sym){
+
 	case SDLK_LCTRL:
 	case SDLK_RCTRL:
-		mCtrl = true;
+		mCtrl = down;
+		break;
 
 	case SDLK_a:
-		mRow = 1;
-		mCol = 5;
+		if (down) {
+			mMatrix[1] |= 1 << 5;
+		} else {
+			mMatrix[1] &= ~(1 << 5);
+		}
 		return;
 
 	case SDLK_b:
-		mRow = 0;
-		mCol = 1;
+		if (down) {
+			mMatrix[0] |= 1 << 1;
+		} else {
+			mMatrix[0] &= ~(1 << 1);
+		}
 		return;
 
 	case SDLK_c:
-		mRow = 0;
-		mCol = 3;
+		if (down) {
+			mMatrix[0] |= 1 << 3;
+		} else {
+			mMatrix[0] &= ~(1 << 3);
+		}
 		return;
 
 	case SDLK_d:
-		mRow = 1;
-		mCol = 3;
+		if (down) {
+			mMatrix[1] |= 1 << 3;
+		} else {
+			mMatrix[1] &= ~(1 << 3);
+		}
 		return;
 
 	case SDLK_e:
-		mRow = 2;
-		mCol = 3;
+		if (down) {
+			mMatrix[2] |= 1 << 3;
+		} else {
+			mMatrix[2] &= ~(1 << 3);
+		}
 		return;
 
 	case SDLK_f:
-		mRow = 1;
-		mCol = 2;
+		if (down) {
+			mMatrix[1] |= 1 << 2;
+		} else {
+			mMatrix[1] &= ~(1 << 2);
+		}
 		return;
 
 	case SDLK_g:
-		mRow = 1;
-		mCol = 1;
+		if (down) {
+			mMatrix[1] |= 1 << 1;
+		} else {
+			mMatrix[1] &= ~(1 << 1);
+		}
 		return;
 
 	case SDLK_h:
-		mRow = 6;
-		mCol = 1;
+		if (down) {
+			mMatrix[6] |= 1 << 1;
+		} else {
+			mMatrix[6] &= ~(1 << 1);
+		}
 		return;
 
 	case SDLK_i:
-		mRow = 5;
-		mCol = 3;
+		if (down) {
+			mMatrix[5] |= 1 << 3;
+		} else {
+			mMatrix[5] &= ~(1 << 3);
+		}
 		return;
 
 	case SDLK_j:
-		mRow = 6;
-		mCol = 2;
+		if (down) {
+			mMatrix[6] |= 1 << 2;
+		} else {
+			mMatrix[6] &= ~(1 << 2);
+		}
 		return;
 
 	case SDLK_k:
-		mRow = 6;
-		mCol = 3;
+		if (down) {
+			mMatrix[6] |= 1 << 3;
+		} else {
+			mMatrix[6] &= ~(1 << 3);
+		}
 		return;
 
 	case SDLK_l:
-		mRow = 6;
-		mCol = 4;
+		if (down) {
+			mMatrix[6] |= 1 << 4;
+		} else {
+			mMatrix[6] &= ~(1 << 4);
+		}
 		return;
 
 	case SDLK_m:
-		mRow = 7;
-		mCol = 2;
+		if (down) {
+			mMatrix[7] |= 1 << 2;
+		} else {
+			mMatrix[7] &= ~(1 << 2);
+		}
 		return;
 
 	case SDLK_n:
-		mRow = 7;
-		mCol = 1;
+		if (down) {
+			mMatrix[7] |= 1 << 1;
+		} else {
+			mMatrix[7] &= ~(1 << 1);
+		}
 		return;
 
 	case SDLK_o:
-		mRow = 5;
-		mCol = 4;
+		if (down) {
+			mMatrix[5] |= 1 << 4;
+		} else {
+			mMatrix[5] &= ~(1 << 4);
+		}
 		return;
 
 	case SDLK_p:
-		mRow = 5;
-		mCol = 5;
+		if (down) {
+			mMatrix[5] |= 1 << 5;
+		} else {
+			mMatrix[5] &= ~(1 << 5);
+		}
 		return;
 
 	case SDLK_q:
-		mRow = 2;
-		mCol = 5;
+		if (down) {
+			mMatrix[2] |= 1 << 5;
+		} else {
+			mMatrix[2] &= ~(1 << 5);
+		}
 		return;
 
 	case SDLK_r:
-		mRow = 2;
-		mCol = 2;
+		if (down) {
+			mMatrix[2] |= 1 << 2;
+		} else {
+			mMatrix[2] &= ~(1 << 2);
+		}
 		return;
 
 	case SDLK_s:
-		mRow = 1;
-		mCol = 4;
+		if (down) {
+			mMatrix[1] |= 1 << 4;
+		} else {
+			mMatrix[1] &= ~(1 << 4);
+		}
 		return;
 
 	case SDLK_t:
-		mRow = 2;
-		mCol = 1;
+		if (down) {
+			mMatrix[2] |= 1 << 1;
+		} else {
+			mMatrix[2] &= ~(1 << 1);
+		}
 		return;
 
 	case SDLK_u:
-		mRow = 5;
-		mCol = 2;
+		if (down) {
+			mMatrix[5] |= 1 << 2;
+		} else {
+			mMatrix[5] &= ~(1 << 2);
+		}
 		return;
 
 	case SDLK_v:
-		mRow = 0;
-		mCol = 2;
+		if (down) {
+			mMatrix[0] |= 1 << 2;
+		} else {
+			mMatrix[0] &= ~(1 << 2);
+		}
 		return;
 
 	case SDLK_w:
-		mRow = 2;
-		mCol = 4;
+		if (down) {
+			mMatrix[2] |= 1 << 4;
+		} else {
+			mMatrix[2] &= ~(1 << 4);
+		}
 		return;
 
 	case SDLK_x:
-		mRow = 0;
-		mCol = 4;
+		if (down) {
+			mMatrix[0] |= 1 << 4;
+		} else {
+			mMatrix[0] &= ~(1 << 4);
+		}
 		return;
 
 	case SDLK_y:
-		mRow = 1;
-		mCol = 3;
+		if (down) {
+			mMatrix[5] |= 1 << 1;
+		} else {
+			mMatrix[5] &= ~(1 << 1);
+		}
 		return;
 
 	case SDLK_z:
-		mRow = 5;
-		mCol = 1;
+		if (down) {
+			mMatrix[0] |= 1 << 5;
+		} else {
+			mMatrix[0] &= ~(1 << 5);
+		}
 		return;
 
 	case SDLK_1:
-		mRow = 3;
-		mCol = 5;
+	case SDLK_KP_1:
+		if (down) {
+			mMatrix[3] |= 1 << 5;
+		} else {
+			mMatrix[3] &= ~(1 << 5);
+		}
 		return;
 
 	case SDLK_2:
-		mRow = 3;
-		mCol = 4;
+	case SDLK_KP_2:
+		if (down) {
+			mMatrix[3] |= 1 << 4;
+		} else {
+			mMatrix[3] &= ~(1 << 4);
+		}
 		return;
 
 	case SDLK_3:
-		mRow = 3;
-		mCol = 3;
+	case SDLK_KP_3:
+		if (down) {
+			mMatrix[3] |= 1 << 3;
+		} else {
+			mMatrix[3] &= ~(1 << 3);
+		}
 		return;
 
 	case SDLK_4:
-		mRow = 3;
-		mCol = 2;
+	case SDLK_KP_4:
+		if (down) {
+			mMatrix[3] |= 1 << 2;
+		} else {
+			mMatrix[3] &= ~(1 << 2);
+		}
 		return;
 
 	case SDLK_5:
-		mRow = 3;
-		mCol = 1;
+	case SDLK_KP_5:
+		if (down) {
+			mMatrix[3] |= 1 << 1;
+		} else {
+			mMatrix[3] &= ~(1 << 1);
+		}
 		return;
 
 	case SDLK_6:
-		mRow = 4;
-		mCol = 1;
+	case SDLK_KP_6:
+		if (down) {
+			mMatrix[4] |= 1 << 1;
+		} else {
+			mMatrix[4] &= ~(1 << 1);
+		}
 		return;
 
 	case SDLK_7:
-		mRow = 4;
-		mCol = 2;
+	case SDLK_KP_7:
+		if (down) {
+			mMatrix[4] |= 1 << 2;
+		} else {
+			mMatrix[4] &= ~(1 << 2);
+		}
 		return;
 
 	case SDLK_8:
-		mRow = 4;
-		mCol = 3;
+	case SDLK_KP_8:
+		if (down) {
+			mMatrix[4] |= 1 << 3;
+		} else {
+			mMatrix[4] &= ~(1 << 3);
+		}
 		return;
 
 	case SDLK_9:
-		mRow = 4;
-		mCol = 4;
+	case SDLK_KP_9:
+		if (down) {
+			mMatrix[4] |= 1 << 4;
+		} else {
+			mMatrix[4] &= ~(1 << 4);
+		}
 		return;
 
 	case SDLK_0:
-		mRow = 4;
-		mCol = 5;
+	case SDLK_KP_0:
+		if (down) {
+			mMatrix[4] |= 1 << 5;
+		} else {
+			mMatrix[4] &= ~(1 << 5);
+		}
 		return;
 
 	case SDLK_COMMA:
-		mRow = 7;
-		mCol = 3;
+		if (down) {
+			mMatrix[7] |= 1 << 3;
+		} else {
+			mMatrix[7] &= ~(1 << 3);
+		}
 		return;
 
 	case SDLK_PERIOD:
-		mRow = 7;
-		mCol = 4;
+	case SDLK_KP_PERIOD:
+		if (down) {
+			mMatrix[7] |= 1 << 4;
+		} else {
+			mMatrix[7] &= ~(1 << 4);
+		}
 		return;
 
 	case SDLK_COLON:
-		mRow = 6;
-		mCol = 5;
+		if (down) {
+			mMatrix[6] |= 1 << 5;
+		} else {
+			mMatrix[6] &= ~(1 << 5);
+		}
 		return;
 
 	case SDLK_QUESTION:
-		mRow = 7;
-		mCol = 5;
+		if (down) {
+			mMatrix[7] |= 1 << 5;
+		} else {
+			mMatrix[7] &= ~(1 << 5);
+		}
 		return;
 
 	case SDLK_EXCLAIM:
-		mRow = 3;
-		mCol = 5;
+		if (down) {
+			mMatrix[3] |= 1 << 5;
+		} else {
+			mMatrix[3] &= ~(1 << 5);
+		}
+		mShift = true;
+		return;
+
+	case SDLK_SEMICOLON:
+		if (down) {
+			mMatrix[6] |= 1 << 5;
+		} else {
+			mMatrix[6] &= ~(1 << 5);
+		}
+		mShift = !mShift;
+		break;
+
+	case SDLK_QUOTE:
+		if (down) {
+			mMatrix[4] |= 1 << 2;
+		} else {
+			mMatrix[4] &= ~(1 << 2);
+		}
 		mShift = true;
 		return;
 
 	case SDLK_QUOTEDBL:
-		mRow = 3;
-		mCol = 4;
+		if (down) {
+			mMatrix[3] |= 1 << 4;
+		} else {
+			mMatrix[3] &= ~(1 << 4);
+		}
 		mShift = true;
 		return;
 
 	case SDLK_HASH:
-		mRow = 3;
-		mCol = 3;
+		if (down) {
+			mMatrix[3] |= 1 << 3;
+		} else {
+			mMatrix[3] &= ~(1 << 3);
+		}
 		mShift = true;
 		return;
 
 	case SDLK_DOLLAR:
+		if (down) {
+			mMatrix[3] |= 1 << 2;
+		} else {
+			mMatrix[3] &= ~(1 << 2);
+		}
 		mShift = true;
-		mRow = 3;
-		mCol = 2;
 		return;
 
 	case SDLK_PERCENT:
-		mRow = 3;
-		mCol = 1;
+		if (down) {
+			mMatrix[3] |= 1 << 1;
+		} else {
+			mMatrix[3] &= ~(1 << 1);
+		}
 		mShift = true;
 		return;
 
 	case SDLK_AMPERSAND:
-		mShift = true;
-		mRow = 4;
-		mCol = 1;
-		return;
-
-	case SDLK_SLASH:
-		mRow = 4;
-		mCol = 2;
+		if (down) {
+			mMatrix[4] |= 1 << 1;
+		} else {
+			mMatrix[4] &= ~(1 << 1);
+		}
 		mShift = true;
 		return;
 
 	case SDLK_LEFTPAREN:
+		if (down) {
+			mMatrix[4] |= 1 << 3;
+		} else {
+			mMatrix[4] &= ~(1 << 3);
+		}
 		mShift = true;
-		mRow = 4;
-		mCol = 3;
 		return;
 
 	case SDLK_RIGHTPAREN:
+		if (down) {
+			mMatrix[4] |= 1 << 4;
+		} else {
+			mMatrix[4] &= ~(1 << 4);
+		}
 		mShift = true;
-		mRow = 4;
-		mCol = 4;
+		return;
+
+	case SDLK_SLASH:
+	case SDLK_KP_DIVIDE:
+		if (down) {
+			mMatrix[7] |= 1 << 5;
+		} else {
+			mMatrix[7] &= ~(1 << 5);
+		}
+		mShift = !mShift;
 		return;
 
 	case SDLK_EQUALS:
+		if (down) {
+			mMatrix[5] |= 1 << 4;
+		} else {
+			mMatrix[5] &= ~(1 << 4);
+		}
 		mShift = true;
-		mRow = 5;
-		mCol = 4;
 		return;
 
 	case SDLK_MINUS:
+	case SDLK_KP_MINUS:
+		if (down) {
+			mMatrix[5] |= 1 << 3;
+		} else {
+			mMatrix[5] &= ~(1 << 3);
+		}
 		mShift = true;
-		mRow = 5;
-		mCol = 3;
 		return;
 
 	case SDLK_PLUS:
+	case SDLK_KP_PLUS:
+		if (down) {
+			mMatrix[5] |= 1 << 5;
+		} else {
+			mMatrix[5] &= ~(1 << 5);
+		}
 		mShift = true;
-		mRow = 5;
-		mCol = 5;
 		return;
 
 	case SDLK_ASTERISK:
+	case SDLK_KP_MULTIPLY:
+		if (down) {
+			mMatrix[4] |= 1 << 5;
+		} else {
+			mMatrix[4] &= ~(1 << 5);
+		}
 		mShift = true;
-		mRow = 4;
-		mCol = 5;
 		return;
 
 	case SDLK_CARET:
+		if (down) {
+			mMatrix[6] |= 1 << 3;
+		} else {
+			mMatrix[6] &= ~(1 << 3);
+		}
 		mShift = true;
-		mRow = 6;
-		mCol = 3;
 		return;
 
 	case SDLK_AT:
+		if (down) {
+			mMatrix[6] |= 1 << 4;
+		} else {
+			mMatrix[6] &= ~(1 << 4);
+		}
 		mShift = true;
-		mRow = 6;
-		mCol = 4;
 		return;
 
 	case SDLK_UP:
-		mRow = 6;
-		mCol = 0;
+		if (down) {
+			mMatrix[6] |= 1 << 0;
+		} else {
+			mMatrix[6] &= ~(1 << 0);
+		}
 		return;
 
 	case SDLK_DOWN:
-		mRow = 5;
-		mCol = 0;
+		if (down) {
+			mMatrix[5] |= 1 << 0;
+		} else {
+			mMatrix[5] &= ~(1 << 0);
+		}
 		return;
 
 	case SDLK_LEFT:
-		mRow = 3;
-		mCol = 0;
+	case SDLK_BACKSPACE:
+		if (down) {
+			mMatrix[3] |= 1 << 0;
+		} else {
+			mMatrix[3] &= ~(1 << 0);
+		}
 		return;
 
 	case SDLK_RIGHT:
-		mRow = 4;
-		mCol = 0;
+		if (down) {
+			mMatrix[4] |= 1 << 0;
+		} else {
+			mMatrix[4] &= ~(1 << 0);
+		}
 		return;
 
 	case SDLK_RETURN:
-		mRow = 7;
-		mCol = 0;
-		return;
-
-	case SDLK_BACKSPACE:
-		mRow = 3;
-		mCol = 0;
+	case SDLK_KP_ENTER:
+		if (down) {
+			mMatrix[7] |= 1 << 0;
+		} else {
+			mMatrix[7] &= ~(1 << 0);
+		}
 		return;
 
 	case SDLK_SPACE:
-		mRow = 2;
-		mCol = 0;
+		if (down) {
+			mMatrix[2] |= 1 << 0;
+		} else {
+			mMatrix[2] &= ~(1 << 0);
+		}
 		return;
 	}
 }
 
-/*
- *   Keyboard Matrix
- *   ===============
- *
- *                         KBIN
- *             0   1   2   3   4   5   6   7
- *         0       B   V   C   X   Z
- *     K   1       G   F   D   S   A
- *     B   2  " "  T   R   E   W   Q
- *     O   3  LFT  5   4   3   2   1
- *     U   4  RGT  6   7   8   9   0
- *     T   5  DWN  Y   U   I   O   P
- *         6  UP   H   J   K   L   :
- *         7  RTN  N   M   ,   .   ?
-*/
