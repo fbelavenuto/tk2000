@@ -10,6 +10,7 @@
 #include "Ram.h"
 #include "Rom.h"
 #include "Audio.h"
+#include "Keyboard.h"
 
 /*************************************************************************************************/
 class CMachine {
@@ -27,4 +28,5 @@ private:
 	std::unique_ptr<CRam> mRam = nullptr;
 	std::unique_ptr<CRom> mRom = nullptr;
 	std::unique_ptr<CAudio> mAudio = nullptr;
+	std::unique_ptr<CKeyboard> mKeyboard = nullptr;
 };

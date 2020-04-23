@@ -20,7 +20,7 @@ int main(int argc, char* args[]) {
 	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_INFO);
 
 	//Initialize SDL
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL could not initialize! SDL Error: %s\n", SDL_GetError());
 		return EXIT_FAILURE;
 	}

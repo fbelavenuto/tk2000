@@ -1,5 +1,6 @@
 
 #include <cassert>
+#include <cstdio>
 #include "Cpu6502.h"
 
 /* Constants */
@@ -32,7 +33,9 @@ unsigned long CCpu6502::execute(unsigned long cycles) {
 
 	mRelativeCycles = 0;
 	do {
-		//fprintf(stderr, "PC = %04X\n", mRegPC.value);
+		/*if (mCumulativeCycles > 3000000) {
+			fprintf(stderr, "PC = %04X\n", mRegPC.value);
+		}*/
 		const byte opcode = readByte(this->mRegPC.value++);
 		switch (opcode) {
 
@@ -731,6 +734,7 @@ unsigned long CCpu6502::execute(unsigned long cycles) {
 			operand = readByte(operandAddr);
 			setC((operand & 0x01) != 0);
 			operand >>= 1;
+			setNZ(operand);
 			writeByte(operandAddr, operand);
 			accCycles(6);
 			break;
@@ -740,6 +744,7 @@ unsigned long CCpu6502::execute(unsigned long cycles) {
 			operand = readByte(operandAddr);
 			setC((operand & 0x01) != 0);
 			operand >>= 1;
+			setNZ(operand);
 			writeByte(operandAddr, operand);
 			accCycles(5);
 			break;
@@ -756,6 +761,7 @@ unsigned long CCpu6502::execute(unsigned long cycles) {
 			operand = readByte(operandAddr);
 			setC((operand & 0x01) != 0);
 			operand >>= 1;
+			setNZ(operand);
 			writeByte(operandAddr, operand);
 			accCycles(6);
 			break;
@@ -765,6 +771,7 @@ unsigned long CCpu6502::execute(unsigned long cycles) {
 			operand = readByte(operandAddr);
 			setC((operand & 0x01) != 0);
 			operand >>= 1;
+			setNZ(operand);
 			writeByte(operandAddr, operand);
 			accCycles(7);
 			break;
@@ -859,7 +866,7 @@ unsigned long CCpu6502::execute(unsigned long cycles) {
 			operandAddr = eazp();
 			result = readByte(operandAddr) << 1;
 			operand = (result & 0xFF) | (getC() ? 1 : 0);
-			setC((operand & 0x100) != 0);
+			setC((result & 0x100) != 0);
 			setNZ(operand);
 			writeByte(operandAddr, operand);
 			accCycles(5);
@@ -868,7 +875,7 @@ unsigned long CCpu6502::execute(unsigned long cycles) {
 		case 0x2A: // ROL acc
 			result = mRegA << 1;
 			mRegA = (result & 0xFF) | (getC() ? 1 : 0);
-			setC((operand & 0x100) != 0);
+			setC((result & 0x100) != 0);
 			setNZ(mRegA);
 			accCycles(2);
 			break;
@@ -877,7 +884,7 @@ unsigned long CCpu6502::execute(unsigned long cycles) {
 			operandAddr = eazpx();
 			result = readByte(operandAddr) << 1;
 			operand = (result & 0xFF) | (getC() ? 1 : 0);
-			setC((operand & 0x100) != 0);
+			setC((result & 0x100) != 0);
 			setNZ(operand);
 			writeByte(operandAddr, operand);
 			accCycles(6);
@@ -887,7 +894,7 @@ unsigned long CCpu6502::execute(unsigned long cycles) {
 			operandAddr = eaabsx();
 			result = readByte(operandAddr) << 1;
 			operand = (result & 0xFF) | (getC() ? 1 : 0);
-			setC((operand & 0x100) != 0);
+			setC((result & 0x100) != 0);
 			setNZ(operand);
 			writeByte(operandAddr, operand);
 			accCycles(7);
@@ -896,7 +903,7 @@ unsigned long CCpu6502::execute(unsigned long cycles) {
 		case 0x6E: // ROR abs
 			operandAddr = eaabs();
 			result = readByte(operandAddr);
-			operand = ((result >> 1) & 0xFF) | (getC() ? 0x80 : 0);
+			operand = (result >> 1) | (getC() ? 0x80 : 0);
 			setC((result & 0x01) != 0);
 			setNZ(operand);
 			writeByte(operandAddr, operand);
@@ -906,7 +913,7 @@ unsigned long CCpu6502::execute(unsigned long cycles) {
 		case 0x66: // ROR zp
 			operandAddr = eazp();
 			result = readByte(operandAddr);
-			operand = ((result >> 1) & 0xFF) | (getC() ? 0x80 : 0);
+			operand = (result >> 1) | (getC() ? 0x80 : 0);
 			setC((result & 0x01) != 0);
 			setNZ(operand);
 			writeByte(operandAddr, operand);
@@ -915,7 +922,7 @@ unsigned long CCpu6502::execute(unsigned long cycles) {
 
 		case 0x6A: // ROR acc
 			result = mRegA;
-			mRegA = ((result >> 1) & 0xFF) | (getC() ? 0x80 : 0);
+			mRegA = (result >> 1) | (getC() ? 0x80 : 0);
 			setC((result & 0x01) != 0);
 			setNZ(mRegA);
 			accCycles(2);
@@ -924,7 +931,7 @@ unsigned long CCpu6502::execute(unsigned long cycles) {
 		case 0x76: // ROR zp,X
 			operandAddr = eazpx();
 			result = readByte(operandAddr);
-			operand = ((result >> 1) & 0xFF) | (getC() ? 0x80 : 0);
+			operand = (result >> 1) | (getC() ? 0x80 : 0);
 			setC((result & 0x01) != 0);
 			setNZ(operand);
 			writeByte(operandAddr, operand);
@@ -934,7 +941,7 @@ unsigned long CCpu6502::execute(unsigned long cycles) {
 		case 0x7E: // ROR abs,X
 			operandAddr = eaabsx();
 			result = readByte(operandAddr);
-			operand = ((result >> 1) & 0xFF) | (getC() ? 0x80 : 0);
+			operand = (result >> 1) | (getC() ? 0x80 : 0);
 			setC((result & 0x01) != 0);
 			setNZ(operand);
 			writeByte(operandAddr, operand);
@@ -1215,4 +1222,5 @@ void CCpu6502::reset() {
 	mRegFlags = 0x20;
 	mRegS = 0xFF;
 	mRegPC.value = readWord(0xFFFC);
+	mCumulativeCycles = 0;
 }

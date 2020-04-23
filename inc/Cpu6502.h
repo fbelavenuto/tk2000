@@ -211,7 +211,7 @@ private:
 	}
 
 	inline word eazpindy() {
-		return readWord(eaimm() + mRegY);
+		return readWord(eaimm()) + mRegY;
 	}
 
 	// Misc. macros

@@ -43,11 +43,16 @@ bool CMachine::init() {
 	mRam = std::make_unique<CRam>(mBus.get());
 	mRom = std::make_unique<CRom>(mBus.get());
 	mCpu = std::make_unique<CCpu6502>(mBus.get());
-	mCpu->reset();
 	mVideo = std::make_unique<CVideo>(mRenderer, mBus.get(), mRam.get());
-	mVideo->reset();
 	mAudio = std::make_unique<CAudio>(mBus.get());
+	mKeyboard = std::make_unique<CKeyboard>(mBus.get());
+
+	mCpu->reset();
+	mRam->reset();
+	mRom->reset();
+	mVideo->reset();
 	mAudio->reset();
+	mKeyboard->reset();
 
 	Uint32 format = SDL_GetWindowPixelFormat(mWindow);
 	//fprintf(stderr, "Format: %d\n", format);
@@ -71,6 +76,19 @@ bool CMachine::loop() {
 			//User requests quit
 			if (e.type == SDL_QUIT) {
 				quit = true;
+			} else if (e.type == SDL_KEYDOWN) {
+				if (e.key.keysym.sym == SDLK_F5) {
+					mCpu->reset();
+					mRam->reset();
+					mRom->reset();
+					mVideo->reset();
+					mAudio->reset();
+					mKeyboard->reset();
+				} else {
+					mKeyboard->processEvent(e.key);
+				}
+			} else if (e.type == SDL_KEYUP) {
+				mKeyboard->processEvent(e.key);
 			}
 		}
 		// 16.66ms = 17059 cycles

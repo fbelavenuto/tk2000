@@ -149,6 +149,7 @@
     <ClCompile Include="..\src\Audio.cpp" />
     <ClCompile Include="..\src\Bus.cpp" />
     <ClCompile Include="..\src\Cpu6502.cpp" />
+    <ClCompile Include="..\src\Keyboard.cpp" />
     <ClCompile Include="..\src\Machine.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\Ram.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="..\inc\Cpu6502.h" />
     <ClInclude Include="..\inc\DataTypes.h" />
     <ClInclude Include="..\inc\Device.h" />
+    <ClInclude Include="..\inc\Keyboard.h" />
     <ClInclude Include="..\inc\Machine.h" />
     <ClInclude Include="..\inc\Ram.h" />
     <ClInclude Include="..\inc\Rom.h" />
