@@ -21,17 +21,10 @@
 
 /* Typedefs */
 typedef union {
-#if ENDIAN_ORDER==LITTLE_ENDIAN
 	struct {
 		byte low;
 		byte hi;
 	};
-#else
-	struct {
-		byte hi;
-		byte low;
-	};
-#endif
 	word value;
 } TReg16bit;
 

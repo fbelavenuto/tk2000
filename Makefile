@@ -33,7 +33,7 @@ MD = mkdir
 CXX = $(CROSS_COMPILE)g++
 LINKER = $(CXX)
 
-CXXFLAGS = -std=c++17 -Wall -g -Iinc -fpermissive
+CXXFLAGS = -std=c++17 -g -Iinc -fpermissive
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 LDFLAGS =
 LIBS = -lpthread -lSDL2 -lSDL2main
