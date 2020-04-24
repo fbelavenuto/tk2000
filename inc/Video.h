@@ -13,7 +13,7 @@ public:
 	~CVideo();
 	byte read(word addr);
 	void write(word addr, byte data);
-	void update(unsigned long cycles) {}
+	void update() {}
 	void reset();
 	void render();
 private:
@@ -32,7 +32,7 @@ private:
 	CRam *mRam = nullptr;
 	bool mVideoMono = false;
 	bool mSecondPage = false;
-	sRGB mFrameBuffer[videoWidth * videoHeight];
+	sRGB mFrameBuffer[VIDEOWIDTH * VIDEOHEIGHT];
 	void drawMono();
 	void drawColor();
 };

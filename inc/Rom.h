@@ -12,7 +12,7 @@ public:
 	~CRom();
 	byte read(word addr);
 	void write(word addr, byte data);
-	void update(unsigned long cycles) {}
+	void update() {}
 	void reset() {}
 private:
 };

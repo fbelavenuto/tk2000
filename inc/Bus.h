@@ -7,10 +7,10 @@
 class CBus {
 public:
 	CBus();
-	byte readByte(unsigned long cycles, word addr);
-	void writeByte(unsigned long cycles, word addr, byte data);
-	word readWord(unsigned long cycles, word addr);
-	void writeWord(unsigned long cycles, word addr, word data);
+	byte readByte(word addr);
+	void writeByte(word addr, byte data);
+	word readWord(word addr);
+	void writeWord(word addr, word data);
 	void addDevice(word addr, CDevice *dev);
 	void addDevice(word addrStart, word addrEnd, CDevice *dev);
 private:

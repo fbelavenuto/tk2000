@@ -42,6 +42,9 @@
     <ClCompile Include="..\src\Keyboard.cpp">
       <Filter>Arquivos de Origem</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Tape.cpp">
+      <Filter>Arquivos de Origem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\inc\Machine.h">
@@ -76,9 +79,6 @@
     </ClInclude>
     <ClInclude Include="..\inc\Tape.h">
       <Filter>Arquivos de Cabeçalho</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Tape.cpp">
-      <Filter>Arquivos de Origem</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

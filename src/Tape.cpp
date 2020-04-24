@@ -14,26 +14,14 @@ struct SCh {
 	byte ID[2];
 	word size;
 };
-
 #pragma pack(pop)
 
 /*************************************************************************************************/
-CTape::CTape(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
-	assert(bus != nullptr);
-	assert(mCpu != nullptr);
-
-	bus->addDevice(0xC010, 0xC01F, this);
-	bus->addDevice(0xC020, 0xC02F, this);
-	bus->addDevice(0xC052, 0xC053, this);
-	bus->addDevice(0xC056, 0xC057, this);
-
-	FILE *fileTape = fopen("../data/Hero.ct2", "rb");
+void CTape::loadCt2(const char *fileName) {
+	FILE *fileTape = fopen(fileName, "rb");
 	if (!fileTape) {
 		return;
 	}
-	/*fseek(fileTape, 0, SEEK_END);
-	size_t fileSize = ftell(fileTape);
-	fseek(fileTape, 0, SEEK_SET);*/
 	size_t pos = 0;
 	dword magic;
 	fread(&magic, 1, sizeof(dword), fileTape);
@@ -41,8 +29,11 @@ CTape::CTape(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
 		return;
 	}
 	SCh ch;
-	while (!feof(fileTape)) {
+	while (true) {
 		fread(&ch, 1, sizeof(SCh), fileTape);
+		if (feof(fileTape)) {
+			break;
+		}
 		if (memcmp(ch.ID, CT2_CAB_A, sizeof(word)) == 0) {
 			for (int i = 0; i < 500; i++) {
 				mQueueCycles.emplace(500);
@@ -79,6 +70,17 @@ CTape::CTape(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
 }
 
 /*************************************************************************************************/
+CTape::CTape(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
+	assert(bus != nullptr);
+	assert(mCpu != nullptr);
+
+	bus->addDevice(0xC010, 0xC01F, this);
+	bus->addDevice(0xC020, 0xC02F, this);
+	bus->addDevice(0xC052, 0xC053, this);
+	bus->addDevice(0xC056, 0xC057, this);
+}
+
+/*************************************************************************************************/
 byte CTape::read(word addr) {
 	if ((addr & 0xF0) == 0x10) {
 		if (!mPlay) {
@@ -99,6 +101,7 @@ byte CTape::read(word addr) {
 			} else {
 				mStartCycle = 0;
 				mPlay = false;
+				mCpu->setFullSpeed(false);
 			}
 		}
 	}
@@ -111,7 +114,7 @@ void CTape::write(word addr, byte data) {
 }
 
 /*************************************************************************************************/
-void CTape::update(unsigned long cycles) {
+void CTape::update() {
 
 }
 
@@ -123,5 +126,12 @@ void CTape::reset() {
 
 /*************************************************************************************************/
 void CTape::play() {
+	loadCt2("../data/Corrida.ct2");
 	mPlay = true;
+	mCpu->setFullSpeed(true);
+}
+
+/*************************************************************************************************/
+bool CTape::getPlayState() {
+	return mPlay;
 }

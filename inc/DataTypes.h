@@ -2,8 +2,8 @@
 #pragma once
 
 /* Constants */
-const int videoWidth = 280;
-const int videoHeight = 192;
+const int VIDEOWIDTH = 280;
+const int VIDEOHEIGHT = 192;
 
 /* Typedefs */
 typedef unsigned char byte;

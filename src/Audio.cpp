@@ -17,7 +17,7 @@ void CAudio::playCallback(void *userdata, uint8_t *stream, int len) {
 	size_t bufferLen = len / sizeof(uint16_t);
 	memset(stream, 0, len);
 	const std::lock_guard<std::mutex> lock(obj->myMutex);
-	if (obj->mCyclesQueue.size() < 1) {
+	if (obj->mCyclesQueue.size() == 0) {
 		SDL_PauseAudioDevice(obj->mPlayDevId, SDL_TRUE);
 		return;
 	}
@@ -60,10 +60,10 @@ CAudio::CAudio(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
 	SDL_AudioSpec desiredPlaybackSpec;
 
 	SDL_zero(desiredPlaybackSpec);
-	desiredPlaybackSpec.freq = 44100;
+	desiredPlaybackSpec.freq = SAMPLERATE;
 	desiredPlaybackSpec.format = AUDIO_S16SYS;
 	desiredPlaybackSpec.channels = 1;
-	desiredPlaybackSpec.samples = 735;	// 16.66 ms
+	desiredPlaybackSpec.samples = (uint16_t)(SAMPLERATE / (1 / 0.1));	// Samples for 100ms
 	desiredPlaybackSpec.userdata = this;
 	desiredPlaybackSpec.callback = playCallback;
 
@@ -78,7 +78,7 @@ CAudio::CAudio(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
 
 /*************************************************************************************************/
 byte CAudio::read(word addr) {
-	if (mCpu->getClock() == 0) {
+	if (mCpu->getFullSpeed()) {
 		return 0xFF;
 	}
 	const std::lock_guard<std::mutex> lock(myMutex);
@@ -92,8 +92,8 @@ void CAudio::write(word addr, byte data) {
 }
 
 /*************************************************************************************************/
-void CAudio::update(unsigned long cycles) {
-	if (mCpu->getClock() == 0) {
+void CAudio::update() {
+	if (mCpu->getFullSpeed()) {
 		return;
 	}
 	const std::lock_guard<std::mutex> lock(myMutex);
@@ -101,10 +101,11 @@ void CAudio::update(unsigned long cycles) {
 		if (mCyclesQueue.size() > 0) {
 			unsigned long long first = mCyclesQueue.front();
 			unsigned long long last = mCyclesQueue.back();
-			if (last - first > (16667 * 2)) {
+			// 100 ms
+			if (last - first > (102354)) {
 				SDL_PauseAudioDevice(mPlayDevId, SDL_FALSE);
 			}
-			if (mCpu->getCumulativeCycles() - last > (16667 * 2)) {
+			if (mCpu->getCumulativeCycles() - last > (102354)) {
 				mCyclesQueue.emplace(mCpu->getCumulativeCycles());	// force update
 			}
 		}

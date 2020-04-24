@@ -10,7 +10,7 @@ public:
 	CKeyboard(CBus *bus);
 	byte read(word addr);
 	void write(word addr, byte data);
-	void update(unsigned long cycles);
+	void update();
 	void reset();
 	void processEvent(SDL_KeyboardEvent e);
 private:

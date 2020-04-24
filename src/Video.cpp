@@ -8,13 +8,13 @@
 void CVideo::drawMono() {
 	word memAddr = (mSecondPage ? 0xA000 : 0x2000);
 	byte *pnt;
-	for (int y = 0; y < videoHeight; y++) {
+	for (int y = 0; y < VIDEOHEIGHT; y++) {
 		int offset = ((y & 7) << 10) + ((y & 0x38) << 4) + (y >> 6) * 40;
 		pnt = mRam->mRam + memAddr + offset;
-		for (int x = 0; x < videoWidth; x += 7) {
+		for (int x = 0; x < VIDEOWIDTH; x += 7) {
 			byte v = *pnt++;
 			for (int b = 0; b < 7; b++) {
-				const int index = y * videoWidth + x + b;
+				const int index = y * VIDEOWIDTH + x + b;
 				if (v & (1 << b)) {
 					mFrameBuffer[index].red = 255;
 					mFrameBuffer[index].green = 255;
@@ -34,12 +34,12 @@ void CVideo::drawMono() {
 void CVideo::drawColor() {
 	word memAddr = (mSecondPage ? 0xA000 : 0x2000);
 	byte *ptr;
-	bool pixels[videoWidth][videoHeight];
-	bool colorMod[videoWidth / 7][videoHeight];
-	for (int y = 0; y < videoHeight; y++) {
+	bool pixels[VIDEOWIDTH][VIDEOHEIGHT];
+	bool colorMod[VIDEOWIDTH / 7][VIDEOHEIGHT];
+	for (int y = 0; y < VIDEOHEIGHT; y++) {
 		int offset = ((y & 7) << 10) + ((y & 0x38) << 4) + (y >> 6) * 40;
 		ptr = mRam->mRam + memAddr + offset;
-		for (int x = 0; x < videoWidth; x += 7) {
+		for (int x = 0; x < VIDEOWIDTH; x += 7) {
 			byte v = *ptr++;
 			colorMod[x/7][y] = (v & 0x80) != 0;
 			for (int b = 0; b < 7; b++) {
@@ -48,12 +48,12 @@ void CVideo::drawColor() {
 		}
 	}
 
-	for (int y = 0; y < videoHeight; y++) {
-		for (int x = 0; x < videoWidth; x += 2) {
-			const int index = y * videoWidth + x;
+	for (int y = 0; y < VIDEOHEIGHT; y++) {
+		for (int x = 0; x < VIDEOWIDTH; x += 2) {
+			const int index = y * VIDEOWIDTH + x;
 			const bool cm = colorMod[x / 7][y];
 			byte actual = pixels[x][y];
-			byte next = (x == videoWidth - 1) ? 0 : pixels[x+1][y];
+			byte next = (x == VIDEOWIDTH - 1) ? 0 : pixels[x+1][y];
 			switch (actual << 1 | next) {
 			case 0:	// 00 black
 				mFrameBuffer[index].red = 0;
@@ -104,7 +104,7 @@ CVideo::CVideo(SDL_Renderer *renderer, CBus *bus, CRam *ram) :
 	assert(mRenderer != nullptr);
 	assert(bus != nullptr);
 	assert(mRam != nullptr);
-	mScreen = SDL_CreateTexture(mRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, videoWidth, videoHeight);
+	mScreen = SDL_CreateTexture(mRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, VIDEOWIDTH, VIDEOHEIGHT);
 	if (mScreen == 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error creating screen renderer! SDL Error: %s\n", SDL_GetError());
 		throw "Error creating screen renderer";
@@ -125,9 +125,10 @@ void CVideo::render() {
 	sRGB *ptr;
 	int pitch;
 	SDL_LockTexture(mScreen, nullptr, (void **)&ptr, &pitch);
-	memcpy(ptr, &mFrameBuffer, videoHeight * pitch);
+	memcpy(ptr, &mFrameBuffer, VIDEOHEIGHT * pitch);
 	SDL_UnlockTexture(mScreen);
-	SDL_RenderCopy(mRenderer, mScreen, NULL, NULL);
+	SDL_Rect r{ 0, 0, VIDEOWIDTH * 2, VIDEOHEIGHT * 2 };
+	SDL_RenderCopy(mRenderer, mScreen, NULL, &r);
 }
 
 /*****************************************************************************/

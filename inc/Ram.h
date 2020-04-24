@@ -13,7 +13,7 @@ public:
 	byte read(word addr);
 	void write(word addr, byte data);
 	void reset() {}
-	void update(unsigned long cycles) {}
+	void update() {}
 	friend class CVideo;
 private:
 	byte mRam[0x10000];

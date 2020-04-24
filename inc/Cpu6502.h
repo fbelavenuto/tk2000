@@ -21,29 +21,31 @@ public:
 	unsigned long long getCumulativeCycles();
 	void setClock(unsigned long clock);
 	unsigned long getClock();
-	unsigned long execute(unsigned long cycles);
+	void setFullSpeed(bool val);
+	bool getFullSpeed();
+	void executeOpcode();
 	void reset();
 private:
 	CBus *mBus = nullptr;
 	unsigned long mClock;
+	bool mFullSpeed = false;
 	unsigned long long mCumulativeCycles = 0;
-	unsigned long mRelativeCycles;
 	int interruptFlags = 0;
 	
 	inline byte readByte(word address) {
-		return mBus->readByte(mRelativeCycles, address);
+		return mBus->readByte(address);
 	}
 	
 	inline word readWord(word address) {
-		return mBus->readWord(mRelativeCycles, address);
+		return mBus->readWord(address);
 	}
 
 	inline void writeByte(word address, byte value) {
-		mBus->writeByte(mRelativeCycles, address, value);
+		mBus->writeByte(address, value);
 	}
 
 	inline void writeWord(word address, word value) {
-		mBus->writeWord(mRelativeCycles, address, value);
+		mBus->writeWord(address, value);
 	}
 
 	// Flags Interrupts
@@ -221,7 +223,6 @@ private:
 	// Misc. macros
 	inline void accCycles(int cycles) {
 		mCumulativeCycles += cycles;
-		mRelativeCycles += cycles;
 	}
 	inline void branch(char operand) {
 		mRegPC.value += operand;

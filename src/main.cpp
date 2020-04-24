@@ -17,7 +17,7 @@ auto theMachine = std::make_unique<CMachine>();
 int main(int argc, char* args[]) {
 
 	// Initialize log
-	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_INFO);
+	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_WARN);
 
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {

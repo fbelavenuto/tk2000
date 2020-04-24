@@ -55,7 +55,7 @@ void CKeyboard::write(word addr, byte data) {
 }
 
 /*************************************************************************************************/
-void CKeyboard::update(unsigned long cycles) {
+void CKeyboard::update() {
 
 }
 

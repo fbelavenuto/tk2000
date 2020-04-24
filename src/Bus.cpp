@@ -14,7 +14,7 @@ CBus::CBus() {
 }
 
 /*************************************************************************************************/
-byte CBus::readByte(unsigned long cycles, word addr) {
+byte CBus::readByte(word addr) {
 	if (mDevices[addr] == nullptr) {
 		return 0xFF;
 	}
@@ -26,21 +26,21 @@ byte CBus::readByte(unsigned long cycles, word addr) {
 }
 
 /*************************************************************************************************/
-void CBus::writeByte(unsigned long cycles, word addr, byte data) {
+void CBus::writeByte(word addr, byte data) {
 	if (mDevices[addr] != nullptr) {
 		mDevices[addr]->write(addr, data);
 	}
 }
 
 /*************************************************************************************************/
-word CBus::readWord(unsigned long cycles, word addr) {
-	return readByte(cycles, addr) | readByte(cycles, addr + 1) << 8;
+word CBus::readWord(word addr) {
+	return readByte(addr) | readByte(addr + 1) << 8;
 }
 
 /*************************************************************************************************/
-void CBus::writeWord(unsigned long cycles, word addr, word data) {
-	writeByte(cycles, addr, data & 0xFF);
-	writeByte(cycles, addr + 1, data >> 8);
+void CBus::writeWord(word addr, word data) {
+	writeByte(addr, data & 0xFF);
+	writeByte(addr + 1, data >> 8);
 }
 
 /*************************************************************************************************/

@@ -23,7 +23,7 @@ CMachine::~CMachine() {
 /*************************************************************************************************/
 bool CMachine::init() {
 	mWindow = SDL_CreateWindow("TK2000 Emulator", SDL_WINDOWPOS_UNDEFINED,
-		SDL_WINDOWPOS_UNDEFINED, videoWidth * 2, videoHeight * 2, SDL_WINDOW_SHOWN);
+		SDL_WINDOWPOS_UNDEFINED, VIDEOWIDTH * 2, VIDEOHEIGHT * 2 + 20, SDL_WINDOW_SHOWN);
 
 	if (!mWindow) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, 
@@ -38,7 +38,7 @@ bool CMachine::init() {
 
 		return false;
 	}
-	SDL_RenderSetLogicalSize(mRenderer, videoWidth, videoHeight);
+	//SDL_RenderSetLogicalSize(mRenderer, VIDEOWIDTH, VIDEOHEIGHT);
 	mBus = std::make_unique<CBus>();
 	mCpu = std::make_unique<CCpu6502>(mBus.get());
 	mCpu->setClock(1022727);
@@ -64,12 +64,37 @@ bool CMachine::init() {
 
 /*************************************************************************************************/
 bool CMachine::loop() {
-	std::chrono::time_point<std::chrono::high_resolution_clock> previous, now;
+	std::chrono::time_point<std::chrono::high_resolution_clock> previous;
 	//Main loop flag
 	bool quit = false;
+	constexpr const int msToRun = 100000;
+	constexpr const int frameRateMs = 1000000 / 60;
 
 	//Event handler
 	SDL_Event e;
+
+	// CPU Thread
+	std::thread cpuThread([&]() {
+		std::chrono::time_point<std::chrono::high_resolution_clock> previous, now;
+		while (!quit) {
+			previous = std::chrono::high_resolution_clock::now();
+			int cyclesToRun = (int)((double)msToRun / (1000000.0 / mCpu->getClock()));	// 100ms
+			unsigned long long actualCycles = mCpu->getCumulativeCycles();
+			while ((mCpu->getCumulativeCycles() - actualCycles) < cyclesToRun) {
+				mCpu->executeOpcode();
+			}
+			// Do updates
+			mAudio->update();
+			mVideo->update();
+			mTape->update();
+			now = std::chrono::high_resolution_clock::now();
+			auto timePast = now - previous;
+			if (!mCpu->getFullSpeed() && timePast < std::chrono::microseconds(msToRun)) {
+				std::this_thread::sleep_for(std::chrono::microseconds(msToRun) - timePast);
+			}
+		}
+	});
+
 
 	//While application is running
 	while (!quit) {
@@ -90,10 +115,6 @@ bool CMachine::loop() {
 					mTape->reset();
 				} else if (e.key.keysym.sym == SDLK_F6) {
 					mTape->play();
-				} else if (e.key.keysym.sym == SDLK_F7) {
-					mCpu->setClock(0);
-				} else if (e.key.keysym.sym == SDLK_F8) {
-					mCpu->setClock(1022727);
 				} else {
 					mKeyboard->processEvent(e.key);
 				}
@@ -101,33 +122,22 @@ bool CMachine::loop() {
 				mKeyboard->processEvent(e.key);
 			}
 		}
-		bool fullSpeed = mCpu->getClock() == 0;
-		unsigned long cycles;
-		if (fullSpeed) {
-			cycles = mCpu->execute(100000);
-		} else {
-			// 16.66ms = 17059 cycles when 1MHz
-			int cyclesToExecute = (int)(mCpu->getClock() / 59.95);
-			cycles = mCpu->execute(cyclesToExecute);
-		}
-		// Do updates
-		mAudio->update(cycles);
 
 		// Render screen
 		SDL_SetRenderTarget(mRenderer, nullptr);
-		SDL_SetRenderDrawColor(mRenderer, 255, 255, 255, 0);
+		SDL_SetRenderDrawColor(mRenderer, 128, 128, 128, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(mRenderer);
 		mVideo->render();
 		SDL_RenderPresent(mRenderer);
-		now = std::chrono::high_resolution_clock::now();
-		auto timePast = now - previous;
+		auto timePast = std::chrono::high_resolution_clock::now() - previous;
 		//fprintf(stderr, "Wasted %f mS\n", wasted.count());
-		if (!fullSpeed && timePast < std::chrono::microseconds(16666)) {
-			std::this_thread::sleep_for(std::chrono::microseconds(16666) - timePast);
+		if (timePast < std::chrono::microseconds(frameRateMs)) {
+			std::this_thread::sleep_for(std::chrono::microseconds(frameRateMs) - timePast);
 		/*} else {
 			auto wasted = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(timePast);
-			fprintf(stderr, "Wasted %f mS\n", wasted.count());*/
+			fprintf(stderr, "Vide wasted %f mS\n", wasted.count());*/
 		}
 	}
+	cpuThread.join();
 	return true;
 }
