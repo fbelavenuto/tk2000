@@ -85,7 +85,8 @@ CAudio::CAudio(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
 	//Open playback device
 	mPlayDevId = SDL_OpenAudioDevice(NULL, SDL_FALSE, &desiredPlaybackSpec, &receivedPlaybackSpec, 0);
 	if (mPlayDevId == 0) {
-		throw "Error initializing audio";
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error creating screen renderer! SDL Error: %s\n", SDL_GetError());
+		throw 0;
 	}
 
 	bus->addDevice(0xC030, 0xC03F, this);

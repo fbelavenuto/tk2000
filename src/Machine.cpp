@@ -38,7 +38,7 @@ CMachine::~CMachine() {
 /*************************************************************************************************/
 bool CMachine::init() {
 	mWindow = SDL_CreateWindow("TK2000 Emulator", SDL_WINDOWPOS_UNDEFINED,
-		SDL_WINDOWPOS_UNDEFINED, VIDEOWIDTH * 2, VIDEOHEIGHT * 2 + 20, SDL_WINDOW_SHOWN);
+		SDL_WINDOWPOS_UNDEFINED, VIDEOWIDTH * 2, VIDEOHEIGHT * 2, SDL_WINDOW_SHOWN);
 
 	if (!mWindow) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, 
@@ -53,15 +53,20 @@ bool CMachine::init() {
 
 		return false;
 	}
-	mBus = std::make_unique<CBus>();
-	mCpu = std::make_unique<CCpu6502>(mBus.get());
-	mCpu->setClock(1022727);
-	mRam = std::make_unique<CRam>(mBus.get());
-	mRom = std::make_unique<CRom>(mBus.get());
-	mVideo = std::make_unique<CVideo>(mRenderer, mBus.get(), mRam.get());
-	mAudio = std::make_unique<CAudio>(mBus.get(), mCpu.get());
-	mKeyboard = std::make_unique<CKeyboard>(mBus.get());
-	mTape = std::make_unique<CTape>(mBus.get(), mCpu.get());
+	try {
+		mBus = std::make_unique<CBus>();
+		mCpu = std::make_unique<CCpu6502>(mBus.get());
+		mCpu->setClock(1022727);
+		mRam = std::make_unique<CRam>(mBus.get());
+		mRom = std::make_unique<CRom>(mBus.get());
+		mVideo = std::make_unique<CVideo>(mRenderer, mBus.get(), mRam.get());
+		mAudio = std::make_unique<CAudio>(mBus.get(), mCpu.get());
+		mKeyboard = std::make_unique<CKeyboard>(mBus.get());
+		mTape = std::make_unique<CTape>(mBus.get(), mCpu.get());
+	} catch (...) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error creating machine, exiting...\n");
+		exit(EXIT_FAILURE);
+	}
 
 	mCpu->reset();
 	mRam->reset();

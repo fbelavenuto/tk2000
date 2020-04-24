@@ -16,14 +16,25 @@
 
 #pragma once
 
+/* Defines */
+
+#define LITTLE_ENDIAN 0x41424344UL 
+#define BIG_ENDIAN    0x44434241UL
+#define PDP_ENDIAN    0x42414443UL
+#define ENDIAN_ORDER  ('ABCD') 
+
 /* Constants */
+
 const int VIDEOWIDTH = 280;
 const int VIDEOHEIGHT = 192;
 
 /* Typedefs */
+
 typedef unsigned char byte;
 typedef unsigned short word;
 typedef unsigned int dword;
+
+/* Asserts */
 
 static_assert(alignof(byte) == 1, "byte not have 1 byte");
 static_assert(alignof(word) == 2, "byte not have 2 bytes");

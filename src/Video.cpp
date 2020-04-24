@@ -16,6 +16,7 @@
 
 #include <cstring>
 #include <cassert>
+#include <exception>
 #include "Video.h"
 
 
@@ -145,7 +146,7 @@ CVideo::CVideo(SDL_Renderer *renderer, CBus *bus, CRam *ram) :
 	mScreen = SDL_CreateTexture(mRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, VIDEOWIDTH, VIDEOHEIGHT * 2);
 	if (mScreen == 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error creating screen renderer! SDL Error: %s\n", SDL_GetError());
-		throw "Error creating screen renderer";
+		throw 0;
 	}
 	bus->addDevice(0xC050, 0xC051, this);
 	bus->addDevice(0xC054, 0xC055, this);
