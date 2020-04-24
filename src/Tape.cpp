@@ -39,7 +39,7 @@ void CTape::loadCt2(const char *fileName) {
 	}
 	dword magic;
 	fread(&magic, 1, sizeof(dword), fileTape);
-	if (memcmp(&magic, CT2_MAGIC, sizeof(CT2_MAGIC) != 0)) {
+	if (memcmp(&magic, CT2_MAGIC, sizeof(CT2_MAGIC)) != 0) {
 		return;
 	}
 	SCh ch;
