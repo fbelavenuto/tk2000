@@ -15,4 +15,5 @@ public:
 	void addDevice(word addrStart, word addrEnd, CDevice *dev);
 private:
 	CDevice *mDevices[0x10000];
+	CDevice *mDevices2[0x10000];
 };

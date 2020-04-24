@@ -166,7 +166,9 @@
     <ClInclude Include="..\inc\Machine.h" />
     <ClInclude Include="..\inc\Ram.h" />
     <ClInclude Include="..\inc\Rom.h" />
+    <ClInclude Include="..\inc\Tape.h" />
     <ClInclude Include="..\inc\Video.h" />
+    <ClCompile Include="..\src\Tape.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -27,6 +27,21 @@ CCpu6502::~CCpu6502() {
 }
 
 /*************************************************************************************************/
+unsigned long long CCpu6502::getCumulativeCycles() {
+	return mCumulativeCycles;
+}
+
+/*************************************************************************************************/
+void CCpu6502::setClock(unsigned long clock) {
+	mClock = clock;
+}
+
+/*************************************************************************************************/
+unsigned long CCpu6502::getClock() {
+	return mClock;
+}
+
+/*************************************************************************************************/
 unsigned long CCpu6502::execute(unsigned long cycles) {
 	byte operand;
 	word result, operandAddr;

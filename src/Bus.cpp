@@ -2,12 +2,14 @@
 
 #include <cassert>
 #include "Bus.h"
+#include "Cpu6502.h"
 
 
 /*************************************************************************************************/
 CBus::CBus() {
 	for (int i = 0; i < 0x10000; i++) {
 		mDevices[i] = nullptr;
+		mDevices2[i] = nullptr;
 	}
 }
 
@@ -16,14 +18,16 @@ byte CBus::readByte(unsigned long cycles, word addr) {
 	if (mDevices[addr] == nullptr) {
 		return 0xFF;
 	}
-	mDevices[addr]->setCycles(cycles);
-	return mDevices[addr]->read(addr);
+	byte result = mDevices[addr]->read(addr);
+	if (mDevices2[addr] != nullptr) {
+		result |= mDevices2[addr]->read(addr);
+	}
+	return result;
 }
 
 /*************************************************************************************************/
 void CBus::writeByte(unsigned long cycles, word addr, byte data) {
 	if (mDevices[addr] != nullptr) {
-		mDevices[addr]->setCycles(cycles);
 		mDevices[addr]->write(addr, data);
 	}
 }
@@ -41,13 +45,21 @@ void CBus::writeWord(unsigned long cycles, word addr, word data) {
 
 /*************************************************************************************************/
 void CBus::addDevice(word addr, CDevice *dev) {
-	mDevices[addr] = dev;
+	if (mDevices[addr] == nullptr) {
+		mDevices[addr] = dev;
+	} else {
+		mDevices2[addr] = dev;
+	}
 }
 
 /*************************************************************************************************/
 void CBus::addDevice(word addrStart, word addrEnd, CDevice *dev) {
 	assert(addrEnd >= addrStart);
 	for (int i = addrStart; i <= addrEnd; i++) {
-		mDevices[i] = dev;
+		if (mDevices[i] == nullptr) {
+			mDevices[i] = dev;
+		} else {
+			mDevices2[i] = dev;
+		}
 	}
 }

@@ -18,10 +18,14 @@ class CCpu6502 {
 public:
 	CCpu6502(CBus *bus);
 	~CCpu6502();
+	unsigned long long getCumulativeCycles();
+	void setClock(unsigned long clock);
+	unsigned long getClock();
 	unsigned long execute(unsigned long cycles);
 	void reset();
 private:
 	CBus *mBus = nullptr;
+	unsigned long mClock;
 	unsigned long long mCumulativeCycles = 0;
 	unsigned long mRelativeCycles;
 	int interruptFlags = 0;
