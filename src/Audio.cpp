@@ -78,17 +78,36 @@ int finishWaveFile(size_t dataSize) {
 #endif
 
 /*************************************************************************************************/
+void CAudio::playCallback(void *userdata, uint8_t * stream, int len) {
+	static short soundPos = -32767;
+	auto obj = reinterpret_cast<CAudio *>(userdata);
+	int bufferLen = len / sizeof(uint16_t);
+	int16_t *buffer = (int16_t *)stream;
+	memset(stream, 0, len);
+	const std::lock_guard<std::mutex> lock(obj->myMutex);
+	int distance = (obj->mWritePos >= obj->mReadPos) ? obj->mWritePos - obj->mReadPos : BUFFERSIZE - obj->mReadPos + obj->mWritePos;
+	if (distance > bufferLen) {
+		memcpy(stream, &obj->mBuffer[obj->mReadPos], len);
+		obj->mReadPos += bufferLen;
+		if (obj->mReadPos >= BUFFERSIZE) { 
+			obj->mReadPos -= BUFFERSIZE;
+		}
+	}
+}
+
+/*************************************************************************************************/
 void CAudio::updateAudio() {
 	unsigned long long duration = (mCumulativeCycles + mCycles) - mLastCycle;
 	mLastCycle = mCumulativeCycles + mCycles;
 	int amplitude = (mSoundFlag ? 32767 : -32767);
 	int samples = (dword)((double)duration / mClocksPerSample);
+	const std::lock_guard<std::mutex> lock(myMutex);
 	for (int i = 0; i < samples; i++) {
 		mBuffer[mWritePos++] = amplitude;
 		if (mWritePos == BUFFERSIZE) {
 			mWritePos = 0;
 		}
-		assert(mWritePos != mReadPos);
+		//assert(mWritePos != mReadPos);
 	}
 }
 
@@ -104,9 +123,9 @@ CAudio::CAudio(CBus *bus) {
 	desiredPlaybackSpec.freq = SAMPLERATE;
 	desiredPlaybackSpec.format = AUDIO_S16SYS;
 	desiredPlaybackSpec.channels = 1;
-	desiredPlaybackSpec.samples = SAMPLERATE;
-	desiredPlaybackSpec.userdata = nullptr;
-	desiredPlaybackSpec.callback = nullptr;
+	desiredPlaybackSpec.samples = 735;
+	desiredPlaybackSpec.userdata = this;
+	desiredPlaybackSpec.callback = playCallback;
 
 	//Open playback device
 	mPlayDevId = SDL_OpenAudioDevice(NULL, SDL_FALSE, &desiredPlaybackSpec, &receivedPlaybackSpec, 0);
@@ -137,24 +156,12 @@ void CAudio::update(unsigned long cycles) {
 	mCycles = 0;
 	mCumulativeCycles += cycles;
 	updateAudio();
-	int distance = (mWritePos > mReadPos) ? mWritePos - mReadPos : BUFFERSIZE - mReadPos + mWritePos;
-	if (distance > 1024) {
-		SDL_QueueAudio(mPlayDevId, &mBuffer[mReadPos], distance * 2);
-		mReadPos += distance;
-		if (mReadPos >= BUFFERSIZE) {
-			mReadPos -= BUFFERSIZE;
-		}
-	}
 }
 
 /*************************************************************************************************/
 void CAudio::reset() {
 	mCumulativeCycles = 0;
 	//SDL_PauseAudioDevice(mPlayDevId, SDL_TRUE);
-	for (int i = 0; i < sizeof(mBuffer) / sizeof(int16_t); i++) {
-		mBuffer[i] = 0;
-	}
 	SDL_PauseAudioDevice(mPlayDevId, SDL_FALSE);
-	memset((int16_t *)mBuffer, 0, sizeof(mBuffer));
 }
 

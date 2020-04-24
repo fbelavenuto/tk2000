@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <mutex>
 #include <SDL2/SDL.h>
 #include "DataTypes.h"
 #include "Device.h"
@@ -14,8 +15,9 @@ public:
 	void update(unsigned long cycles);
 	void reset();
 private:
-	static const int BUFFERSIZE = 1024 * 3;
-	static const int SAMPLERATE = 61362;
+	static const int BUFFERSIZE = 735 * 2;
+	static const int SAMPLERATE = 44100;
+	std::mutex myMutex;
 	const double mClocksPerSample = 1022727.0 / (double)SAMPLERATE;	// 6502 clock / sampleRate
 	unsigned long long mCumulativeCycles = 0;
 	unsigned long long mLastCycle = 0;
@@ -25,4 +27,5 @@ private:
 	int mWritePos = 0;
 	SDL_AudioDeviceID mPlayDevId;
 	void updateAudio();
+	static void playCallback(void *userdata, uint8_t * stream, int len);
 };
