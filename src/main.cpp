@@ -27,7 +27,7 @@ CMachine *theMachine = new CMachine();
 
 
 /*****************************************************************************/
-int main(int argc, char* args[]) {
+int main(int argc, char* argv[]) {
 
 	// Initialize log
 	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_WARN);
@@ -43,6 +43,11 @@ int main(int argc, char* args[]) {
 	}
 
 	theMachine->init();
+	if (argc == 2) {
+		if (!theMachine->setTapeFile(argv[1])) {
+			printf("Error inserting %s tape file\n", argv[1]);
+		}
+	}
 	theMachine->loop();
 	delete theMachine;
 	return 0;

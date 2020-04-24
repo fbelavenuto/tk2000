@@ -30,7 +30,9 @@ public:
 	void update();
 	void reset();
 	void play();
+	void stop();
 	bool getPlayState();
+	bool insertCt2(const char *fileName);
 private:
 	CCpu6502 *mCpu = nullptr;
 	unsigned long long mStartCycle = 0;
@@ -38,5 +40,4 @@ private:
 	word mCyclesNeeded;
 	byte mCasOut = 0;
 	bool mPlay = false;
-	void loadCt2(const char *fileName);
 };

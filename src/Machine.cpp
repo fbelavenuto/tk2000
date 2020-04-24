@@ -16,6 +16,7 @@
 
 #include <chrono>
 #include <thread>
+#include <cassert>
 #include "Machine.h"
 
 /* Constants */
@@ -81,7 +82,15 @@ bool CMachine::init() {
 }
 
 /*************************************************************************************************/
+bool CMachine::setTapeFile(const char *filename) {
+	assert(mTape != nullptr);
+	return mTape->insertCt2(filename);
+}
+
+/*************************************************************************************************/
 bool CMachine::loop() {
+	assert(mCpu != nullptr);
+
 	std::chrono::time_point<std::chrono::high_resolution_clock> previous;
 	//Main loop flag
 	bool quit = false;
@@ -155,7 +164,7 @@ bool CMachine::loop() {
 			std::this_thread::sleep_for(std::chrono::microseconds(frameRateMs) - timePast);
 		/*} else {
 			auto wasted = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(timePast);
-			fprintf(stderr, "Vide wasted %f mS\n", wasted.count());*/
+			fprintf(stderr, "Video wasted %f mS\n", wasted.count());*/
 		}
 	}
 	cpuThread.join();

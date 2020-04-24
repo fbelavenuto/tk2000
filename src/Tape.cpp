@@ -32,58 +32,6 @@ struct SCh {
 #pragma pack(pop)
 
 /*************************************************************************************************/
-void CTape::loadCt2(const char *fileName) {
-	FILE *fileTape = fopen(fileName, "rb");
-	if (!fileTape) {
-		return;
-	}
-	dword magic;
-	fread(&magic, 1, sizeof(dword), fileTape);
-	if (memcmp(&magic, CT2_MAGIC, sizeof(CT2_MAGIC)) != 0) {
-		return;
-	}
-	SCh ch;
-	while (true) {
-		fread(&ch, 1, sizeof(SCh), fileTape);
-		if (feof(fileTape)) {
-			break;
-		}
-		if (memcmp(ch.ID, CT2_CAB_A, sizeof(word)) == 0) {
-			for (int i = 0; i < 500; i++) {
-				mQueueCycles.emplace(500);
-				mQueueCycles.emplace(500);
-			}
-		} else if (memcmp(ch.ID, CT2_CAB_B, sizeof(word)) == 0) {
-			mQueueCycles.emplace(464);
-			mQueueCycles.emplace(679);
-			for (int i = 0; i < 32; i++) {
-				mQueueCycles.emplace(679);
-				mQueueCycles.emplace(679);
-			}
-			mQueueCycles.emplace(199);
-			mQueueCycles.emplace(250);
-		} else if (memcmp(ch.ID, CT2_DATA, sizeof(word)) == 0) {
-			byte b;
-			for (int i = 0; i < ch.size; i++) {
-				fread(&b, 1, 1, fileTape);
-				for (int j = 0; j < 8; j++) {
-					int mask = 1 << (7 - j);
-					if ((mask & b) == mask) {
-						// 1
-						mQueueCycles.emplace(500);
-						mQueueCycles.emplace(500);
-					} else {
-						// 0
-						mQueueCycles.emplace(250);
-						mQueueCycles.emplace(250);
-					}
-				}
-			}
-		}
-	}
-}
-
-/*************************************************************************************************/
 CTape::CTape(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
 	assert(bus != nullptr);
 	assert(mCpu != nullptr);
@@ -145,12 +93,76 @@ void CTape::reset() {
 
 /*************************************************************************************************/
 void CTape::play() {
-	//loadCt2("../data/PITFALL II 2.ct2");
 	mPlay = true;
 	mCpu->setFullSpeed(true);
+}
+
+/*************************************************************************************************/
+void CTape::stop() {
+	if (mPlay) {
+		mPlay = false;
+	}
+	while (mQueueCycles.size()) {
+		mQueueCycles.pop();
+	}
 }
 
 /*************************************************************************************************/
 bool CTape::getPlayState() {
 	return mPlay;
 }
+
+/*************************************************************************************************/
+bool CTape::insertCt2(const char *fileName) {
+	FILE *fileTape = fopen(fileName, "rb");
+	if (!fileTape) {
+		return false;
+	}
+	dword magic;
+	fread(&magic, 1, sizeof(dword), fileTape);
+	if (memcmp(&magic, CT2_MAGIC, sizeof(dword)) != 0) {
+		return false;
+	}
+	stop();
+	SCh ch;
+	while (true) {
+		fread(&ch, 1, sizeof(SCh), fileTape);
+		if (feof(fileTape)) {
+			break;
+		}
+		if (memcmp(ch.ID, CT2_CAB_A, sizeof(word)) == 0) {
+			for (int i = 0; i < 500; i++) {
+				mQueueCycles.emplace(500);
+				mQueueCycles.emplace(500);
+			}
+		} else if (memcmp(ch.ID, CT2_CAB_B, sizeof(word)) == 0) {
+			mQueueCycles.emplace(464);
+			mQueueCycles.emplace(679);
+			for (int i = 0; i < 32; i++) {
+				mQueueCycles.emplace(679);
+				mQueueCycles.emplace(679);
+			}
+			mQueueCycles.emplace(199);
+			mQueueCycles.emplace(250);
+		} else if (memcmp(ch.ID, CT2_DATA, sizeof(word)) == 0) {
+			byte b;
+			for (int i = 0; i < ch.size; i++) {
+				fread(&b, 1, 1, fileTape);
+				for (int j = 0; j < 8; j++) {
+					int mask = 1 << (7 - j);
+					if ((mask & b) == mask) {
+						// 1
+						mQueueCycles.emplace(500);
+						mQueueCycles.emplace(500);
+					} else {
+						// 0
+						mQueueCycles.emplace(250);
+						mQueueCycles.emplace(250);
+					}
+				}
+			}
+		}
+	}
+	return true;
+}
+

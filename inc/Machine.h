@@ -34,6 +34,7 @@ public:
 	CMachine();
 	~CMachine();
 	bool init();
+	bool setTapeFile(const char *filename);
 	bool loop();
 private:
 	SDL_Window *mWindow = nullptr;
