@@ -260,3 +260,5 @@ paket-files/
 __pycache__/
 *.pyc
 /data/TELA_PITFALL2.bin
+/data
+/tk2000

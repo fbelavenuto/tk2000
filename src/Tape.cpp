@@ -1,3 +1,18 @@
+// Copyright (c) 2020 FBLabs
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include <cassert>
 #include <cstdio>
@@ -22,7 +37,6 @@ void CTape::loadCt2(const char *fileName) {
 	if (!fileTape) {
 		return;
 	}
-	size_t pos = 0;
 	dword magic;
 	fread(&magic, 1, sizeof(dword), fileTape);
 	if (memcmp(&magic, CT2_MAGIC, sizeof(CT2_MAGIC) != 0)) {
@@ -126,7 +140,7 @@ void CTape::reset() {
 
 /*************************************************************************************************/
 void CTape::play() {
-	loadCt2("../data/Corrida.ct2");
+	//loadCt2("../data/PITFALL II 2.ct2");
 	mPlay = true;
 	mCpu->setFullSpeed(true);
 }

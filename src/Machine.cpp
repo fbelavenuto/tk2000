@@ -1,3 +1,18 @@
+// Copyright (c) 2020 FBLabs
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include <chrono>
 #include <thread>
@@ -38,7 +53,6 @@ bool CMachine::init() {
 
 		return false;
 	}
-	//SDL_RenderSetLogicalSize(mRenderer, VIDEOWIDTH, VIDEOHEIGHT);
 	mBus = std::make_unique<CBus>();
 	mCpu = std::make_unique<CCpu6502>(mBus.get());
 	mCpu->setClock(1022727);
@@ -57,8 +71,6 @@ bool CMachine::init() {
 	mKeyboard->reset();
 	mTape->reset();
 
-	Uint32 format = SDL_GetWindowPixelFormat(mWindow);
-	//fprintf(stderr, "Format: %d\n", format);
 	return true;
 }
 
@@ -78,7 +90,7 @@ bool CMachine::loop() {
 		std::chrono::time_point<std::chrono::high_resolution_clock> previous, now;
 		while (!quit) {
 			previous = std::chrono::high_resolution_clock::now();
-			int cyclesToRun = (int)((double)msToRun / (1000000.0 / mCpu->getClock()));	// 100ms
+			unsigned long cyclesToRun = (unsigned long)((double)msToRun / (1000000.0 / mCpu->getClock()));	// 100ms
 			unsigned long long actualCycles = mCpu->getCumulativeCycles();
 			while ((mCpu->getCumulativeCycles() - actualCycles) < cyclesToRun) {
 				mCpu->executeOpcode();
@@ -115,6 +127,8 @@ bool CMachine::loop() {
 					mTape->reset();
 				} else if (e.key.keysym.sym == SDLK_F6) {
 					mTape->play();
+				} else if (e.key.keysym.sym == SDLK_F7) {
+					mVideo->setScanline(!mVideo->getScanline());
 				} else {
 					mKeyboard->processEvent(e.key);
 				}

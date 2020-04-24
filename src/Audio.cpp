@@ -1,3 +1,18 @@
+// Copyright (c) 2020 FBLabs
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include <cstdio>
 #include <cstring>
@@ -14,7 +29,7 @@ void CAudio::playCallback(void *userdata, uint8_t *stream, int len) {
 	static short soundPos = -32767;
 	auto obj = reinterpret_cast<CAudio *>(userdata);
 	int16_t *buffer = (int16_t *)stream;
-	size_t bufferLen = len / sizeof(uint16_t);
+	int bufferLen = len / sizeof(uint16_t);
 	memset(stream, 0, len);
 	const std::lock_guard<std::mutex> lock(obj->myMutex);
 	if (obj->mCyclesQueue.size() == 0) {
