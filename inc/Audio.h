@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include <queue>
 #include <SDL2/SDL.h>
 #include "DataTypes.h"
 #include "Device.h"
@@ -14,8 +13,16 @@ public:
 	void write(word addr, byte data);
 	void update(unsigned long cycles);
 	void reset();
-	std::queue<unsigned long long> mCyclesQueue;
-	SDL_AudioDeviceID playbackDeviceId;
 private:
+	static const int BUFFERSIZE = 1024 * 3;
+	static const int SAMPLERATE = 61362;
+	const double mClocksPerSample = 1022727.0 / (double)SAMPLERATE;	// 6502 clock / sampleRate
 	unsigned long long mCumulativeCycles = 0;
+	unsigned long long mLastCycle = 0;
+	bool mSoundFlag = false;
+	int16_t mBuffer[BUFFERSIZE];
+	int mReadPos = 0;
+	int mWritePos = 0;
+	SDL_AudioDeviceID mPlayDevId;
+	void updateAudio();
 };
