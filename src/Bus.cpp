@@ -15,6 +15,7 @@
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include <cassert>
+//#include <cstdio>
 #include "Bus.h"
 #include "Cpu6502.h"
 
@@ -25,6 +26,11 @@ CBus::CBus() {
 		mDevices[i] = nullptr;
 		mDevices2[i] = nullptr;
 	}
+}
+
+/*************************************************************************************************/
+CBus::~CBus() {
+	//fprintf(stderr, "CBus destructor\n");
 }
 
 /*************************************************************************************************/

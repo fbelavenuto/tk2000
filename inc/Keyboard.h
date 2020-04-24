@@ -23,6 +23,7 @@
 class CKeyboard : public CDevice {
 public:
 	CKeyboard(CBus *bus);
+	~CKeyboard();
 	byte read(word addr);
 	void write(word addr, byte data);
 	void update();

@@ -46,11 +46,11 @@ private:
 	bool mFullSpeed = false;
 	unsigned long long mCumulativeCycles = 0;
 	int interruptFlags = 0;
-	
+
 	inline byte readByte(word address) {
 		return mBus->readByte(address);
 	}
-	
+
 	inline word readWord(word address) {
 		return mBus->readWord(address);
 	}
@@ -79,7 +79,7 @@ private:
 	const byte FLAG_B = (1 << 4);
 	const byte FLAG_V = (1 << 6);
 	const byte FLAG_N = (1 << 7);
-	
+
 	// Registers
 	byte mRegA = 0;
 	byte mRegX = 0;
@@ -87,17 +87,17 @@ private:
 	byte mRegS = 0xFF;
 	byte mRegFlags = 0x20;	// On an 6502, bit 5 always must be 1
 	TReg16bit mRegPC{ 0 };
-	
+
 	// Stack macros
-	
+
 	inline byte stackPop() {
 		return readByte(0x100 | ++mRegS);
 	}
-	
+
 	inline void stackPush(byte v) {
 		writeByte(0x100 | mRegS--, v);
 	}
-	
+
 	// Flags utils
 
 	inline void setN(bool b) {
@@ -107,7 +107,7 @@ private:
 			mRegFlags &= ~FLAG_N;
 		}
 	}
-	
+
 	inline void setV(bool b) {
 		if (b) {
 			mRegFlags |= FLAG_V;
@@ -115,7 +115,7 @@ private:
 			mRegFlags &= ~FLAG_V;
 		}
 	}
-	
+
 	inline void setB(bool b) {
 		if (b) {
 			mRegFlags |= FLAG_B;
@@ -239,8 +239,8 @@ private:
 	inline void accCycles(int cycles) {
 		mCumulativeCycles += cycles;
 	}
-	inline void branch(char operand) {
-		mRegPC.value += operand;
+	inline void branch(signed char operand) {
+		mRegPC.value += (operand);
 		accCycles(1);
 	}
 };

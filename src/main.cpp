@@ -23,7 +23,7 @@
 
 
 /* Variables */
-auto theMachine = std::make_unique<CMachine>();
+CMachine *theMachine = new CMachine();
 
 
 /*****************************************************************************/
@@ -44,6 +44,6 @@ int main(int argc, char* args[]) {
 
 	theMachine->init();
 	theMachine->loop();
-
+	delete theMachine;
 	return 0;
 }

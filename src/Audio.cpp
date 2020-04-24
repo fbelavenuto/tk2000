@@ -93,6 +93,12 @@ CAudio::CAudio(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
 }
 
 /*************************************************************************************************/
+CAudio::~CAudio() {
+	SDL_CloseAudioDevice(mPlayDevId);
+	//printf("CAudio destructor\n");
+}
+
+/*************************************************************************************************/
 byte CAudio::read(word addr) {
 	if (mCpu->getFullSpeed()) {
 		return 0xFF;

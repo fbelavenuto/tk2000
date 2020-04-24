@@ -22,6 +22,7 @@
 class CBus {
 public:
 	CBus();
+	~CBus();
 	byte readByte(word addr);
 	void writeByte(word addr, byte data);
 	word readWord(word addr);

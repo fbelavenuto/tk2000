@@ -155,7 +155,8 @@ CVideo::CVideo(SDL_Renderer *renderer, CBus *bus, CRam *ram) :
 
 /*****************************************************************************/
 CVideo::~CVideo() {
-
+	SDL_DestroyTexture(mScreen);
+	//fprintf(stderr, "CVideo destructor\n");
 }
 
 /*****************************************************************************/

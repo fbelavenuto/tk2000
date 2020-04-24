@@ -40,6 +40,11 @@ CKeyboard::CKeyboard(CBus *bus) {
 }
 
 /*************************************************************************************************/
+CKeyboard::~CKeyboard() {
+	//fprintf(stderr, "CKeyboard destructor\n");
+}
+
+/*************************************************************************************************/
 byte CKeyboard::read(word addr) {
 	if (mKbOutCtrl) {
 		return (mCtrl ? 1 : 0);

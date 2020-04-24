@@ -33,6 +33,7 @@ CMachine::~CMachine() {
 	SDL_DestroyWindow(mWindow);
 	//Quit SDL subsystems
 	SDL_Quit();
+	//fprintf(stderr, "CMachine destructor\n");
 }
 
 /*************************************************************************************************/

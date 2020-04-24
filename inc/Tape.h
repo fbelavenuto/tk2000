@@ -24,6 +24,7 @@
 class CTape : public CDevice {
 public:
 	CTape(CBus *bus, CCpu6502 *cpu);
+	~CTape();
 	byte read(word addr);
 	void write(word addr, byte data);
 	void update();

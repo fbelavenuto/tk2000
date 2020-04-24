@@ -27,6 +27,7 @@
 class CAudio : public CDevice {
 public:
 	CAudio(CBus *bus, CCpu6502 *cpu);
+	~CAudio();
 	byte read(word addr);
 	void write(word addr, byte data);
 	void update();

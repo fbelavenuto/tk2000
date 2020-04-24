@@ -15,7 +15,7 @@
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include <cassert>
-#include <cstdio>
+//#include <cstdio>
 #include <chrono>
 #include <thread>
 #include "Cpu6502.h"
@@ -40,7 +40,7 @@ CCpu6502::CCpu6502(CBus *bus) : mBus(bus) {
 
 /*************************************************************************************************/
 CCpu6502::~CCpu6502() {
-
+	//fprintf(stderr, "CCpu6502 destructor\n");
 }
 
 /*************************************************************************************************/
@@ -84,9 +84,7 @@ void CCpu6502::executeOpcode() {
 	byte operand;
 	word result, operandAddr;
 
-	/*if (mCumulativeCycles > 3000000) {
-		fprintf(stderr, "PC = %04X\n", mRegPC.value);
-	}*/
+	//fprintf(stderr, "PC = %04X\n", mRegPC.value);
 	const byte opcode = readByte(this->mRegPC.value++);
 	switch (opcode) {
 
@@ -359,6 +357,7 @@ void CCpu6502::executeOpcode() {
 		break;
 
 	case 0x00: // BRK
+assert(0);
 		stackPush(mRegPC.hi); // save PCH, PCL & P
 		stackPush(mRegPC.low);
 		setN(getN());
