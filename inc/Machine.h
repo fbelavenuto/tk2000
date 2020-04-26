@@ -47,4 +47,5 @@ private:
 	std::unique_ptr<CAudio> mAudio = nullptr;
 	std::unique_ptr<CKeyboard> mKeyboard = nullptr;
 	std::unique_ptr<CTape> mTape = nullptr;
+	bool mFullScreen = false;
 };

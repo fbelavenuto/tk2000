@@ -14,6 +14,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+//#include <cstdio>
 #include "Keyboard.h"
 
 /*
@@ -46,18 +47,15 @@ CKeyboard::~CKeyboard() {
 
 /*************************************************************************************************/
 byte CKeyboard::read(word addr) {
-	if (mKbOutCtrl) {
-		return (mCtrl ? 1 : 0);
-	} else if (mKbOut == 1 && mShift) {
+	if (mKbOut == 1 && mShift) {
 		return 1;
 	}
-	byte result = 0;
+	byte result = ((mKbOutCtrl && mCtrl) ? 1 : 0);
 	for (int l = 0; l < 8; l++) {
 		if (mKbOut & (1 << l)) {
 			result |= mMatrix[l];
 		}
 	}
-
 	return result;
 }
 
@@ -70,7 +68,9 @@ void CKeyboard::write(word addr, byte data) {
 		mKbOutCtrl = true;
 		return;
 	}
-	mKbOut = data;
+	if ((addr & 0xF0) == 0x00) {
+		mKbOut = data;
+	}
 }
 
 /*************************************************************************************************/

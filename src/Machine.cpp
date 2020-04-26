@@ -122,7 +122,9 @@ bool CMachine::loop() {
 		}
 	});
 
-
+	/*if (mFullScreen) {
+		SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN);
+	}*/
 	//While application is running
 	while (!quit) {
 		previous = std::chrono::high_resolution_clock::now();
@@ -144,6 +146,14 @@ bool CMachine::loop() {
 					mTape->play();
 				} else if (e.key.keysym.sym == SDLK_F7) {
 					mVideo->setScanline(!mVideo->getScanline());
+				} else if (e.key.keysym.sym == SDLK_F8) {
+					mFullScreen = !mFullScreen;
+					/*if (mFullScreen) {
+						SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN);
+					} else {
+						SDL_SetWindowFullscreen(mWindow, 0);
+					}*/
+
 				} else {
 					mKeyboard->processEvent(e.key);
 				}
@@ -154,7 +164,7 @@ bool CMachine::loop() {
 
 		// Render screen
 		SDL_SetRenderTarget(mRenderer, nullptr);
-		SDL_SetRenderDrawColor(mRenderer, 128, 128, 128, SDL_ALPHA_OPAQUE);
+		SDL_SetRenderDrawColor(mRenderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(mRenderer);
 		mVideo->render();
 		SDL_RenderPresent(mRenderer);
