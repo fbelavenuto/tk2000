@@ -7,7 +7,7 @@
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSe->  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
@@ -42,11 +42,11 @@ CKeyboard::CKeyboard(CBus *bus) {
 
 /*************************************************************************************************/
 CKeyboard::~CKeyboard() {
-	//fprintf(stderr, "CKeyboard destructor\n");
+
 }
 
 /*************************************************************************************************/
-byte CKeyboard::read(word addr) {
+byte CKeyboard::read(const word addr) {
 	if (mKbOut == 1 && mShift) {
 		return 1;
 	}
@@ -60,7 +60,7 @@ byte CKeyboard::read(word addr) {
 }
 
 /*************************************************************************************************/
-void CKeyboard::write(word addr, byte data) {
+void CKeyboard::write(const word addr, byte data) {
 	if (addr == 0xC05E) {
 		mKbOutCtrl = false;
 		return;
@@ -88,15 +88,15 @@ void CKeyboard::reset() {
 }
 
 /*************************************************************************************************/
-void CKeyboard::processEvent(SDL_KeyboardEvent e) {
+void CKeyboard::processEvent(SDL_KeyboardEvent *e) {
 
-	if (e.repeat) {
+	if (e->repeat) {
 		return;
 	}
-	mShift = e.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT);
-	bool down = e.state == SDL_PRESSED;
+	mShift = e->keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT);
+	bool down = e->state == SDL_PRESSED;
 
-	switch (e.keysym.sym){
+	switch (e->keysym.sym){
 
 	case SDLK_LCTRL:
 	case SDLK_RCTRL:

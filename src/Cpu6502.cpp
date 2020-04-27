@@ -40,32 +40,32 @@ CCpu6502::CCpu6502(CBus *bus) : mBus(bus) {
 
 /*************************************************************************************************/
 CCpu6502::~CCpu6502() {
-	//fprintf(stderr, "CCpu6502 destructor\n");
+
 }
 
 /*************************************************************************************************/
-unsigned long long CCpu6502::getCumulativeCycles() {
+unsigned long long CCpu6502::getCumulativeCycles() const {
 	return mCumulativeCycles;
 }
 
 /*************************************************************************************************/
-void CCpu6502::setClock(unsigned long clock) {
+void CCpu6502::setClock(const unsigned long clock) {
 	assert(clock > 0);
 	mClock = clock;
 }
 
 /*************************************************************************************************/
-unsigned long CCpu6502::getClock() {
+unsigned long CCpu6502::getClock() const {
 	return mClock;
 }
 
 /*************************************************************************************************/
-void CCpu6502::setFullSpeed(bool val) {
+void CCpu6502::setFullSpeed(const bool val) {
 	mFullSpeed = val;
 }
 
 /*************************************************************************************************/
-bool CCpu6502::getFullSpeed() {
+bool CCpu6502::getFullSpeed() const {
 	return mFullSpeed;
 }
 

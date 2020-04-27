@@ -24,15 +24,15 @@ class CKeyboard : public CDevice {
 public:
 	CKeyboard(CBus *bus);
 	~CKeyboard();
-	byte read(word addr);
-	void write(word addr, byte data);
+	byte read(const word addr);
+	void write(const word addr, const byte data);
 	void update();
 	void reset();
-	void processEvent(SDL_KeyboardEvent e);
+	void processEvent(SDL_KeyboardEvent *e);
 private:
 	byte mMatrix[8];
-	bool mCtrl = false;
-	bool mShift = false;
-	byte mKbOut = 0;
-	bool mKbOutCtrl = 0;
+	bool mCtrl{ false };
+	bool mShift{ false };
+	byte mKbOut{ 0 };
+	bool mKbOutCtrl{ 0 };
 };

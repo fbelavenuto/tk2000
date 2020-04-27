@@ -33,19 +33,18 @@ class CMachine {
 public:
 	CMachine();
 	~CMachine();
-	bool init();
 	bool setTapeFile(const char *filename);
 	bool loop();
 private:
-	SDL_Window *mWindow = nullptr;
-	SDL_Renderer *mRenderer = nullptr;
-	std::unique_ptr<CCpu6502> mCpu = nullptr;
-	std::unique_ptr<CVideo> mVideo = nullptr;
-	std::unique_ptr<CBus> mBus = nullptr;
-	std::unique_ptr<CRam> mRam = nullptr;
-	std::unique_ptr<CRom> mRom = nullptr;
-	std::unique_ptr<CAudio> mAudio = nullptr;
-	std::unique_ptr<CKeyboard> mKeyboard = nullptr;
-	std::unique_ptr<CTape> mTape = nullptr;
-	bool mFullScreen = false;
+	SDL_Window *mWindow{};
+	SDL_Renderer *mRenderer{};
+	std::unique_ptr<CCpu6502> mCpu{};
+	std::unique_ptr<CVideo> mVideo{};
+	std::unique_ptr<CBus> mBus{};
+	std::unique_ptr<CRam> mRam{};
+	std::unique_ptr<CRom> mRom{};
+	std::unique_ptr<CAudio> mAudio{};
+	std::unique_ptr<CKeyboard> mKeyboard{};
+	std::unique_ptr<CTape> mTape{};
+	bool mFullScreen{ false };
 };

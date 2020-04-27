@@ -27,15 +27,15 @@ CRam::CRam(CBus *bus) {
 
 /*************************************************************************************************/
 CRam::~CRam() {
-	//fprintf(stderr, "CRam destructor\n");
+
 }
 
 /*************************************************************************************************/
-byte CRam::read(word addr) {
+byte CRam::read(const word addr) {
 	return mRam[addr];
 }
 
 /*************************************************************************************************/
-void CRam::write(word addr, byte data) {
+void CRam::write(const word addr, const byte data) {
 	mRam[addr] = data;
 }

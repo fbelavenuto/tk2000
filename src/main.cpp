@@ -23,7 +23,7 @@
 
 
 /* Variables */
-CMachine *theMachine = new CMachine();
+CMachine *theMachine{};
 
 
 /*****************************************************************************/
@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
 		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Warning: SDL_HINT_RENDER_SCALE_QUALITY error!");
 	}
 
-	theMachine->init();
+	theMachine = new CMachine;
 	if (argc == 2) {
 		if (!theMachine->setTapeFile(argv[1])) {
 			printf("Error inserting %s tape file\n", argv[1]);

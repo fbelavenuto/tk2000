@@ -44,16 +44,16 @@ CTape::CTape(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
 
 /*************************************************************************************************/
 CTape::~CTape() {
-	//fprintf(stderr, "CTape destructor\n");
+
 }
 
 /*************************************************************************************************/
-byte CTape::read(word addr) {
+byte CTape::read(const word addr) {
 	if ((addr & 0xF0) == 0x10) {
 		if (!mPlay) {
 			return 0x00;
 		}
-		unsigned long long actualCycle = mCpu->getCumulativeCycles();
+		const unsigned long long actualCycle = mCpu->getCumulativeCycles();
 		if (mStartCycle == 0 && mQueueCycles.size() > 0) {
 			mStartCycle = actualCycle;
 			mCyclesNeeded = mQueueCycles.front();
@@ -77,7 +77,7 @@ byte CTape::read(word addr) {
 }
 
 /*************************************************************************************************/
-void CTape::write(word addr, byte data) {
+void CTape::write(const word addr, const byte data) {
 }
 
 /*************************************************************************************************/
@@ -86,19 +86,19 @@ void CTape::update() {
 }
 
 /*************************************************************************************************/
-void CTape::reset() {
+void CTape::reset() noexcept {
 	mPlay = false;
 	mStartCycle = 0;
 }
 
 /*************************************************************************************************/
-void CTape::play() {
+void CTape::play() noexcept {
 	mPlay = true;
 	mCpu->setFullSpeed(true);
 }
 
 /*************************************************************************************************/
-void CTape::stop() {
+void CTape::stop() noexcept {
 	if (mPlay) {
 		mPlay = false;
 	}
@@ -108,7 +108,7 @@ void CTape::stop() {
 }
 
 /*************************************************************************************************/
-bool CTape::getPlayState() {
+bool CTape::getPlayState() const {
 	return mPlay;
 }
 
@@ -165,4 +165,3 @@ bool CTape::insertCt2(const char *fileName) {
 	}
 	return true;
 }
-

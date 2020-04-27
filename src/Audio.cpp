@@ -17,6 +17,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cassert>
+#include <stdexcept>
 #include "Audio.h"
 
 /* Static Constants */
@@ -85,8 +86,9 @@ CAudio::CAudio(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
 	//Open playback device
 	mPlayDevId = SDL_OpenAudioDevice(NULL, SDL_FALSE, &desiredPlaybackSpec, &receivedPlaybackSpec, 0);
 	if (mPlayDevId == 0) {
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error creating screen renderer! SDL Error: %s\n", SDL_GetError());
-		throw 0;
+		std::string error{ "Error creating screen renderer! SDL Error: " };
+		error.append(SDL_GetError());
+		throw std::runtime_error(error);
 	}
 
 	bus->addDevice(0xC030, 0xC03F, this);
@@ -95,11 +97,10 @@ CAudio::CAudio(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
 /*************************************************************************************************/
 CAudio::~CAudio() {
 	SDL_CloseAudioDevice(mPlayDevId);
-	//printf("CAudio destructor\n");
 }
 
 /*************************************************************************************************/
-byte CAudio::read(word addr) {
+byte CAudio::read(const word addr) {
 	if (mCpu->getFullSpeed()) {
 		return 0xFF;
 	}
@@ -121,8 +122,8 @@ void CAudio::update() {
 	const std::lock_guard<std::mutex> lock(myMutex);
 	if (SDL_GetAudioDeviceStatus(mPlayDevId) == SDL_AUDIO_PAUSED) {
 		if (mCyclesQueue.size() > 0) {
-			unsigned long long first = mCyclesQueue.front();
-			unsigned long long last = mCyclesQueue.back();
+			const unsigned long long first = mCyclesQueue.front();
+			const unsigned long long last = mCyclesQueue.back();
 			// 100 ms
 			if (last - first > (102354)) {
 				SDL_PauseAudioDevice(mPlayDevId, SDL_FALSE);

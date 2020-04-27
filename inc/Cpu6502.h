@@ -20,72 +20,72 @@
 #include "Bus.h"
 
 /* Typedefs */
-typedef union {
+using TReg16bit = union {
 	struct {
 		byte low;
 		byte hi;
 	};
 	word value;
-} TReg16bit;
+} ;
 
 /*************************************************************************************************/
 class CCpu6502 {
 public:
 	CCpu6502(CBus *bus);
 	~CCpu6502();
-	unsigned long long getCumulativeCycles();
-	void setClock(unsigned long clock);
-	unsigned long getClock();
-	void setFullSpeed(bool val);
-	bool getFullSpeed();
+	unsigned long long getCumulativeCycles() const;
+	void setClock(const unsigned long clock);
+	unsigned long getClock() const;
+	void setFullSpeed(const bool val);
+	bool getFullSpeed() const;
 	void executeOpcode();
 	void reset();
 private:
-	CBus *mBus = nullptr;
-	unsigned long mClock;
-	bool mFullSpeed = false;
-	unsigned long long mCumulativeCycles = 0;
-	int interruptFlags = 0;
+	CBus *mBus{};
+	unsigned long mClock{ 1022727 };
+	bool mFullSpeed{ false };
+	unsigned long long mCumulativeCycles{ 0 };
+	int interruptFlags{ 0 };
 
-	inline byte readByte(word address) {
+	inline byte readByte(word address) const {
 		return mBus->readByte(address);
 	}
 
-	inline word readWord(word address) {
+	inline word readWord(word address) const {
 		return mBus->readWord(address);
 	}
 
-	inline void writeByte(word address, byte value) {
+	inline void writeByte(word address, byte value) const {
 		mBus->writeByte(address, value);
 	}
 
-	inline void writeWord(word address, word value) {
+	inline void writeWord(word address, word value) const {
 		mBus->writeWord(address, value);
 	}
 
 	// Flags Interrupts
-	const byte INT_NMI = (1 << 0);
-	const byte INT_IRQ = (1 << 1);
+	const byte INT_NMI{ (1 << 0) };
+	const byte INT_IRQ{ (1 << 1) };
 
 	// ALU look up tables
 	word m_BCDTableAdd[512];			// addition
 	word m_BCDTableSub[512];			// subtraction
 
 	// Flags bitmask
-	const byte FLAG_C = (1 << 0);
-	const byte FLAG_Z = (1 << 1);
-	const byte FLAG_I = (1 << 2);
-	const byte FLAG_D = (1 << 3);
-	const byte FLAG_B = (1 << 4);
-	const byte FLAG_V = (1 << 6);
-	const byte FLAG_N = (1 << 7);
+	const byte FLAG_C{ (1 << 0) };
+	const byte FLAG_Z{ (1 << 1) };
+	const byte FLAG_I{ (1 << 2) };
+	const byte FLAG_D{ (1 << 3) };
+	const byte FLAG_B{ (1 << 4) };
+	const byte FLAG_V{ (1 << 6) };
+	const byte FLAG_N{ (1 << 7) };
 
 	// Registers
-	byte mRegA = 0;
-	byte mRegX = 0;
-	byte mRegY = 0;
-	byte mRegS = 0xFF;
-	byte mRegFlags = 0x20;	// On an 6502, bit 5 always must be 1
+	byte mRegA{ 0 };
+	byte mRegX{ 0 };
+	byte mRegY{ 0 };
+	byte mRegS{ 0xFF };
+	byte mRegFlags{ 0x20 };	// On an 6502, bit 5 always must be 1
 	TReg16bit mRegPC{ 0 };
 
 	// Stack macros
@@ -161,27 +161,27 @@ private:
 		setZ(val == 0);
 	}
 
-	inline bool getN() {
+	inline bool getN() const noexcept {
 		return ((mRegFlags & FLAG_N) != 0);
 	}
 
-	inline bool getV() {
+	inline bool getV() const noexcept {
 		return ((mRegFlags & FLAG_V) != 0);
 	}
 
-	inline bool getD() {
+	inline bool getD() const noexcept {
 		return ((mRegFlags & FLAG_D) != 0);
 	}
 
-	inline bool getI() {
+	inline bool getI() const noexcept {
 		return ((mRegFlags & FLAG_I) != 0);
 	}
 
-	inline bool getZ() {
+	inline bool getZ() const noexcept {
 		return ((mRegFlags & FLAG_Z) != 0);
 	}
 
-	inline bool getC() {
+	inline bool getC() const noexcept {
 		return ((mRegFlags & FLAG_C) != 0);
 	}
 
@@ -236,10 +236,10 @@ private:
 	}
 
 	// Misc. macros
-	inline void accCycles(int cycles) {
+	inline void accCycles(int cycles) noexcept {
 		mCumulativeCycles += cycles;
 	}
-	inline void branch(signed char operand) {
+	inline void branch(signed char operand) noexcept {
 		mRegPC.value += (operand);
 		accCycles(1);
 	}

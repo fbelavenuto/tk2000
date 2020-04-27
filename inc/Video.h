@@ -26,30 +26,26 @@ class CVideo : public CDevice {
 public:
 	CVideo(SDL_Renderer *renderer, CBus *bus, CRam *ram);
 	~CVideo();
-	byte read(word addr);
-	void write(word addr, byte data);
+	byte read(const word addr);
+	void write(const word addr, const byte data);
 	void update() {}
-	void reset();
+	void reset() noexcept;
 	void render();
-	void setScanline(bool val);
-	bool getScanline();
+	void setScanline(const bool val);
+	bool getScanline() const;
 private:
 	struct sRGB {
 		byte red;
 		byte green;
 		byte blue;
-
-		bool isEqual(sRGB other) const {
-			return red == other.red && green == other.green && blue == other.blue;
-		}
 	};
 
-	SDL_Renderer *mRenderer = nullptr;
-	SDL_Texture *mScreen = nullptr;
-	CRam *mRam = nullptr;
-	bool mVideoMono = false;
-	bool mSecondPage = false;
-	bool mScanLines = false;
+	SDL_Renderer *mRenderer{};
+	SDL_Texture *mScreen{};
+	CRam *mRam{};
+	bool mVideoMono{ false };
+	bool mSecondPage{ false };
+	bool mScanLines{ false };
 	sRGB mFrameBuffer[VIDEOWIDTH * VIDEOHEIGHT * 2];
 	void drawMono();
 	void drawColor();

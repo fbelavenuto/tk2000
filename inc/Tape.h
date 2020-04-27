@@ -25,19 +25,19 @@ class CTape : public CDevice {
 public:
 	CTape(CBus *bus, CCpu6502 *cpu);
 	~CTape();
-	byte read(word addr);
-	void write(word addr, byte data);
+	byte read(const word addr);
+	void write(const word addr, const byte data);
 	void update();
-	void reset();
-	void play();
-	void stop();
-	bool getPlayState();
+	void reset() noexcept;
+	void play() noexcept;
+	void stop() noexcept;
+	bool getPlayState() const;
 	bool insertCt2(const char *fileName);
 private:
-	CCpu6502 *mCpu = nullptr;
-	unsigned long long mStartCycle = 0;
+	CCpu6502 *mCpu{};
+	unsigned long long mStartCycle{ 0 };
 	std::queue<word> mQueueCycles;
 	word mCyclesNeeded;
-	byte mCasOut = 0;
-	bool mPlay = false;
+	byte mCasOut{ 0 };
+	bool mPlay{ false };
 };

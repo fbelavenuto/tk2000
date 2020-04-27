@@ -30,11 +30,11 @@ CBus::CBus() {
 
 /*************************************************************************************************/
 CBus::~CBus() {
-	//fprintf(stderr, "CBus destructor\n");
+
 }
 
 /*************************************************************************************************/
-byte CBus::readByte(word addr) {
+byte CBus::readByte(const word addr) {
 	if (mDevices[addr] == nullptr) {
 		return 0xFF;
 	}
@@ -46,25 +46,25 @@ byte CBus::readByte(word addr) {
 }
 
 /*************************************************************************************************/
-void CBus::writeByte(word addr, byte data) {
+void CBus::writeByte(const word addr, const byte data) {
 	if (mDevices[addr] != nullptr) {
 		mDevices[addr]->write(addr, data);
 	}
 }
 
 /*************************************************************************************************/
-word CBus::readWord(word addr) {
+word CBus::readWord(const word addr) {
 	return readByte(addr) | readByte(addr + 1) << 8;
 }
 
 /*************************************************************************************************/
-void CBus::writeWord(word addr, word data) {
+void CBus::writeWord(const word addr, const word data) {
 	writeByte(addr, data & 0xFF);
 	writeByte(addr + 1, data >> 8);
 }
 
 /*************************************************************************************************/
-void CBus::addDevice(word addr, CDevice *dev) {
+void CBus::addDevice(const word addr, CDevice *dev) {
 	if (mDevices[addr] == nullptr) {
 		mDevices[addr] = dev;
 	} else {
@@ -73,7 +73,7 @@ void CBus::addDevice(word addr, CDevice *dev) {
 }
 
 /*************************************************************************************************/
-void CBus::addDevice(word addrStart, word addrEnd, CDevice *dev) {
+void CBus::addDevice(const word addrStart, const word addrEnd, CDevice *dev) {
 	assert(addrEnd >= addrStart);
 	for (int i = addrStart; i <= addrEnd; i++) {
 		if (mDevices[i] == nullptr) {

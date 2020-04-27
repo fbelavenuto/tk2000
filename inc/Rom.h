@@ -25,8 +25,8 @@ class CRom : public CDevice {
 public:
 	CRom(CBus *bus);
 	~CRom();
-	byte read(word addr);
-	void write(word addr, byte data);
+	byte read(const word addr);
+	void write(const word addr, const byte data);
 	void update() {}
 	void reset() {}
 private:

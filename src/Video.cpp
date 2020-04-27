@@ -16,7 +16,7 @@
 
 #include <cstring>
 #include <cassert>
-#include <exception>
+#include <stdexcept>
 #include "Video.h"
 
 
@@ -145,8 +145,9 @@ CVideo::CVideo(SDL_Renderer *renderer, CBus *bus, CRam *ram) :
 	assert(mRam != nullptr);
 	mScreen = SDL_CreateTexture(mRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, VIDEOWIDTH, VIDEOHEIGHT * 2);
 	if (mScreen == 0) {
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error creating screen renderer! SDL Error: %s\n", SDL_GetError());
-		throw 0;
+		std::string error{ "Error creating screen texture! SDL Error: " };
+		error.append(SDL_GetError());
+		throw std::runtime_error(error);
 	}
 	bus->addDevice(0xC050, 0xC051, this);
 	bus->addDevice(0xC054, 0xC055, this);
@@ -156,7 +157,6 @@ CVideo::CVideo(SDL_Renderer *renderer, CBus *bus, CRam *ram) :
 /*****************************************************************************/
 CVideo::~CVideo() {
 	SDL_DestroyTexture(mScreen);
-	//fprintf(stderr, "CVideo destructor\n");
 }
 
 /*****************************************************************************/
@@ -168,12 +168,14 @@ void CVideo::render() {
 	SDL_LockTexture(mScreen, nullptr, (void **)&ptr, &pitch);
 	memcpy(ptr, &mFrameBuffer, VIDEOHEIGHT * 2 * pitch);
 	SDL_UnlockTexture(mScreen);
-	SDL_Rect r{ 0, 0, VIDEOWIDTH * 2, VIDEOHEIGHT * 2 };
+	int w, h;
+	SDL_GetRendererOutputSize(mRenderer, &w, &h);
+	SDL_Rect r{ w / 2 - VIDEOWIDTH, h / 2 - VIDEOHEIGHT, VIDEOWIDTH * 2, VIDEOHEIGHT * 2 };
 	SDL_RenderCopy(mRenderer, mScreen, NULL, &r);
 }
 
 /*****************************************************************************/
-byte CVideo::read(word addr) {
+byte CVideo::read(const word addr) {
 	switch (addr & 0x00FF) {
 	case 0x50:
 		mVideoMono = false;
@@ -196,12 +198,12 @@ byte CVideo::read(word addr) {
 }
 
 /*****************************************************************************/
-void CVideo::write(word addr, byte data) {
+void CVideo::write(const word addr, const byte data) {
 	read(addr);
 }
 
 /*****************************************************************************/
-void CVideo::reset() {
+void CVideo::reset() noexcept {
 	mVideoMono = false;
 	mSecondPage = false;
 }
@@ -212,6 +214,6 @@ void CVideo::setScanline(bool val) {
 }
 
 /*****************************************************************************/
-bool CVideo::getScanline() {
+bool CVideo::getScanline() const {
 	return mScanLines;
 }

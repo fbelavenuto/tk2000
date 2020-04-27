@@ -28,13 +28,13 @@ class CAudio : public CDevice {
 public:
 	CAudio(CBus *bus, CCpu6502 *cpu);
 	~CAudio();
-	byte read(word addr);
-	void write(word addr, byte data);
+	byte read(const word addr);
+	void write(const word addr, const byte data);
 	void update();
 	void reset();
 private:
-	CCpu6502 *mCpu = nullptr;
-	static const int SAMPLERATE = 44100;
+	CCpu6502 *mCpu{};
+	static const int SAMPLERATE{ 44100 };
 	static const double mClocksPerSample;
 	std::mutex myMutex;
 	std::queue<unsigned long long> mCyclesQueue;

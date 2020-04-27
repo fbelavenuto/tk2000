@@ -26,9 +26,9 @@ const int VIDEOHEIGHT = 192;
 
 /* Typedefs */
 
-typedef unsigned char byte;
-typedef unsigned short word;
-typedef unsigned int dword;
+using byte = unsigned char;
+using word = unsigned short;
+using dword = unsigned int;
 
 /* Asserts */
 

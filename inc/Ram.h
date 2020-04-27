@@ -25,8 +25,8 @@ class CRam : public CDevice {
 public:
 	CRam(CBus *bus);
 	~CRam();
-	byte read(word addr);
-	void write(word addr, byte data);
+	byte read(const word addr);
+	void write(const word addr, const byte data);
 	void reset() {}
 	void update() {}
 	friend class CVideo;
