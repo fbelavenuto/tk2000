@@ -19,15 +19,10 @@
 #include <SDL2/SDL.h>
 #include "Machine.h"
 
-/* Defines */
-
-
-/* Variables */
-CMachine *theMachine{};
-
 
 /*****************************************************************************/
 int main(int argc, char* argv[]) {
+
 
 	// Initialize log
 	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_WARN);
@@ -42,13 +37,13 @@ int main(int argc, char* argv[]) {
 		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Warning: SDL_HINT_RENDER_SCALE_QUALITY error!");
 	}
 
-	theMachine = new CMachine;
+	auto theMachine = std::make_unique<CMachine>();
+
 	if (argc == 2) {
 		if (!theMachine->setTapeFile(argv[1])) {
 			printf("Error inserting %s tape file\n", argv[1]);
 		}
 	}
 	theMachine->loop();
-	delete theMachine;
 	return 0;
 }

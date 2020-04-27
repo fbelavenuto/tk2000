@@ -20,13 +20,13 @@
 #include "Bus.h"
 
 /* Typedefs */
-using TReg16bit = union {
+using TReg16bit = union uReg16bit {
 	struct {
 		byte low;
 		byte hi;
 	};
 	word value;
-} ;
+};
 
 /*************************************************************************************************/
 class CCpu6502 {
