@@ -21,8 +21,8 @@
 
 /* Constants */
 
-const int VIDEOWIDTH = 280;
-const int VIDEOHEIGHT = 192;
+constexpr int VIDEOWIDTH{ 280 };
+constexpr int VIDEOHEIGHT{ 192 };
 
 /* Typedefs */
 

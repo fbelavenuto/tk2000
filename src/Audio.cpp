@@ -27,7 +27,7 @@ const double CAudio::mClocksPerSample = 1022727.0 / (double)SAMPLERATE;	// 6502 
 
 /*************************************************************************************************/
 void CAudio::playCallback(void *userdata, uint8_t *stream, int len) {
-	static short soundPos = -32767;
+	static short soundPos{ -32767 };
 	auto obj = reinterpret_cast<CAudio *>(userdata);
 	int16_t *buffer = (int16_t *)stream;
 	int bufferLen = len / sizeof(uint16_t);
@@ -37,7 +37,7 @@ void CAudio::playCallback(void *userdata, uint8_t *stream, int len) {
 		SDL_PauseAudioDevice(obj->mPlayDevId, SDL_TRUE);
 		return;
 	}
-	static unsigned long long audioCycleStart = 0;
+	static unsigned long long audioCycleStart{ 0 };
 	if (audioCycleStart == 0) {
 		audioCycleStart = obj->mCyclesQueue.front();
 	}
@@ -79,7 +79,7 @@ CAudio::CAudio(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
 	desiredPlaybackSpec.freq = SAMPLERATE;
 	desiredPlaybackSpec.format = AUDIO_S16SYS;
 	desiredPlaybackSpec.channels = 1;
-	desiredPlaybackSpec.samples = (uint16_t)(SAMPLERATE / (1 / 0.1));	// Samples for 100ms
+	desiredPlaybackSpec.samples = (uint16_t)(SAMPLERATE / (1.0 / 0.1));	// Samples for 100ms
 	desiredPlaybackSpec.userdata = this;
 	desiredPlaybackSpec.callback = playCallback;
 
