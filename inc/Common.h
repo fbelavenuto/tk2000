@@ -23,7 +23,7 @@
 
 constexpr int VIDEOWIDTH{ 280 };
 constexpr int VIDEOHEIGHT{ 192 };
-constexpr double MS_TO_RUN{ 50 };
+constexpr double MS_TO_RUN{ 50.0 };
 
 /* Typedefs */
 
