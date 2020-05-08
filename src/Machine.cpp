@@ -231,7 +231,7 @@ bool CMachine::loop() {
 
 	//Main loop flag
 	bool quit = false;
-	constexpr const int usToRun = 100000;	// 100ms
+	constexpr const int usToRun = (int)(MS_TO_RUN * 1000.0);
 
 	//Event handler
 	SDL_Event e;
@@ -239,8 +239,8 @@ bool CMachine::loop() {
 	// CPU Thread
 	std::thread cpuThread([&]() {
 		std::chrono::time_point<std::chrono::high_resolution_clock> previous, now;
-		previous = std::chrono::high_resolution_clock::now();
 		while (!quit) {
+			previous = std::chrono::high_resolution_clock::now();
 			const unsigned long cyclesToRun = (unsigned long)((double)usToRun / (1000000.0 / mCpu->getClock()));
 			const unsigned long long actualCycles = mCpu->getCumulativeCycles();
 			while ((mCpu->getCumulativeCycles() - actualCycles) < cyclesToRun) {
@@ -255,7 +255,6 @@ bool CMachine::loop() {
 			if (!mCpu->getFullSpeed() && timePast < std::chrono::microseconds(usToRun)) {
 				std::this_thread::sleep_for(std::chrono::microseconds(usToRun) - timePast);
 			}
-			previous = std::chrono::high_resolution_clock::now();
 		}
 	});
 

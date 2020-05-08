@@ -16,7 +16,9 @@
 
 #include "pch.h"
 #include "Audio.h"
-#include "Datatypes.h"
+#include "Common.h"
+
+constexpr double freqTick = (1.0 / (MS_TO_RUN / 1000.0));
 
 /*************************************************************************************************/
 void CAudio::playCallback(void *userdata, uint8_t *stream, int len) {
@@ -36,7 +38,7 @@ void CAudio::playCallback(void *userdata, uint8_t *stream, int len) {
 	}
 	unsigned long long cycleActual;
 	unsigned long long nextCycle = obj->mCyclesQueue.front();
-	double clocksPerSample{ (double)obj->mCpu->getClock() / (double)obj->mSampleRate };	// 6502 clock / sampleRate
+	const double clocksPerSample{ (double)obj->mCpu->getClock() / (double)obj->mSampleRate };	// 6502 clock / sampleRate
 
 	for (int i = 0; i < bufferLen; i++) {
 		cycleActual = audioCycleStart + (unsigned long long)((double)i * clocksPerSample);
@@ -74,7 +76,7 @@ CAudio::CAudio(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
 	desiredPlaybackSpec.freq = mSampleRate;
 	desiredPlaybackSpec.format = AUDIO_S16SYS;
 	desiredPlaybackSpec.channels = 1;
-	desiredPlaybackSpec.samples = (uint16_t)(mSampleRate / (1.0 / 100.0_ms));	// Samples for 100ms
+	desiredPlaybackSpec.samples = (uint16_t)((double)mSampleRate / freqTick);
 	desiredPlaybackSpec.userdata = this; 
 	desiredPlaybackSpec.callback = playCallback;
 
@@ -115,15 +117,16 @@ void CAudio::update() {
 		return;
 	}
 	const std::lock_guard<std::mutex> lock(myMutex);
+	const unsigned long numSamples = (unsigned long)((double)mCpu->getClock() / freqTick);
 	if (SDL_GetAudioDeviceStatus(mPlayDevId) == SDL_AUDIO_PAUSED) {
 		if (mCyclesQueue.size() > 0) {
 			const unsigned long long first = mCyclesQueue.front();
 			const unsigned long long last = mCyclesQueue.back();
-			// 100 ms
-			if (last - first > (102354)) {
+
+			if ((last - first) > numSamples) {
 				SDL_PauseAudioDevice(mPlayDevId, SDL_FALSE);
 			}
-			if (mCpu->getCumulativeCycles() - last > ((double)mCpu->getClock() / 1000.0)) {	// 100ms
+			if ((mCpu->getCumulativeCycles() - last) > numSamples) {
 				mCyclesQueue.emplace(mCpu->getCumulativeCycles());	// force update
 			}
 		}

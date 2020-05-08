@@ -354,7 +354,6 @@ void CCpu6502::executeOpcode() {
 		break;
 
 	case 0x00: // BRK
-assert(0);
 		stackPush(mRegPC.hi); // save PCH, PCL & P
 		stackPush(mRegPC.low);
 		setN(getN());

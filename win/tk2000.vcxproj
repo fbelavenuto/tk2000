@@ -168,7 +168,7 @@
     <ClInclude Include="..\inc\Audio.h" />
     <ClInclude Include="..\inc\Bus.h" />
     <ClInclude Include="..\inc\Cpu6502.h" />
-    <ClInclude Include="..\inc\DataTypes.h" />
+    <ClInclude Include="..\inc\Common.h" />
     <ClInclude Include="..\inc\Device.h" />
     <ClInclude Include="..\inc\Keyboard.h" />
     <ClInclude Include="..\inc\Machine.h" />

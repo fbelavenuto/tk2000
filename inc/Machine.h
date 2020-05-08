@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "DataTypes.h"
+#include "Common.h"
 #include "Bus.h"
 #include "Cpu6502.h"
 #include "Video.h"

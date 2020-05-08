@@ -53,9 +53,6 @@
     <ClInclude Include="..\inc\Machine.h">
       <Filter>Arquivos de Cabeçalho</Filter>
     </ClInclude>
-    <ClInclude Include="..\inc\DataTypes.h">
-      <Filter>Arquivos de Cabeçalho</Filter>
-    </ClInclude>
     <ClInclude Include="..\inc\Video.h">
       <Filter>Arquivos de Cabeçalho</Filter>
     </ClInclude>
@@ -84,6 +81,9 @@
       <Filter>Arquivos de Cabeçalho</Filter>
     </ClInclude>
     <ClInclude Include="..\inc\pch.h">
+      <Filter>Arquivos de Cabeçalho</Filter>
+    </ClInclude>
+    <ClInclude Include="..\inc\Common.h">
       <Filter>Arquivos de Cabeçalho</Filter>
     </ClInclude>
   </ItemGroup>

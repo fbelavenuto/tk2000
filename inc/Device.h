@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "DataTypes.h"
+#include "Common.h"
 
 class CDevice {
 public:

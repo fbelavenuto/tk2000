@@ -23,13 +23,7 @@
 
 constexpr int VIDEOWIDTH{ 280 };
 constexpr int VIDEOHEIGHT{ 192 };
-
-/* User-defined literals */
-
-constexpr long double operator"" _ms(long double seconds) {
-	return seconds / 1000;
-}
-
+constexpr double MS_TO_RUN{ 50 };
 
 /* Typedefs */
 
