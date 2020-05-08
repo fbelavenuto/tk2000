@@ -14,10 +14,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-#include <cassert>
-//#include <cstdio>
-#include <chrono>
-#include <thread>
+#include "pch.h"
 #include "Cpu6502.h"
 
 /* Constants */

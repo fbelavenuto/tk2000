@@ -24,6 +24,13 @@
 constexpr int VIDEOWIDTH{ 280 };
 constexpr int VIDEOHEIGHT{ 192 };
 
+/* User-defined literals */
+
+constexpr long double operator"" _ms(long double seconds) {
+	return seconds / 1000;
+}
+
+
 /* Typedefs */
 
 using byte = unsigned char;
@@ -33,6 +40,6 @@ using dword = unsigned int;
 /* Asserts */
 
 static_assert(alignof(byte) == 1, "byte not have 1 byte");
-static_assert(alignof(word) == 2, "byte not have 2 bytes");
-static_assert(alignof(dword) == 4, "byte not have 4 bytes");
+static_assert(alignof(word) == 2, "word not have 2 bytes");
+static_assert(alignof(dword) == 4, "dword not have 4 bytes");
 

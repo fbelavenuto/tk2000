@@ -16,23 +16,14 @@
 
 #pragma once
 
-#include "Device.h"
-#include "Bus.h"
-
-class CKeyboard : public CDevice {
-public:
-	CKeyboard(CBus *bus);
-	~CKeyboard() override;
-	byte read(const word addr) override;
-	void write(const word addr, const byte data) override;
-	void update() override;
-	void reset() override;
-	//
-	void processEvent(SDL_KeyboardEvent *e);
-private:
-	byte mMatrix[8];
-	bool mCtrl{ false };
-	bool mShift{ false };
-	byte mKbOut{ 0 };
-	bool mKbOutCtrl{ 0 };
-};
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+#include <cassert>
+#include <chrono>
+#include <thread>
+#include <queue>
+#include <mutex>
+#include <memory>
+#include <stdexcept>
+#include <SDL2/SDL.h>

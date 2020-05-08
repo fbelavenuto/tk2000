@@ -14,11 +14,8 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-#include <cstring>
-#include <cassert>
-#include <stdexcept>
+#include "pch.h"
 #include "Video.h"
-
 
 /*****************************************************************************/
 void CVideo::drawMono() {
@@ -170,7 +167,7 @@ void CVideo::render() {
 	SDL_UnlockTexture(mScreen);
 	int w, h;
 	SDL_GetRendererOutputSize(mRenderer, &w, &h);
-	SDL_Rect r{ w / 2 - VIDEOWIDTH, h / 2 - VIDEOHEIGHT, VIDEOWIDTH * 2, VIDEOHEIGHT * 2 };
+	SDL_Rect r{ 0, 0, w, h };
 	SDL_RenderCopy(mRenderer, mScreen, NULL, &r);
 }
 
@@ -203,17 +200,17 @@ void CVideo::write(const word addr, const byte data) {
 }
 
 /*****************************************************************************/
-void CVideo::reset() noexcept {
+void CVideo::reset() {
 	mVideoMono = false;
 	mSecondPage = false;
 }
 
 /*****************************************************************************/
-void CVideo::setScanline(bool val) {
+void CVideo::setScanline(bool val) noexcept {
 	mScanLines = val;
 }
 
 /*****************************************************************************/
-bool CVideo::getScanline() const {
+bool CVideo::getScanline() const noexcept {
 	return mScanLines;
 }

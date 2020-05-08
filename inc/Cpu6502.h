@@ -20,7 +20,7 @@
 #include "Bus.h"
 
 /* Typedefs */
-using TReg16bit = union uReg16bit {
+union uReg16bit {
 	struct {
 		byte low;
 		byte hi;
@@ -86,7 +86,7 @@ private:
 	byte mRegY{ 0 };
 	byte mRegS{ 0xFF };
 	byte mRegFlags{ 0x20 };	// On an 6502, bit 5 always must be 1
-	TReg16bit mRegPC{ 0 };
+	uReg16bit mRegPC{ 0 };
 
 	// Stack macros
 

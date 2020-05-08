@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include <SDL2/SDL.h>
 #include "DataTypes.h"
 #include "Device.h"
 #include "Bus.h"
@@ -25,14 +24,15 @@
 class CVideo : public CDevice {
 public:
 	CVideo(SDL_Renderer *renderer, CBus *bus, CRam *ram);
-	~CVideo();
-	byte read(const word addr);
-	void write(const word addr, const byte data);
-	void update() {}
-	void reset() noexcept;
+	~CVideo() override;
+	byte read(const word addr) override;
+	void write(const word addr, const byte data) override;
+	void update() override {}
+	void reset() override;
+	//
 	void render();
-	void setScanline(const bool val);
-	bool getScanline() const;
+	void setScanline(const bool val) noexcept;
+	bool getScanline() const noexcept;
 private:
 	struct sRGB {
 		byte red;

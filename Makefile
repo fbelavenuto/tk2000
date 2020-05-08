@@ -24,6 +24,7 @@ BINDIR ?= $(prefix)/bin
 CROSS_COMPILE ?=
 
 SDIR = src
+IDIR = inc
 ODIR = obj
 DEPDIR = $(ODIR)/.deps
 
@@ -33,7 +34,7 @@ MD = mkdir
 CXX = $(CROSS_COMPILE)g++
 LINKER = $(CXX)
 
-CXXFLAGS = -std=c++17 -g -Iinc -fpermissive
+CXXFLAGS = -std=c++17 -g -I$(IDIR) -fpermissive
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 LDFLAGS =
 LIBS = -lpthread -lSDL2 -lSDL2main
@@ -46,6 +47,9 @@ all: $(ODIR) $(DEPDIR) tk2000
 
 tk2000: $(OBJS)
 	$(LINKER) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+
+pch: $(IDIR)/pch.h
+	$(CXX) $(CXXFLAGS) -x c++-header -o $<.gch -c $(SDIR)/pch.cpp
 
 .PHONY: clean
 
@@ -68,9 +72,6 @@ install: all
 
 uninstall:
 	$(RM) $(BINDIR)/tk2000
-
-$(ODIR)/%.o: $(SDIR)/%.c
-	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPDIR)/%.d | $(DEPDIR)
 	$(CXX) $(CXXFLAGS) $(DEPFLAGS) -c -o $@ $<

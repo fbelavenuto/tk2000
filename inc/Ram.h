@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include <memory>
 #include "DataTypes.h"
 #include "Device.h"
 #include "Bus.h"
@@ -24,11 +23,12 @@
 class CRam : public CDevice {
 public:
 	CRam(CBus *bus);
-	~CRam();
-	byte read(const word addr);
-	void write(const word addr, const byte data);
-	void reset() {}
-	void update() {}
+	~CRam() override;
+	byte read(const word addr) override;
+	void write(const word addr, const byte data) override;
+	void reset() override {}
+	void update() override {}
+	//
 	friend class CVideo;
 private:
 	byte mRam[0x10000];

@@ -14,10 +14,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-#include <chrono>
-#include <thread>
-#include <cassert>
-#include <stdexcept>
+#include "pch.h"
 #include "Machine.h"
 
 /* Constants */
@@ -159,6 +156,19 @@ const byte icon[] = {
 
 
 /*************************************************************************************************/
+void CMachine::setFullScreen(bool val) {
+	mFullScreen = val;
+	if (mFullScreen) {
+		SDL_DisplayMode dm;
+		SDL_GetDesktopDisplayMode(0, &dm);
+		SDL_SetWindowSize(mWindow, dm.w, dm.h);
+		SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN);
+	} else {
+		SDL_SetWindowFullscreen(mWindow, 0);
+	}
+}
+
+/*************************************************************************************************/
 CMachine::CMachine() {
 	mWindow = SDL_CreateWindow("TK2000 Emulator", SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED, VIDEOWIDTH * 2, VIDEOHEIGHT * 2, SDL_WINDOW_SHOWN);
@@ -247,17 +257,17 @@ bool CMachine::loop() {
 		}
 	});
 
-	/*if (mFullScreen) {
-		SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN);
-	}*/
+	setFullScreen(false);
 	//While application is running
 	while (!quit) {
 		//Handle events on queue
 		while (SDL_PollEvent(&e) != 0) {
-			//User requests quit
-			if (e.type == SDL_QUIT) {
+			switch (e.type) {
+			case SDL_QUIT:
 				quit = true;
-			} else if (e.type == SDL_KEYDOWN) {
+				break;
+
+			case SDL_KEYDOWN:
 				if (e.key.keysym.sym == SDLK_F5) {
 					mCpu->reset();
 					mRam->reset();
@@ -271,24 +281,22 @@ bool CMachine::loop() {
 				} else if (e.key.keysym.sym == SDLK_F7) {
 					mVideo->setScanline(!mVideo->getScanline());
 				} else if (e.key.keysym.sym == SDLK_F8) {
-					mFullScreen = !mFullScreen;
-					if (mFullScreen) {
-						SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
-					} else {
-						SDL_SetWindowFullscreen(mWindow, 0);
-					}
-
+					setFullScreen(!mFullScreen);
 				} else {
 					mKeyboard->processEvent(&e.key);
 				}
-			} else if (e.type == SDL_KEYUP) {
+				break;
+
+			case SDL_KEYUP:
 				mKeyboard->processEvent(&e.key);
-			} else if (e.type == SDL_WINDOWEVENT) {
-				switch (e.window.event) {
-				case SDL_WINDOWEVENT_SIZE_CHANGED:
-					//SDL_SetWindowSize(mWindow, VIDEOWIDTH * 2, VIDEOHEIGHT * 2);
-					break;
+				break;
+
+			case SDL_RENDER_TARGETS_RESET:
+				if (!mFullScreen) {
+					SDL_SetWindowSize(mWindow, VIDEOWIDTH * 2, VIDEOHEIGHT * 2);
 				}
+				break;
+
 			}
 		}
 

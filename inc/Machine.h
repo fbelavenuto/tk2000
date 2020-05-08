@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <memory>
-#include <SDL2/SDL.h>
 #include "DataTypes.h"
 #include "Bus.h"
 #include "Cpu6502.h"
@@ -47,4 +45,5 @@ private:
 	std::unique_ptr<CKeyboard> mKeyboard{};
 	std::unique_ptr<CTape> mTape{};
 	bool mFullScreen{ false };
+	void setFullScreen(bool val);
 };

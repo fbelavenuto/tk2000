@@ -14,16 +14,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-#include <cstdio>
-#include <cstring>
-#include <cassert>
-#include <stdexcept>
+#include "pch.h"
 #include "Audio.h"
-
-/* Static Constants */
-
-const double CAudio::mClocksPerSample = 1022727.0 / (double)SAMPLERATE;	// 6502 clock / sampleRate
-
+#include "Datatypes.h"
 
 /*************************************************************************************************/
 void CAudio::playCallback(void *userdata, uint8_t *stream, int len) {
@@ -43,8 +36,10 @@ void CAudio::playCallback(void *userdata, uint8_t *stream, int len) {
 	}
 	unsigned long long cycleActual;
 	unsigned long long nextCycle = obj->mCyclesQueue.front();
+	double clocksPerSample{ (double)obj->mCpu->getClock() / (double)obj->mSampleRate };	// 6502 clock / sampleRate
+
 	for (int i = 0; i < bufferLen; i++) {
-		cycleActual = audioCycleStart + (unsigned long long)((double)i * mClocksPerSample);
+		cycleActual = audioCycleStart + (unsigned long long)((double)i * clocksPerSample);
 		if (cycleActual >= nextCycle) {
 			soundPos = -soundPos;
 			if (obj->mCyclesQueue.size() == 0) {
@@ -76,11 +71,11 @@ CAudio::CAudio(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
 	SDL_AudioSpec desiredPlaybackSpec;
 
 	SDL_zero(desiredPlaybackSpec);
-	desiredPlaybackSpec.freq = SAMPLERATE;
+	desiredPlaybackSpec.freq = mSampleRate;
 	desiredPlaybackSpec.format = AUDIO_S16SYS;
 	desiredPlaybackSpec.channels = 1;
-	desiredPlaybackSpec.samples = (uint16_t)(SAMPLERATE / (1.0 / 0.1));	// Samples for 100ms
-	desiredPlaybackSpec.userdata = this;
+	desiredPlaybackSpec.samples = (uint16_t)(mSampleRate / (1.0 / 100.0_ms));	// Samples for 100ms
+	desiredPlaybackSpec.userdata = this; 
 	desiredPlaybackSpec.callback = playCallback;
 
 	//Open playback device
@@ -128,7 +123,7 @@ void CAudio::update() {
 			if (last - first > (102354)) {
 				SDL_PauseAudioDevice(mPlayDevId, SDL_FALSE);
 			}
-			if (mCpu->getCumulativeCycles() - last > (102354)) {
+			if (mCpu->getCumulativeCycles() - last > ((double)mCpu->getClock() / 1000.0)) {	// 100ms
 				mCyclesQueue.emplace(mCpu->getCumulativeCycles());	// force update
 			}
 		}
@@ -144,3 +139,7 @@ void CAudio::reset() {
 	}
 }
 
+/*************************************************************************************************/
+int CAudio::getSampleRate() const {
+	return mSampleRate;
+}

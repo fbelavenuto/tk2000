@@ -105,6 +105,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -152,6 +154,9 @@
     <ClCompile Include="..\src\Keyboard.cpp" />
     <ClCompile Include="..\src\Machine.cpp" />
     <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\src\Ram.cpp" />
     <ClCompile Include="..\src\Rom.cpp" />
     <ClCompile Include="..\src\Video.cpp" />
@@ -164,6 +169,7 @@
     <ClInclude Include="..\inc\Device.h" />
     <ClInclude Include="..\inc\Keyboard.h" />
     <ClInclude Include="..\inc\Machine.h" />
+    <ClInclude Include="..\inc\pch.h" />
     <ClInclude Include="..\inc\Ram.h" />
     <ClInclude Include="..\inc\Rom.h" />
     <ClInclude Include="..\inc\Tape.h" />

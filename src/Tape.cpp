@@ -14,9 +14,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-#include <cassert>
-#include <cstdio>
-#include <cstring>
+#include "pch.h"
 #include "Tape.h"
 
 #define CT2_MAGIC "CTK2"
@@ -86,7 +84,7 @@ void CTape::update() {
 }
 
 /*************************************************************************************************/
-void CTape::reset() noexcept {
+void CTape::reset() {
 	mPlay = false;
 	mStartCycle = 0;
 }
@@ -108,7 +106,7 @@ void CTape::stop() noexcept {
 }
 
 /*************************************************************************************************/
-bool CTape::getPlayState() const {
+bool CTape::getPlayState() const noexcept {
 	return mPlay;
 }
 

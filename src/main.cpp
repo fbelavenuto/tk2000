@@ -14,11 +14,8 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-#include <cstdlib>
-#include <memory>
-#include <SDL2/SDL.h>
+#include "pch.h"
 #include "Machine.h"
-
 
 /*****************************************************************************/
 int main(int argc, char* argv[]) {

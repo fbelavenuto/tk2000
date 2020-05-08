@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include <memory>
 #include "DataTypes.h"
 #include "Device.h"
 #include "Bus.h"
@@ -24,10 +23,10 @@
 class CRom : public CDevice {
 public:
 	CRom(CBus *bus);
-	~CRom();
-	byte read(const word addr);
-	void write(const word addr, const byte data);
-	void update() {}
-	void reset() {}
+	~CRom() override;
+	byte read(const word addr) override;
+	void write(const word addr, const byte data) override;
+	void update() override {}
+	void reset() override {}
 private:
 };

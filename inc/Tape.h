@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include <queue>
 #include "Device.h"
 #include "Bus.h"
 #include "Cpu6502.h"
@@ -24,14 +23,15 @@
 class CTape : public CDevice {
 public:
 	CTape(CBus *bus, CCpu6502 *cpu);
-	~CTape();
-	byte read(const word addr);
-	void write(const word addr, const byte data);
-	void update();
-	void reset() noexcept;
+	~CTape() override;
+	byte read(const word addr) override;
+	void write(const word addr, const byte data) override;
+	void update() override;
+	void reset() override;
+	//
 	void play() noexcept;
 	void stop() noexcept;
-	bool getPlayState() const;
+	bool getPlayState() const noexcept;
 	bool insertCt2(const char *fileName);
 private:
 	CCpu6502 *mCpu{};

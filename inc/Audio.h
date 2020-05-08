@@ -16,10 +16,6 @@
 
 #pragma once
 
-#include <queue>
-#include <mutex>
-#include <SDL2/SDL.h>
-#include "DataTypes.h"
 #include "Device.h"
 #include "Bus.h"
 #include "Cpu6502.h"
@@ -27,15 +23,16 @@
 class CAudio : public CDevice {
 public:
 	CAudio(CBus *bus, CCpu6502 *cpu);
-	~CAudio();
-	byte read(const word addr);
-	void write(const word addr, const byte data);
-	void update();
-	void reset();
+	~CAudio() override;
+	byte read(const word addr) override;
+	void write(const word addr, const byte data) override;
+	void update() override;
+	void reset() override;
+	//
+	int getSampleRate() const;
 private:
 	CCpu6502 *mCpu{};
-	static const int SAMPLERATE{ 44100 };
-	static const double mClocksPerSample;
+	int mSampleRate{ 44100 };
 	std::mutex myMutex;
 	std::queue<unsigned long long> mCyclesQueue;
 	SDL_AudioDeviceID mPlayDevId;
