@@ -165,6 +165,7 @@ void CMachine::setFullScreen(bool val) {
 		SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN);
 	} else {
 		SDL_SetWindowFullscreen(mWindow, 0);
+		SDL_SetWindowSize(mWindow, VIDEOWIDTH * 2, VIDEOHEIGHT * 2);
 	}
 }
 
