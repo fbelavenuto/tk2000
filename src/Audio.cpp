@@ -38,29 +38,27 @@ void CAudio::playCallback(void *userdata, uint8_t *stream, int len) {
 	}
 	unsigned long long cycleActual;
 	unsigned long long nextCycle = obj->mCyclesQueue.front();
-	const double clocksPerSample{ (double)obj->mCpu->getClock() / (double)obj->mSampleRate };	// 6502 clock / sampleRate
+	const double clocksPerSample{ (double)CPU_CLOCK / (double)obj->mSampleRate };	// 6502 clock / sampleRate
 
 	for (int i = 0; i < bufferLen; i++) {
 		cycleActual = audioCycleStart + (unsigned long long)((double)i * clocksPerSample);
-		if (cycleActual >= nextCycle) {
+		if (obj->mCyclesQueue.size() > 0 && cycleActual >= nextCycle) {
 			soundPos = -soundPos;
-			if (obj->mCyclesQueue.size() == 0) {
-				SDL_PauseAudioDevice(obj->mPlayDevId, SDL_TRUE);
-				audioCycleStart = 0;
-				return;
-			} else {
+			if (obj->mCyclesQueue.size() != 0) {
 				obj->mCyclesQueue.pop();
-				if (obj->mCyclesQueue.size()== 0) {
-					SDL_PauseAudioDevice(obj->mPlayDevId, SDL_TRUE);
-					audioCycleStart = 0;
-					return;
+				if (obj->mCyclesQueue.size() != 0) {
+					nextCycle = obj->mCyclesQueue.front();
 				}
-				nextCycle = obj->mCyclesQueue.front();
 			}
 		}
 		buffer[i] = soundPos;
 	}
-	audioCycleStart = cycleActual;
+	if (obj->mCyclesQueue.size() == 0) {
+		audioCycleStart = 0;
+		SDL_PauseAudioDevice(obj->mPlayDevId, SDL_TRUE);
+	} else {
+		audioCycleStart = cycleActual;
+	}
 }
 
 /*************************************************************************************************/
@@ -76,7 +74,7 @@ CAudio::CAudio(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
 	desiredPlaybackSpec.freq = mSampleRate;
 	desiredPlaybackSpec.format = AUDIO_S16SYS;
 	desiredPlaybackSpec.channels = 1;
-	desiredPlaybackSpec.samples = (uint16_t)((double)mSampleRate / freqTick);
+	desiredPlaybackSpec.samples = (uint16_t)((double)mSampleRate / freqTick) * 2;
 	desiredPlaybackSpec.userdata = this; 
 	desiredPlaybackSpec.callback = playCallback;
 
@@ -98,7 +96,7 @@ CAudio::~CAudio() {
 
 /*************************************************************************************************/
 byte CAudio::read(const word addr) {
-	if (mCpu->getFullSpeed()) {
+	if (mCpu->getClockRate() != 1.0) {
 		return 0xFF;
 	}
 	const std::lock_guard<std::mutex> lock(myMutex);
@@ -113,11 +111,11 @@ void CAudio::write(word addr, byte data) {
 
 /*************************************************************************************************/
 void CAudio::update() {
-	if (mCpu->getFullSpeed()) {
+	if (mCpu->getClockRate() != 1.0) {
 		return;
 	}
 	const std::lock_guard<std::mutex> lock(myMutex);
-	const unsigned long numSamples = (unsigned long)((double)mCpu->getClock() / freqTick);
+	const unsigned long numSamples = (unsigned long)((double)CPU_CLOCK / freqTick) * 2;
 	if (SDL_GetAudioDeviceStatus(mPlayDevId) == SDL_AUDIO_PAUSED) {
 		if (mCyclesQueue.size() > 0) {
 			const unsigned long long first = mCyclesQueue.front();

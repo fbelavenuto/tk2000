@@ -67,6 +67,14 @@ bool CCpu6502::getFullSpeed() const {
 }
 
 /*************************************************************************************************/
+double CCpu6502::getClockRate() const {
+	if (mFullSpeed) {
+		return std::numeric_limits<double>::infinity();
+	}
+	return mClock / CPU_CLOCK;
+}
+
+/*************************************************************************************************/
 void CCpu6502::reset() {
 	interruptFlags = 0;	// clear all interrupt flags
 	mRegA = mRegX = mRegY = 0;

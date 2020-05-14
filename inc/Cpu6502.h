@@ -38,11 +38,12 @@ public:
 	unsigned long getClock() const;
 	void setFullSpeed(const bool val);
 	bool getFullSpeed() const;
+	double getClockRate() const;
 	void executeOpcode();
 	void reset();
 private:
 	CBus *mBus{};
-	unsigned long mClock{ 1022727 };
+	unsigned long mClock{ CPU_CLOCK };
 	bool mFullSpeed{ false };
 	unsigned long long mCumulativeCycles{ 0 };
 	int interruptFlags{ 0 };
