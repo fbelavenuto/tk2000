@@ -30,14 +30,16 @@ struct SCh {
 #pragma pack(pop)
 
 /*************************************************************************************************/
-CTape::CTape(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
+CTape::CTape(CBus *bus) {
 	assert(bus != nullptr);
-	assert(mCpu != nullptr);
 
-	bus->addDevice(0xC010, 0xC01F, this);
-	bus->addDevice(0xC020, 0xC02F, this);
-	bus->addDevice(0xC052, 0xC053, this);
-	bus->addDevice(0xC056, 0xC057, this);
+	bus->addDevice("tape", this);
+	bus->registerAddr("tape", 0xC010, 0xC01F);
+	bus->registerAddr("tape", 0xC020, 0xC02F);
+	bus->registerAddr("tape", 0xC052, 0xC053);
+	bus->registerAddr("tape", 0xC056, 0xC057);
+	mCpu = static_cast<CCpu6502 *>(bus->getDevice("cpu"));
+	assert(mCpu != nullptr);
 }
 
 /*************************************************************************************************/
@@ -117,14 +119,14 @@ bool CTape::insertCt2(const char *fileName) {
 		return false;
 	}
 	dword magic;
-	fread(&magic, 1, sizeof(dword), fileTape);
+	size_t rlen = fread(&magic, 1, sizeof(dword), fileTape);
 	if (memcmp(&magic, CT2_MAGIC, sizeof(dword)) != 0) {
 		return false;
 	}
 	stop();
 	SCh ch;
 	while (true) {
-		fread(&ch, 1, sizeof(SCh), fileTape);
+		rlen = fread(&ch, 1, sizeof(SCh), fileTape);
 		if (feof(fileTape)) {
 			break;
 		}
@@ -145,7 +147,7 @@ bool CTape::insertCt2(const char *fileName) {
 		} else if (memcmp(ch.ID, CT2_DATA, sizeof(word)) == 0) {
 			byte b;
 			for (int i = 0; i < ch.size; i++) {
-				fread(&b, 1, 1, fileTape);
+				rlen = fread(&b, 1, 1, fileTape);
 				for (int j = 0; j < 8; j++) {
 					int mask = 1 << (7 - j);
 					if ((mask & b) == mask) {

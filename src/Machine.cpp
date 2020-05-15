@@ -198,18 +198,12 @@ CMachine::CMachine() {
 	mCpu = std::make_unique<CCpu6502>(mBus.get());
 	mRam = std::make_unique<CRam>(mBus.get());
 	mRom = std::make_unique<CRom>(mBus.get());
-	mVideo = std::make_unique<CVideo>(mRenderer, mBus.get(), mRam.get());
-	mAudio = std::make_unique<CAudio>(mBus.get(), mCpu.get());
+	mVideo = std::make_unique<CVideo>(mBus.get(), mRenderer, mRam->mRam);
+	mAudio = std::make_unique<CAudio>(mBus.get());
 	mKeyboard = std::make_unique<CKeyboard>(mBus.get());
-	mTape = std::make_unique<CTape>(mBus.get(), mCpu.get());
+	mTape = std::make_unique<CTape>(mBus.get());
 
-	mCpu->reset();
-	mRam->reset();
-	mRom->reset();
-	mVideo->reset();
-	mAudio->reset();
-	mKeyboard->reset();
-	mTape->reset();
+	mBus->resetAll();
 }
 
 /*************************************************************************************************/
@@ -247,9 +241,7 @@ bool CMachine::loop() {
 				mCpu->executeOpcode();
 			}
 			// Do updates
-			mAudio->update();
-			mVideo->update();
-			mTape->update();
+			mBus->updateAll();
 			now = std::chrono::high_resolution_clock::now();
 			auto timePast = now - previous;
 			if (!mCpu->getFullSpeed() && timePast < std::chrono::microseconds(usToRun)) {

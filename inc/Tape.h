@@ -22,7 +22,7 @@
 
 class CTape : public CDevice {
 public:
-	CTape(CBus *bus, CCpu6502 *cpu);
+	CTape(CBus *bus);
 	~CTape() override;
 	byte read(const word addr) override;
 	void write(const word addr, const byte data) override;
@@ -34,7 +34,7 @@ public:
 	bool getPlayState() const noexcept;
 	bool insertCt2(const char *fileName);
 private:
-	CCpu6502 *mCpu{};
+	CCpu6502* mCpu;
 	unsigned long long mStartCycle{ 0 };
 	std::queue<word> mQueueCycles;
 	word mCyclesNeeded;

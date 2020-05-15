@@ -19,11 +19,10 @@
 #include "Common.h"
 #include "Device.h"
 #include "Bus.h"
-#include "Ram.h"
 
 class CVideo : public CDevice {
 public:
-	CVideo(SDL_Renderer *renderer, CBus *bus, CRam *ram);
+	CVideo(CBus *bus, SDL_Renderer *renderer, byte* ramPtr);
 	~CVideo() override;
 	byte read(const word addr) override;
 	void write(const word addr, const byte data) override;
@@ -34,15 +33,14 @@ public:
 	void setScanline(const bool val) noexcept;
 	bool getScanline() const noexcept;
 private:
+	byte* mRamPtr = nullptr;
 	struct sRGB {
 		byte red;
 		byte green;
 		byte blue;
 	};
-
 	SDL_Renderer *mRenderer{};
 	SDL_Texture *mScreen{};
-	CRam *mRam{};
 	bool mVideoMono{ false };
 	bool mSecondPage{ false };
 	bool mScanLines{ false };

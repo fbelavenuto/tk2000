@@ -23,7 +23,7 @@ void CVideo::drawMono() {
 	byte *pnt;
 	for (int y = 0; y < VIDEOHEIGHT; y++) {
 		int offset = ((y & 7) << 10) + ((y & 0x38) << 4) + (y >> 6) * 40;
-		pnt = mRam->mRam + memAddr + offset;
+		pnt = mRamPtr + memAddr + offset;
 		for (int x = 0; x < VIDEOWIDTH; x += 7) {
 			byte v = *pnt++;
 			for (int b = 0; b < 7; b++) {
@@ -56,7 +56,7 @@ void CVideo::drawColor() {
 	bool colorMod[VIDEOWIDTH / 7][VIDEOHEIGHT];
 	for (int y = 0; y < VIDEOHEIGHT; y++) {
 		int offset = ((y & 7) << 10) + ((y & 0x38) << 4) + (y >> 6) * 40;
-		ptr = mRam->mRam + memAddr + offset;
+		ptr = mRamPtr + memAddr + offset;
 		for (int x = 0; x < VIDEOWIDTH; x += 7) {
 			byte v = *ptr++;
 			colorMod[x/7][y] = (v & 0x80) != 0;
@@ -134,21 +134,21 @@ void CVideo::drawColor() {
 
 
 /*****************************************************************************/
-CVideo::CVideo(SDL_Renderer *renderer, CBus *bus, CRam *ram) :
-	mRenderer(renderer), mRam(ram) {
+CVideo::CVideo(CBus *bus, SDL_Renderer *renderer, byte* ramPtr) :
+	mRenderer(renderer), mRamPtr(ramPtr) {
 
 	assert(mRenderer != nullptr);
 	assert(bus != nullptr);
-	assert(mRam != nullptr);
+	assert(ramPtr != nullptr);
 	mScreen = SDL_CreateTexture(mRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, VIDEOWIDTH, VIDEOHEIGHT * 2);
 	if (mScreen == 0) {
 		std::string error{ "Error creating screen texture! SDL Error: " };
 		error.append(SDL_GetError());
 		throw std::runtime_error(error);
 	}
-	bus->addDevice(0xC050, 0xC051, this);
-	bus->addDevice(0xC054, 0xC055, this);
-
+	bus->addDevice("video", this);
+	bus->registerAddr("video", 0xC050, 0xC051);
+	bus->registerAddr("video", 0xC054, 0xC055);
 }
 
 /*****************************************************************************/

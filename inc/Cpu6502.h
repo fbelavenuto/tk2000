@@ -29,10 +29,15 @@ union uReg16bit {
 };
 
 /*************************************************************************************************/
-class CCpu6502 {
+class CCpu6502 : public CDevice {
 public:
 	CCpu6502(CBus *bus);
-	~CCpu6502();
+	~CCpu6502() override;
+	byte read(const word addr) override;
+	void write(const word addr, const byte data) override;
+	void update() override;
+	void reset() override;
+	//
 	unsigned long long getCumulativeCycles() const;
 	void setClock(const unsigned long clock);
 	unsigned long getClock() const;
@@ -40,7 +45,6 @@ public:
 	bool getFullSpeed() const;
 	double getClockRate() const;
 	void executeOpcode();
-	void reset();
 private:
 	CBus *mBus{};
 	unsigned long mClock{ CPU_CLOCK };

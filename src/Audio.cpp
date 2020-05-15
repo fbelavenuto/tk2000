@@ -62,9 +62,8 @@ void CAudio::playCallback(void *userdata, uint8_t *stream, int len) {
 }
 
 /*************************************************************************************************/
-CAudio::CAudio(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
+CAudio::CAudio(CBus *bus) {
 	assert(bus != nullptr);
-	assert(mCpu != nullptr);
 
 	//Default audio spec
 	SDL_AudioSpec receivedPlaybackSpec;
@@ -86,7 +85,10 @@ CAudio::CAudio(CBus *bus, CCpu6502 *cpu) : mCpu(cpu) {
 		throw std::runtime_error(error);
 	}
 
-	bus->addDevice(0xC030, 0xC03F, this);
+	bus->addDevice("audio", this);
+	bus->registerAddr("audio", 0xC030, 0xC03F);
+	mCpu = static_cast<CCpu6502 *>(bus->getDevice("cpu"));
+	assert(mCpu != nullptr);
 }
 
 /*************************************************************************************************/

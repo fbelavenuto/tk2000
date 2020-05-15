@@ -33,11 +33,38 @@ CCpu6502::CCpu6502(CBus *bus) : mBus(bus) {
 		m_BCDTableSub[i] = ((i & 0x0f) <= 0x09) ? i : (i - 0x06);
 		m_BCDTableSub[i] -= ((m_BCDTableSub[i] & 0xf0) <= 0x90) ? 0 : 0x60;
 	}
+
+	mBus->addDevice("cpu", this);
 }
 
 /*************************************************************************************************/
 CCpu6502::~CCpu6502() {
 
+}
+
+/*************************************************************************************************/
+byte CCpu6502::read(const word addr) {
+	return 0xFF;
+}
+
+/*************************************************************************************************/
+void CCpu6502::write(const word addr, const byte data) {
+
+}
+
+/*************************************************************************************************/
+void CCpu6502::update() {
+
+}
+
+/*************************************************************************************************/
+void CCpu6502::reset() {
+	interruptFlags = 0;	// clear all interrupt flags
+	mRegA = mRegX = mRegY = 0;
+	mRegFlags = 0x20;
+	mRegS = 0xFF;
+	mRegPC.value = readWord(0xFFFC);
+	mCumulativeCycles = 0;
 }
 
 /*************************************************************************************************/
@@ -72,16 +99,6 @@ double CCpu6502::getClockRate() const {
 		return std::numeric_limits<double>::infinity();
 	}
 	return mClock / CPU_CLOCK;
-}
-
-/*************************************************************************************************/
-void CCpu6502::reset() {
-	interruptFlags = 0;	// clear all interrupt flags
-	mRegA = mRegX = mRegY = 0;
-	mRegFlags = 0x20;
-	mRegS = 0xFF;
-	mRegPC.value = readWord(0xFFFC);
-	mCumulativeCycles = 0;
 }
 
 /*************************************************************************************************/

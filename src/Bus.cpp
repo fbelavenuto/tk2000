@@ -63,22 +63,50 @@ void CBus::writeWord(const word addr, const word data) {
 }
 
 /*************************************************************************************************/
-void CBus::addDevice(const word addr, CDevice *dev) {
+void CBus::addDevice(const char* name, CDevice *dev) {
+	assert(name != nullptr);
+	assert(dev != nullptr);
+	mMapDevices.emplace(name, dev);
+}
+
+/*************************************************************************************************/
+CDevice* CBus::getDevice(const char* name) {
+	return mMapDevices[name];
+}
+
+/*************************************************************************************************/
+void CBus::registerAddr(const char* name, const word addr) {
+	assert(name != nullptr);
 	if (mDevices[addr] == nullptr) {
-		mDevices[addr] = dev;
+		mDevices[addr] = mMapDevices[name];
 	} else {
-		mDevices2[addr] = dev;
+		mDevices2[addr] = mMapDevices[name];
 	}
 }
 
 /*************************************************************************************************/
-void CBus::addDevice(const word addrStart, const word addrEnd, CDevice *dev) {
+void CBus::registerAddr(const char* name, const word addrStart, const word addrEnd) {
+	assert(name != nullptr);
 	assert(addrEnd >= addrStart);
 	for (int i = addrStart; i <= addrEnd; i++) {
 		if (mDevices[i] == nullptr) {
-			mDevices[i] = dev;
+			mDevices[i] = mMapDevices[name];
 		} else {
-			mDevices2[i] = dev;
+			mDevices2[i] = mMapDevices[name];
 		}
+	}
+}
+
+/*************************************************************************************************/
+void CBus::resetAll() {
+	for (auto& dev : mMapDevices) {
+		dev.second->reset();
+	}
+}
+
+/*************************************************************************************************/
+void CBus::updateAll() {
+	for (auto& dev : mMapDevices) {
+		dev.second->update();
 	}
 }

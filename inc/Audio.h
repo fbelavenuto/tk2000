@@ -22,7 +22,7 @@
 
 class CAudio : public CDevice {
 public:
-	CAudio(CBus *bus, CCpu6502 *cpu);
+	CAudio(CBus *bus);
 	~CAudio() override;
 	byte read(const word addr) override;
 	void write(const word addr, const byte data) override;
@@ -31,7 +31,7 @@ public:
 	//
 	int getSampleRate() const;
 private:
-	CCpu6502 *mCpu{};
+	CCpu6502* mCpu;
 	int mSampleRate{ 44100 };
 	std::mutex myMutex;
 	std::queue<unsigned long long> mCyclesQueue;

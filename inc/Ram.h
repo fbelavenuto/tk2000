@@ -29,7 +29,7 @@ public:
 	void reset() override {}
 	void update() override {}
 	//
-	friend class CVideo;
+	friend class CMachine;
 private:
 	byte mRam[0x10000];
 };

@@ -22,7 +22,8 @@ CRam::CRam(CBus *bus) {
 	memset(mRam, 0, 65536);
 	memset(mRam + 0x2000, 0xFF, 0x1000); // Simulates dirty on the screen
 	memset(mRam + 0xA000, 0xFF, 0x1000); // Simulates dirty on the screen
-	bus->addDevice(0x0000, 0xBFFF, this);
+	bus->addDevice("ram", this);
+	bus->registerAddr("ram", 0x0000, 0xBFFF);
 }
 
 /*************************************************************************************************/

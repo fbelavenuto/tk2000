@@ -23,6 +23,7 @@
 #include <chrono>
 #include <thread>
 #include <queue>
+#include <map>
 #include <mutex>
 #include <memory>
 #include <stdexcept>
