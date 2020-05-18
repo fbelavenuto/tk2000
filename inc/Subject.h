@@ -16,9 +16,7 @@
 
 #pragma once
 
-/* Prototypes */
-
-class CObserver;
+#include "Observer.h"
 
 /*************************************************************************************************/
 class CSubject {

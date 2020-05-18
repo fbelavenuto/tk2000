@@ -19,5 +19,5 @@
 /*************************************************************************************************/
 class CObserver {
 public:
-	virtual void notify(void* val) = 0;
+	virtual void notify(void* msg) = 0;
 };

@@ -36,20 +36,20 @@ CMachine::CMachine() {
 	// Make window
 	mWindow = std::make_unique<CWindowSDL>(mVideo.get());
 	// Attach observers
-	mWindow->attach(mKeyboard.get());
-	mWindow->attach(this);
+	//mWindow->attach(mKeyboard.get());
+	//mWindow->attach(this);
 }
 
 /*************************************************************************************************/
 CMachine::~CMachine() {
-	mWindow->detach(this);
-	mWindow->detach(mKeyboard.get());
+	//mWindow->detach(this);
+	//mWindow->detach(mKeyboard.get());
 }
 
 /*************************************************************************************************/
 // Receiving keyboard notification from event loop
 void CMachine::notify(void* val) {
-	SDL_KeyboardEvent* e = reinterpret_cast<SDL_KeyboardEvent*>(val);
+	auto e = reinterpret_cast<SDL_KeyboardEvent*>(val);
 	if (e->state == SDL_PRESSED) {
 		switch (e->keysym.sym) {
 		case SDLK_F5:

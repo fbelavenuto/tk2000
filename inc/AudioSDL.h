@@ -16,32 +16,24 @@
 
 #pragma once
 
-#include "Device.h"
-#include "Bus.h"
-#include "Cpu6502.h"
-#include "AudioSDL.h"
+#include "Common.h"
 
-class CAudio final : public CDevice {
+/*************************************************************************************************/
+class CAudioSDL final {
 public:
-	CAudio(CBus *bus, CCpu6502* cpu);
-	~CAudio();
-	// CDevice
-	byte read(const word addr) override;
-	void write(const word addr, const byte data) override;
-	void update() override;
-	void reset() override;
-	// Native
-	int getSampleRate() const;
+	CAudioSDL();
+	~CAudioSDL();
+	void write(const int16_t* in, unsigned long count);
 private:
-	CCpu6502* mCpu;
-	int mSampleRate{ SAMPLERATE };
-	unsigned long long mLastCycle{ 0 };
-	int16_t mSoundPos{ -32767 };
-	bool mMuted{ false };
-	bool mSpeakToggled{ false };
-	unsigned long long mQuietCycle{ 0 };
-	CAudioSDL *mAudioSDL{};
-	void makeSamples();
-	int16_t mBuffer[NUMSAMPLESPERUPDATE];
-	unsigned int mPos{ 0 };
+	SDL_AudioDeviceID mPlayDevId;
+	const unsigned long BUFSIZE = NUMSAMPLESPERUPDATE;
+	const int BUFCOUNT{ 3 };
+	int16_t* volatile mAllBuffers;
+	SDL_sem* volatile mSemaphore;
+	int volatile mIdxReadBuffer;
+	int mIdxWriteBuffer;
+	unsigned long mWritePos;
+	int16_t* getBufferPtr(int index);
+	void fillBuffer(void*, int);
+	static void cbFillBuffer(void*, uint8_t*, int);
 };

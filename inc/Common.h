@@ -24,7 +24,13 @@
 constexpr int VIDEOWIDTH{ 280 };
 constexpr int VIDEOHEIGHT{ 192 };
 constexpr long CPU_CLOCK{ 1022727 };
-constexpr double MS_TO_RUN{ 40.0 };		// More ms to sync audio
+constexpr int SAMPLERATE{ 44100 };
+constexpr double MS_TO_RUN{ 32.0 };		// More ms to sync audio
+constexpr double FREQTICK = (1.0 / (MS_TO_RUN / 1000.0));
+constexpr double CLOCKSPERSAMPLE{ (double)CPU_CLOCK / (double)SAMPLERATE };	// 6502 clock / sampleRate
+constexpr unsigned long NUMSAMPLESPERUPDATE = (unsigned long)((double)CPU_CLOCK / FREQTICK / CLOCKSPERSAMPLE);
+constexpr unsigned long CYCLESIN50US = (unsigned long)((double)CPU_CLOCK / (1.0 / 0.00005));
+
 
 /* Typedefs */
 

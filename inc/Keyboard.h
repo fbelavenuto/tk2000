@@ -30,7 +30,7 @@ public:
 	void update() override;
 	void reset() override;
 	// CObserver
-	void notify(void* val) override;
+	void notify(void*) override;
 private:
 	byte mMatrix[8];
 	bool mCtrl{ false };

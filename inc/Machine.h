@@ -34,7 +34,7 @@ public:
 	CMachine();
 	~CMachine();
 	// CObserver
-	void notify(void* val) override;
+	void notify(void*) override;
 	// Native
 	bool setTapeFile(const char *filename);
 	bool loop();

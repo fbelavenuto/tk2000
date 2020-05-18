@@ -151,6 +151,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Audio.cpp" />
+    <ClCompile Include="..\src\AudioSDL.cpp" />
     <ClCompile Include="..\src\Bus.cpp" />
     <ClCompile Include="..\src\Cpu6502.cpp" />
     <ClCompile Include="..\src\Keyboard.cpp" />
@@ -168,6 +169,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\inc\Audio.h" />
+    <ClInclude Include="..\inc\AudioSDL.h" />
     <ClInclude Include="..\inc\Bus.h" />
     <ClInclude Include="..\inc\Cpu6502.h" />
     <ClInclude Include="..\inc\Common.h" />

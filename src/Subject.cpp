@@ -16,7 +16,7 @@
 
 #include "pch.h"
 #include "Subject.h"
-#include "Observer.h"
+
 
 /*************************************************************************************************/
 CSubject::CSubject() {
