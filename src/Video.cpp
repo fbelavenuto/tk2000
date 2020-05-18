@@ -27,8 +27,7 @@ void CVideo::drawMono() {
 		for (int x = 0; x < VIDEOWIDTH; x += 7) {
 			byte v = *pnt++;
 			for (int b = 0; b < 7; b++) {
-				const int index = y * 2 * VIDEOWIDTH + x + b;
-				const int index2 = index + VIDEOWIDTH;
+				const int index = y * VIDEOWIDTH + x + b;
 				if (v & (1 << b)) {
 					mFrameBuffer[index].red = 255;
 					mFrameBuffer[index].green = 255;
@@ -37,10 +36,6 @@ void CVideo::drawMono() {
 					mFrameBuffer[index].red = 0;
 					mFrameBuffer[index].green = 0;
 					mFrameBuffer[index].blue = 0;
-				}
-				if (!mScanLines) {
-					mFrameBuffer[index2] = mFrameBuffer[index];
-					mFrameBuffer[index2 + 1] = mFrameBuffer[index + 1];
 				}
 			}
 		}
@@ -68,8 +63,7 @@ void CVideo::drawColor() {
 
 	for (int y = 0; y < VIDEOHEIGHT; y++) {
 		for (int x = 0; x < VIDEOWIDTH; x += 2) {
-			const int index = y * 2 * VIDEOWIDTH + x;
-			const int index2 = index + VIDEOWIDTH;
+			const int index = y * VIDEOWIDTH + x;
 			const bool cm = colorMod[x / 7][y];
 			//bool prev = (x == 0 ? false : pixels[x - 1][y]);
 			byte actual = (pixels[x][y] ? 2 : 0) | (pixels[x + 1][y] ? 1 : 0);
@@ -124,28 +118,17 @@ void CVideo::drawColor() {
 				break;
 
 			}
-			if (!mScanLines) {
-				mFrameBuffer[index2] = mFrameBuffer[index];
-				mFrameBuffer[index2 + 1] = mFrameBuffer[index + 1];
-			}
 		}
 	}
 }
 
 
 /*****************************************************************************/
-CVideo::CVideo(CBus *bus, SDL_Renderer *renderer, byte* ramPtr) :
-	mRenderer(renderer), mRamPtr(ramPtr) {
+CVideo::CVideo(CBus *bus, byte* ramPtr) :
+	mRamPtr(ramPtr) {
 
-	assert(mRenderer != nullptr);
 	assert(bus != nullptr);
 	assert(ramPtr != nullptr);
-	mScreen = SDL_CreateTexture(mRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, VIDEOWIDTH, VIDEOHEIGHT * 2);
-	if (mScreen == 0) {
-		std::string error{ "Error creating screen texture! SDL Error: " };
-		error.append(SDL_GetError());
-		throw std::runtime_error(error);
-	}
 	bus->addDevice("video", this);
 	bus->registerAddr("video", 0xC050, 0xC051);
 	bus->registerAddr("video", 0xC054, 0xC055);
@@ -153,23 +136,8 @@ CVideo::CVideo(CBus *bus, SDL_Renderer *renderer, byte* ramPtr) :
 
 /*****************************************************************************/
 CVideo::~CVideo() {
-	SDL_DestroyTexture(mScreen);
 }
 
-/*****************************************************************************/
-void CVideo::render() {
-	memset(mFrameBuffer, 0, sizeof(mFrameBuffer));
-	mVideoMono ? drawMono() : drawColor();
-	sRGB *ptr;
-	int pitch;
-	SDL_LockTexture(mScreen, nullptr, (void **)&ptr, &pitch);
-	memcpy(ptr, &mFrameBuffer, VIDEOHEIGHT * 2 * pitch);
-	SDL_UnlockTexture(mScreen);
-	int w, h;
-	SDL_GetRendererOutputSize(mRenderer, &w, &h);
-	SDL_Rect r{ 0, 0, w, h };
-	SDL_RenderCopy(mRenderer, mScreen, NULL, &r);
-}
 
 /*****************************************************************************/
 byte CVideo::read(const word addr) {
@@ -206,11 +174,12 @@ void CVideo::reset() {
 }
 
 /*****************************************************************************/
-void CVideo::setScanline(bool val) noexcept {
-	mScanLines = val;
+void CVideo::update() {
 }
 
 /*****************************************************************************/
-bool CVideo::getScanline() const noexcept {
-	return mScanLines;
+sRGB* CVideo::getFrameBuffer() {
+	memset(mFrameBuffer, 0, sizeof(mFrameBuffer));
+	mVideoMono ? drawMono() : drawColor();
+	return (sRGB*)mFrameBuffer;
 }

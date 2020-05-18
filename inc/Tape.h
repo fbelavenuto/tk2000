@@ -22,13 +22,14 @@
 
 class CTape : public CDevice {
 public:
-	CTape(CBus *bus);
+	CTape(CBus *bus, CCpu6502* cpu);
 	~CTape() override;
+	// CDevice
 	byte read(const word addr) override;
 	void write(const word addr, const byte data) override;
 	void update() override;
 	void reset() override;
-	//
+	// Native
 	void play() noexcept;
 	void stop() noexcept;
 	bool getPlayState() const noexcept;

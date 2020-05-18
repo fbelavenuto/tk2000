@@ -25,17 +25,20 @@
 #include "Audio.h"
 #include "Keyboard.h"
 #include "Tape.h"
+#include "WindowSDL.h"
+#include "Observer.h"
 
 /*************************************************************************************************/
-class CMachine {
+class CMachine final : public CObserver {
 public:
 	CMachine();
 	~CMachine();
+	// CObserver
+	void notify(void* val) override;
+	// Native
 	bool setTapeFile(const char *filename);
 	bool loop();
 private:
-	SDL_Window *mWindow{};
-	SDL_Renderer *mRenderer{};
 	std::unique_ptr<CCpu6502> mCpu{};
 	std::unique_ptr<CVideo> mVideo{};
 	std::unique_ptr<CBus> mBus{};
@@ -44,6 +47,5 @@ private:
 	std::unique_ptr<CAudio> mAudio{};
 	std::unique_ptr<CKeyboard> mKeyboard{};
 	std::unique_ptr<CTape> mTape{};
-	bool mFullScreen{ false };
-	void setFullScreen(bool val);
+	std::unique_ptr<CWindowSDL> mWindow{};
 };

@@ -21,6 +21,7 @@
 #include <cstring>
 #include <cassert>
 #include <chrono>
+#include <algorithm>
 #include <thread>
 #include <queue>
 #include <map>

@@ -22,8 +22,8 @@
 /*************************************************************************************************/
 CBus::CBus() {
 	for (int i = 0; i < 0x10000; i++) {
-		mDevices[i] = nullptr;
-		mDevices2[i] = nullptr;
+		mDevices[i][0] = nullptr;
+		mDevices[i][1] = nullptr;
 	}
 }
 
@@ -34,20 +34,23 @@ CBus::~CBus() {
 
 /*************************************************************************************************/
 byte CBus::readByte(const word addr) {
-	if (mDevices[addr] == nullptr) {
+	if (mDevices[addr][0] == nullptr) {
 		return 0xFF;
 	}
-	byte result = mDevices[addr]->read(addr);
-	if (mDevices2[addr] != nullptr) {
-		result |= mDevices2[addr]->read(addr);
+	byte result = mDevices[addr][0]->read(addr);
+	if (mDevices[addr][1] != nullptr) {
+		result |= mDevices[addr][1]->read(addr);
 	}
 	return result;
 }
 
 /*************************************************************************************************/
 void CBus::writeByte(const word addr, const byte data) {
-	if (mDevices[addr] != nullptr) {
-		mDevices[addr]->write(addr, data);
+	if (mDevices[addr][0] != nullptr) {
+		mDevices[addr][0]->write(addr, data);
+	}
+	if (mDevices[addr][1] != nullptr) {
+		mDevices[addr][1]->write(addr, data);
 	}
 }
 
@@ -77,10 +80,10 @@ CDevice* CBus::getDevice(const char* name) {
 /*************************************************************************************************/
 void CBus::registerAddr(const char* name, const word addr) {
 	assert(name != nullptr);
-	if (mDevices[addr] == nullptr) {
-		mDevices[addr] = mMapDevices[name];
+	if (mDevices[addr][0] == nullptr) {
+		mDevices[addr][0] = mMapDevices[name];
 	} else {
-		mDevices2[addr] = mMapDevices[name];
+		mDevices[addr][1] = mMapDevices[name];
 	}
 }
 
@@ -89,10 +92,10 @@ void CBus::registerAddr(const char* name, const word addrStart, const word addrE
 	assert(name != nullptr);
 	assert(addrEnd >= addrStart);
 	for (int i = addrStart; i <= addrEnd; i++) {
-		if (mDevices[i] == nullptr) {
-			mDevices[i] = mMapDevices[name];
+		if (mDevices[i][0] == nullptr) {
+			mDevices[i][0] = mMapDevices[name];
 		} else {
-			mDevices2[i] = mMapDevices[name];
+			mDevices[i][1] = mMapDevices[name];
 		}
 	}
 }

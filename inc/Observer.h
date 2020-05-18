@@ -16,24 +16,8 @@
 
 #pragma once
 
-#include "Common.h"
-#include "Device.h"
-
-class CBus final {
+/*************************************************************************************************/
+class CObserver {
 public:
-	CBus();
-	~CBus();
-	byte readByte(const word addr);
-	void writeByte(const word addr, byte data);
-	word readWord(const word addr);
-	void writeWord(const word addr, word data);
-	void addDevice(const char* name, CDevice* dev);
-	CDevice* getDevice(const char* name);
-	void registerAddr(const char* name, const word addr);
-	void registerAddr(const char* name, const word addrStart, const word addrEnd);
-	void resetAll();
-	void updateAll();
-private:
-	CDevice *mDevices[0x10000][2];
-	std::map<const char*, CDevice*> mMapDevices;
+	virtual void notify(void* val) = 0;
 };

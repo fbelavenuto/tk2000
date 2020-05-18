@@ -20,9 +20,9 @@
 #include "Bus.h"
 #include "Cpu6502.h"
 
-class CAudio : public CDevice {
+class CAudio final : public CDevice {
 public:
-	CAudio(CBus *bus);
+	CAudio(CBus *bus, CCpu6502* cpu);
 	~CAudio() override;
 	byte read(const word addr) override;
 	void write(const word addr, const byte data) override;

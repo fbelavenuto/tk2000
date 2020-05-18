@@ -20,7 +20,7 @@
 #include "Device.h"
 #include "Bus.h"
 
-class CRam : public CDevice {
+class CRam final : public CDevice {
 public:
 	CRam(CBus *bus);
 	~CRam() override;
@@ -29,7 +29,7 @@ public:
 	void reset() override {}
 	void update() override {}
 	//
-	friend class CMachine;
 private:
+	friend class CMachine;
 	byte mRam[0x10000];
 };

@@ -161,6 +161,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\src\Ram.cpp" />
+    <ClCompile Include="..\src\Subject.cpp" />
+    <ClCompile Include="..\src\WindowSDL.cpp" />
     <ClCompile Include="..\src\Rom.cpp" />
     <ClCompile Include="..\src\Video.cpp" />
   </ItemGroup>
@@ -172,8 +174,11 @@
     <ClInclude Include="..\inc\Device.h" />
     <ClInclude Include="..\inc\Keyboard.h" />
     <ClInclude Include="..\inc\Machine.h" />
+    <ClInclude Include="..\inc\Observer.h" />
     <ClInclude Include="..\inc\pch.h" />
     <ClInclude Include="..\inc\Ram.h" />
+    <ClInclude Include="..\inc\Subject.h" />
+    <ClInclude Include="..\inc\WindowSDL.h" />
     <ClInclude Include="..\inc\Rom.h" />
     <ClInclude Include="..\inc\Tape.h" />
     <ClInclude Include="..\inc\Video.h" />

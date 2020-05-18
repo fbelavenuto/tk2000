@@ -30,16 +30,15 @@ struct SCh {
 #pragma pack(pop)
 
 /*************************************************************************************************/
-CTape::CTape(CBus *bus) {
+CTape::CTape(CBus *bus, CCpu6502* cpu) : mCpu(cpu) {
 	assert(bus != nullptr);
+	assert(mCpu != nullptr);
 
 	bus->addDevice("tape", this);
 	bus->registerAddr("tape", 0xC010, 0xC01F);
 	bus->registerAddr("tape", 0xC020, 0xC02F);
 	bus->registerAddr("tape", 0xC052, 0xC053);
 	bus->registerAddr("tape", 0xC056, 0xC057);
-	mCpu = static_cast<CCpu6502 *>(bus->getDevice("cpu"));
-	assert(mCpu != nullptr);
 }
 
 /*************************************************************************************************/

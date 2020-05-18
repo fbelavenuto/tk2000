@@ -20,6 +20,7 @@
 #include "Bus.h"
 
 /* Typedefs */
+
 union uReg16bit {
 	struct {
 		byte low;
@@ -29,7 +30,7 @@ union uReg16bit {
 };
 
 /*************************************************************************************************/
-class CCpu6502 : public CDevice {
+class CCpu6502 final : public CDevice {
 public:
 	CCpu6502(CBus *bus);
 	~CCpu6502() override;

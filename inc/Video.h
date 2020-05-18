@@ -20,31 +20,27 @@
 #include "Device.h"
 #include "Bus.h"
 
+struct sRGB {
+	byte red;
+	byte green;
+	byte blue;
+};
+
 class CVideo : public CDevice {
 public:
-	CVideo(CBus *bus, SDL_Renderer *renderer, byte* ramPtr);
+	CVideo(CBus *bus, byte* ramPtr);
 	~CVideo() override;
 	byte read(const word addr) override;
 	void write(const word addr, const byte data) override;
-	void update() override {}
+	void update() override;
 	void reset() override;
 	//
-	void render();
-	void setScanline(const bool val) noexcept;
-	bool getScanline() const noexcept;
+	sRGB* getFrameBuffer();
 private:
 	byte* mRamPtr = nullptr;
-	struct sRGB {
-		byte red;
-		byte green;
-		byte blue;
-	};
-	SDL_Renderer *mRenderer{};
-	SDL_Texture *mScreen{};
 	bool mVideoMono{ false };
 	bool mSecondPage{ false };
-	bool mScanLines{ false };
-	sRGB mFrameBuffer[VIDEOWIDTH * VIDEOHEIGHT * 2];
+	sRGB mFrameBuffer[VIDEOWIDTH * VIDEOHEIGHT];
 	void drawMono();
 	void drawColor();
 };

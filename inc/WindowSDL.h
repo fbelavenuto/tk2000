@@ -16,24 +16,27 @@
 
 #pragma once
 
-#include "Common.h"
-#include "Device.h"
+#include "Subject.h"
 
-class CBus final {
+/* Prototypes */
+
+class CVideo;
+
+/*************************************************************************************************/
+class CWindowSDL final : public CSubject {
 public:
-	CBus();
-	~CBus();
-	byte readByte(const word addr);
-	void writeByte(const word addr, byte data);
-	word readWord(const word addr);
-	void writeWord(const word addr, word data);
-	void addDevice(const char* name, CDevice* dev);
-	CDevice* getDevice(const char* name);
-	void registerAddr(const char* name, const word addr);
-	void registerAddr(const char* name, const word addrStart, const word addrEnd);
-	void resetAll();
-	void updateAll();
+	CWindowSDL(CVideo* video);
+	~CWindowSDL();
+	// Native
+	void render();
+	bool loop();
 private:
-	CDevice *mDevices[0x10000][2];
-	std::map<const char*, CDevice*> mMapDevices;
+	SDL_Window *mWindow{};
+	SDL_Renderer *mRenderer{};
+	SDL_Texture* mScreen{};
+	bool mScanLines{ false };
+	CVideo* mVideo{};
+	bool mFullScreen{ false };
+	void setScanline(bool val) noexcept;
+	void setFullScreen(bool val) noexcept;
 };

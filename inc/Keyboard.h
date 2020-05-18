@@ -18,17 +18,19 @@
 
 #include "Device.h"
 #include "Bus.h"
+#include "Observer.h"
 
-class CKeyboard : public CDevice {
+class CKeyboard final : public CDevice, public CObserver {
 public:
 	CKeyboard(CBus *bus);
+	// CDevice
 	~CKeyboard() override;
 	byte read(const word addr) override;
 	void write(const word addr, const byte data) override;
 	void update() override;
 	void reset() override;
-	//
-	void processEvent(SDL_KeyboardEvent *e);
+	// CObserver
+	void notify(void* val) override;
 private:
 	byte mMatrix[8];
 	bool mCtrl{ false };

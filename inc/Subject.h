@@ -16,24 +16,19 @@
 
 #pragma once
 
-#include "Common.h"
-#include "Device.h"
+/* Prototypes */
 
-class CBus final {
+class CObserver;
+
+/*************************************************************************************************/
+class CSubject {
 public:
-	CBus();
-	~CBus();
-	byte readByte(const word addr);
-	void writeByte(const word addr, byte data);
-	word readWord(const word addr);
-	void writeWord(const word addr, word data);
-	void addDevice(const char* name, CDevice* dev);
-	CDevice* getDevice(const char* name);
-	void registerAddr(const char* name, const word addr);
-	void registerAddr(const char* name, const word addrStart, const word addrEnd);
-	void resetAll();
-	void updateAll();
+	CSubject();
+	virtual ~CSubject();
+	void attach(CObserver* observer);
+	void detach(CObserver* observer);
+protected:
+	void notify(void* val);
 private:
-	CDevice *mDevices[0x10000][2];
-	std::map<const char*, CDevice*> mMapDevices;
+	std::vector<CObserver*> mObservers;
 };
