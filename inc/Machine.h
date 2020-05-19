@@ -29,12 +29,12 @@
 #include "Observer.h"
 
 /*************************************************************************************************/
-class CMachine final : public CObserver {
+class CMachine final : public CObserver<SDL_KeyboardEvent> {
 public:
 	CMachine();
 	~CMachine();
 	// CObserver
-	void notify(void*) override;
+	void notify(SDL_KeyboardEvent*) override;
 	// Native
 	bool setTapeFile(const char *filename);
 	bool loop();

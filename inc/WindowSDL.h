@@ -23,7 +23,7 @@
 class CVideo;
 
 /*************************************************************************************************/
-class CWindowSDL final : public CSubject {
+class CWindowSDL final : public CSubject<SDL_KeyboardEvent> {
 public:
 	CWindowSDL(CVideo* video);
 	~CWindowSDL();

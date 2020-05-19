@@ -19,14 +19,28 @@
 #include "Observer.h"
 
 /*************************************************************************************************/
+template <typename T>
 class CSubject {
 public:
-	CSubject();
-	virtual ~CSubject();
-	void attach(CObserver* observer);
-	void detach(CObserver* observer);
+	CSubject() {}
+	virtual ~CSubject() {
+		mObservers.clear();
+	}
+	void attach(CObserver<T>* observer) {
+		mObservers.emplace_back(observer);
+	}
+	void detach(CObserver<T>* observer) {
+		auto i = std::find(mObservers.begin(), mObservers.end(), observer);
+		if (i != mObservers.end()) {
+			mObservers.erase(i);
+		}
+	}
 protected:
-	void notify(void* val);
+	void notify(T* val) {
+		for (auto i : mObservers) {
+			i->notify(val);
+		}
+	}
 private:
-	std::vector<CObserver*> mObservers;
+	std::vector<CObserver<T>*> mObservers;
 };

@@ -90,8 +90,7 @@ void CKeyboard::reset() {
 
 /*************************************************************************************************/
 // Receiving keyboard notification from event loop
-void CKeyboard::notify(void* val) {
-	auto e = reinterpret_cast<SDL_KeyboardEvent*>(val);
+void CKeyboard::notify(SDL_KeyboardEvent* e) {
 	if (e->repeat) {
 		return;
 	}

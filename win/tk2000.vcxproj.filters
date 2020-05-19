@@ -51,9 +51,6 @@
     <ClCompile Include="..\src\WindowSDL.cpp">
       <Filter>Arquivos de Origem</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Subject.cpp">
-      <Filter>Arquivos de Origem</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\AudioSDL.cpp">
       <Filter>Arquivos de Origem</Filter>
     </ClCompile>

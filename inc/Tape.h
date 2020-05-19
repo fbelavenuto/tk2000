@@ -20,7 +20,7 @@
 #include "Bus.h"
 #include "Cpu6502.h"
 
-class CTape : public CDevice {
+class CTape final : public CDevice {
 public:
 	CTape(CBus *bus, CCpu6502* cpu);
 	~CTape() override;

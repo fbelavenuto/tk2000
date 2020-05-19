@@ -26,7 +26,7 @@ struct sRGB {
 	byte blue;
 };
 
-class CVideo : public CDevice {
+class CVideo final : public CDevice {
 public:
 	CVideo(CBus *bus, byte* ramPtr);
 	~CVideo() override;

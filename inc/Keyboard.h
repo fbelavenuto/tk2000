@@ -20,7 +20,7 @@
 #include "Bus.h"
 #include "Observer.h"
 
-class CKeyboard final : public CDevice, public CObserver {
+class CKeyboard final : public CDevice, public CObserver<SDL_KeyboardEvent> {
 public:
 	CKeyboard(CBus *bus);
 	// CDevice
@@ -30,7 +30,7 @@ public:
 	void update() override;
 	void reset() override;
 	// CObserver
-	void notify(void*) override;
+	void notify(SDL_KeyboardEvent*) override;
 private:
 	byte mMatrix[8];
 	bool mCtrl{ false };

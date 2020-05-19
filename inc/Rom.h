@@ -20,7 +20,7 @@
 #include "Device.h"
 #include "Bus.h"
 
-class CRom : public CDevice {
+class CRom final : public CDevice {
 public:
 	CRom(CBus *bus);
 	~CRom() override;

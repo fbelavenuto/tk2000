@@ -162,7 +162,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\src\Ram.cpp" />
-    <ClCompile Include="..\src\Subject.cpp" />
     <ClCompile Include="..\src\WindowSDL.cpp" />
     <ClCompile Include="..\src\Rom.cpp" />
     <ClCompile Include="..\src\Video.cpp" />

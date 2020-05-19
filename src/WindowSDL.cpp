@@ -157,7 +157,7 @@ const byte icon[] = {
 
 /*************************************************************************************************/
 CWindowSDL::CWindowSDL(CVideo* video)
-	: mVideo(video), CSubject() {
+	: mVideo(video) {
 
 	mWindow = SDL_CreateWindow("TK2000 Emulator", SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED, VIDEOWIDTH * 2, VIDEOHEIGHT * 2, SDL_WINDOW_SHOWN);
