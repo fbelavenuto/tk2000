@@ -17,13 +17,16 @@
 #pragma once
 
 #include "Common.h"
+#include "Observer.h"
+#include "Subject.h"
 
 /*************************************************************************************************/
-class CAudioSDL final {
+class CAudioSDL final : public CObserver<sAudioMsg> {
 public:
-	CAudioSDL();
+	CAudioSDL(CSubject<sAudioMsg>*);
 	~CAudioSDL();
-	void write(const int16_t* in, unsigned long count);
+	// CObserver
+	void notify(sAudioMsg*);
 private:
 	SDL_AudioDeviceID mPlayDevId;
 	const unsigned long BUFSIZE = NUMSAMPLESPERUPDATE;

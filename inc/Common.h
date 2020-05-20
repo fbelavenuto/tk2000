@@ -31,6 +31,12 @@ constexpr double CLOCKSPERSAMPLE{ (double)CPU_CLOCK / (double)SAMPLERATE };	// 6
 constexpr unsigned long NUMSAMPLESPERUPDATE = (unsigned long)((double)CPU_CLOCK / FREQTICK / CLOCKSPERSAMPLE);
 constexpr unsigned long CYCLESIN50US = (unsigned long)((double)CPU_CLOCK / (1.0 / 0.00005));
 
+/* Structs */
+
+struct sAudioMsg {
+	const int16_t* bufferPtr;
+	unsigned long count;
+};
 
 /* Typedefs */
 

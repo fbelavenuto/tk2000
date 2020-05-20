@@ -38,6 +38,9 @@ CMachine::CMachine() {
 	// Attach observers
 	mWindow->attach(mKeyboard.get());
 	mWindow->attach(this);
+
+	// Make AudioSDL
+	mAudioSDL = std::make_unique<CAudioSDL>(mAudio.get());
 }
 
 /*************************************************************************************************/

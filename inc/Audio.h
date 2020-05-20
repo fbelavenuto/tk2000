@@ -19,9 +19,9 @@
 #include "Device.h"
 #include "Bus.h"
 #include "Cpu6502.h"
-#include "AudioSDL.h"
+#include "Subject.h"
 
-class CAudio final : public CDevice {
+class CAudio final : public CDevice, public CSubject<sAudioMsg> {
 public:
 	CAudio(CBus *bus, CCpu6502* cpu);
 	~CAudio();
@@ -40,7 +40,6 @@ private:
 	bool mMuted{ false };
 	bool mSpeakToggled{ false };
 	unsigned long long mQuietCycle{ 0 };
-	CAudioSDL *mAudioSDL{};
 	void makeSamples();
 	int16_t mBuffer[NUMSAMPLESPERUPDATE];
 	unsigned int mPos{ 0 };

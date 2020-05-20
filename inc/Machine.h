@@ -27,6 +27,7 @@
 #include "Tape.h"
 #include "WindowSDL.h"
 #include "Observer.h"
+#include "AudioSDL.h"
 
 /*************************************************************************************************/
 class CMachine final : public CObserver<SDL_KeyboardEvent> {
@@ -48,4 +49,5 @@ private:
 	std::unique_ptr<CKeyboard> mKeyboard{};
 	std::unique_ptr<CTape> mTape{};
 	std::unique_ptr<CWindowSDL> mWindow{};
+	std::unique_ptr<CAudioSDL> mAudioSDL{};
 };

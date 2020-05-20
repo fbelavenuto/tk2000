@@ -17,87 +17,9 @@
 #include "pch.h"
 #include "AudioSDL.h"
 
-#if 0
-// Structs
-#pragma pack(push, 1)
-typedef struct SWaveCab {
-	unsigned char  groupID[4];		// RIFF
-	unsigned int   groupLength;
-	unsigned char  typeID[4];		// WAVE
-	unsigned char  formatID[4];		// fmt
-	unsigned int   formatLength;
-	unsigned short wFormatTag;
-	unsigned short numChannels;
-	unsigned int   samplesPerSec;
-	unsigned int   bytesPerSec;
-	unsigned short nBlockAlign;
-	unsigned short bitsPerSample;
-	unsigned char  dataID[4];
-	unsigned int   dataLength;
-} TWaveCab, *PTWaveCab;
-#pragma pack(pop)
-
-static FILE          *fileWav = NULL;
-static TWaveCab      waveCab;
-static unsigned int  dataSize = 0;
-
-/*****************************************************************************/
-int createWaveFile(const char *filename) {
-	size_t s = 0;
-
-	if (!(fileWav = fopen(filename, "wb"))) {
-		return 0;
-	}
-	memset(&waveCab, 0, sizeof(TWaveCab));
-
-	memcpy((char *)waveCab.groupID, "RIFF", 4);
-	waveCab.groupLength = 0;					// Fill after
-	memcpy((char *)waveCab.typeID, "WAVE", 4);
-	memcpy((char *)waveCab.formatID, "fmt ", 4);
-	waveCab.formatLength = 16;
-	waveCab.wFormatTag = 1;
-	waveCab.numChannels = 1;
-	waveCab.samplesPerSec = SAMPLERATE;
-	waveCab.bytesPerSec = SAMPLERATE * 1 * (16 / 8);
-	waveCab.nBlockAlign = 1 * (16 / 8);
-	waveCab.bitsPerSample = 16;
-	memcpy((char *)waveCab.dataID, "data", 4);
-	waveCab.dataLength = 0;					// Fill after
-	s = fwrite(&waveCab, 1, sizeof(TWaveCab), fileWav);
-	if (s != sizeof(TWaveCab)) {
-		return 0;
-	}
-	dataSize = 0;
-	return 1;
-}
-
-/*****************************************************************************/
-void writeToWaveFile(unsigned char* ptr, unsigned int size) {
-	fwrite(ptr, 1, size, fileWav);
-	dataSize += size;
-}
-
-/*****************************************************************************/
-int finishWaveFile() {
-	size_t s = 0;
-	// Fornecer dados faltantes do cabeçalho
-	waveCab.dataLength = dataSize;
-	waveCab.groupLength = dataSize + sizeof(TWaveCab) - 8;
-	if (fseek(fileWav, 0, SEEK_SET)) {
-		return 1;
-	}
-	s = fwrite(&waveCab, 1, sizeof(TWaveCab), fileWav);
-	fclose(fileWav);
-	if (s != sizeof(TWaveCab)) {
-		return 1;
-	}
-	return 0;
-}
-#endif
-
 
 /*************************************************************************************************/
-CAudioSDL::CAudioSDL() {
+CAudioSDL::CAudioSDL(CSubject<sAudioMsg>* sub) {
 	//Default audio spec
 	SDL_AudioSpec receivedPlaybackSpec;
 	SDL_AudioSpec desiredPlaybackSpec;
@@ -133,6 +55,7 @@ CAudioSDL::CAudioSDL() {
 	}
 	SDL_PauseAudioDevice(mPlayDevId, SDL_FALSE);
 	//createWaveFile("z.wav");
+	sub->attach(this);
 }
 
 /*************************************************************************************************/
@@ -151,16 +74,16 @@ inline int16_t* CAudioSDL::getBufferPtr(int index) {
 }
 
 /*************************************************************************************************/
-void CAudioSDL::write(const int16_t* in, unsigned long count) {
-	while (count) {
+void CAudioSDL::notify(sAudioMsg* m) {
+	while (m->count) {
 		unsigned long n = BUFSIZE - mWritePos;
-		if (n > count)
-			n = count;
+		if (n > m->count)
+			n = m->count;
 
-		memcpy(getBufferPtr(mIdxWriteBuffer) + mWritePos, in, n * sizeof(int16_t));
-		in += n;
+		memcpy(getBufferPtr(mIdxWriteBuffer) + mWritePos, m->bufferPtr, n * sizeof(int16_t));
+		m->bufferPtr += n;
 		mWritePos += n;
-		count -= n;
+		m->count -= n;
 
 		if (mWritePos >= BUFSIZE) {
 			mWritePos = 0;

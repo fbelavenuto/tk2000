@@ -37,12 +37,10 @@ CAudio::CAudio(CBus* bus, CCpu6502* cpu) : mCpu(cpu) {
 
 	bus->addDevice("audio", this);
 	bus->registerAddr("audio", 0xC030, 0xC03F);
-	mAudioSDL = new CAudioSDL();
 }
 
 /*************************************************************************************************/
 CAudio::~CAudio() {
-	delete mAudioSDL;
 }
 
 /*************************************************************************************************/
@@ -79,7 +77,8 @@ void CAudio::update() {
 
 	makeSamples();
 	if (mCpu->getClockRate() == 1.0) {
-		mAudioSDL->write(mBuffer, mPos);
+		sAudioMsg m = { mBuffer, mPos };
+		notify(&m);
 	}
 	mPos = 0;
 }

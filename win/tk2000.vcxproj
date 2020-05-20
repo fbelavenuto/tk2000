@@ -184,6 +184,7 @@
     <ClInclude Include="..\inc\Tape.h" />
     <ClInclude Include="..\inc\Video.h" />
     <ClCompile Include="..\src\Tape.cpp" />
+    <ClInclude Include="..\inc\_debug.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
