@@ -35,6 +35,9 @@ private:
 	SDL_Window *mWindow{};
 	SDL_Renderer *mRenderer{};
 	SDL_Texture* mScreen{};
+	TTF_Font* mFont{};
+	bool mInMenu = false;
+private:
 	bool mScanLines{ false };
 	TVideo mVideo{};
 	bool mFullScreen{ false };

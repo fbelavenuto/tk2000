@@ -191,6 +191,12 @@ CWindowSDL::CWindowSDL(TVideo video) :
 		error.append(SDL_GetError());
 		throw std::runtime_error(error);
 	}
+	mFont = TTF_OpenFont("..\\data\\arial.ttf", 20);	// TODO: put font in correct place
+	if (!mFont) {
+		std::string error{ "Error creating font! TTF Error: " };
+		error.append(TTF_GetError());
+		throw std::runtime_error(error);
+	}
 }
 
 /*************************************************************************************************/
@@ -198,7 +204,7 @@ CWindowSDL::~CWindowSDL() {
 	SDL_DestroyTexture(mScreen);
 	SDL_DestroyRenderer(mRenderer);		//Free resources and close SDL
 	SDL_DestroyWindow(mWindow);			//Destroy window
-	SDL_Quit();							//Quit SDL subsystems
+	//TTF_CloseFont(mFont);
 }
 
 /*****************************************************************************/
@@ -224,7 +230,16 @@ void CWindowSDL::render() {
 	int w, h;
 	SDL_GetRendererOutputSize(mRenderer, &w, &h);
 	SDL_Rect r{ 0, 0, w, h };
-	SDL_RenderCopy(mRenderer, mScreen, NULL, &r);
+	SDL_RenderCopy(mRenderer, mScreen, nullptr, &r);
+	if (mInMenu) {
+
+		SDL_Surface* text = TTF_RenderText_LCD(mFont, "Teste", { 255, 255, 255 }, { 10, 10, 10 });
+		SDL_Texture* texture = SDL_CreateTextureFromSurface(mRenderer, text);
+		SDL_Rect textRect{ (w - text->w) / 2, (h - text->h) / 2, text->w, text->h };
+		SDL_RenderCopy(mRenderer, texture, nullptr, &textRect);
+		SDL_DestroyTexture(texture);
+		SDL_FreeSurface(text);
+	}
 	SDL_RenderPresent(mRenderer);
 }
 
@@ -246,11 +261,20 @@ bool CWindowSDL::loop() {
 			break;
 
 		case SDL_KEYDOWN:
-			if (e.key.keysym.sym == SDLK_F7) {
+			switch (e.key.keysym.sym) {
+			case SDLK_F2:
+				mInMenu = !mInMenu;
+				break;
+
+			case SDLK_F7:
 				setScanline(!mScanLines);
-			} else if (e.key.keysym.sym == SDLK_F8) {
+				break;
+
+			case SDLK_F8:
 				setFullScreen(!mFullScreen);
-			} else {
+				break;
+
+			default:
 				// Notify all observers
 				notify(&e.key);
 			}
@@ -260,7 +284,6 @@ bool CWindowSDL::loop() {
 			// Notify all observers
 			notify(&e.key);
 			break;
-
 		}
 	}
 	return false;
