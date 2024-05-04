@@ -17,7 +17,6 @@
 #pragma once
 
 #include "Subject.h"
-#include "Video.h"
 
 /* Prototypes */
 
@@ -26,21 +25,21 @@ class CVideo;
 /*************************************************************************************************/
 class CWindowSDL final : public CSubject<SDL_KeyboardEvent> {
 public:
-	CWindowSDL(TVideo video);
+	CWindowSDL(CVideo& video);
 	~CWindowSDL();
 	// Native
 	void render();
 	bool loop();
 private:
-	SDL_Window *mWindow{};
-	SDL_Renderer *mRenderer{};
+	SDL_Window* mWindow{};
+	SDL_Renderer* mRenderer{};
 	SDL_Texture* mScreen{};
 	TTF_Font* mFont{};
 	bool mInMenu = false;
-private:
 	bool mScanLines{ false };
-	TVideo mVideo{};
+	CVideo& mVideo;
 	bool mFullScreen{ false };
+private:
 	void setScanline(bool val) noexcept;
 	void setFullScreen(bool val) noexcept;
 };

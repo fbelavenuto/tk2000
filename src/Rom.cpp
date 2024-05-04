@@ -1046,22 +1046,12 @@ const byte romImage[16384] = {
 };
 
 /*************************************************************************************************/
-CRom::CRom(TBus bus) {
-	bus->addDevice("rom", this);
-	bus->registerAddr("rom", 0xC100, 0xFFFF);
+CRom::CRom(CBus& bus) {
+	bus.addDevice("rom", this);
+	bus.registerAddr("rom", 0xC100, 0xFFFF);
 }
 
 /*************************************************************************************************/
-CRom::~CRom() {
-
-}
-
-/*************************************************************************************************/
-byte CRom::read(word addr) {
+byte CRom::read(word addr, const uint64_t cycles) {
 	return romImage[addr & 0x3FFF];
-}
-
-/*************************************************************************************************/
-void CRom::write(word addr, byte data) {
-	// do nothing
 }

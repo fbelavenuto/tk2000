@@ -22,12 +22,11 @@
 
 class CRam final : public CDevice {
 public:
-	CRam(TBus bus);
-	~CRam() override;
-	byte read(const word addr) override;
-	void write(const word addr, const byte data) override;
+	CRam(CBus& bus);
+	byte read(const word addr, const uint64_t cycles) override;
+	void write(const word addr, const byte data, const uint64_t cycles) override;
 	void reset() override {}
-	void update() override {}
+	void update(const uint64_t cycles) override {}
 	//
 private:
 	friend class CMachine;

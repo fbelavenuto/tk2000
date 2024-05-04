@@ -23,10 +23,10 @@
 /*************************************************************************************************/
 class CAudioSDL final : public CObserver<sAudioMsg> {
 public:
-	CAudioSDL(TSubject<sAudioMsg>);
+	CAudioSDL(CSubject<sAudioMsg>& sub);
 	~CAudioSDL();
 	// CObserver
-	void notify(sAudioMsg*);
+	void notify(sAudioMsg&);
 private:
 	SDL_AudioDeviceID mPlayDevId;
 	const unsigned long BUFSIZE = NUMSAMPLESPERUPDATE;

@@ -20,45 +20,32 @@
 /*************************************************************************************************/
 CMachine::CMachine() {
 	// First create Bus
-	mBus = std::make_shared<CBus>();
-	// After devices
-	mCpu = std::make_shared<CCpu6502>(mBus);
-	mRam = std::make_unique<CRam>(mBus);
-	mVideo = std::make_shared<CVideo>(mBus, mRam->mRam);
-	mAudio = std::make_shared<CAudio>(mBus, mCpu);
-	mRom = std::make_unique<CRom>(mBus);
-	mKeyboard = std::make_unique<CKeyboard>(mBus);
-	mTape = std::make_unique<CTape>(mBus, mCpu);
-
+	
 	// Reset all devices
-	mBus->resetAll();
+	mBus.resetAll();
 
-	// Make window
-	mWindow = std::make_unique<CWindowSDL>(mVideo);
 	// Attach observers
-	mWindow->attach(mKeyboard.get());
-	mWindow->attach(this);
-
-	// Make AudioSDL
-	mAudioSDL = std::make_unique<CAudioSDL>(mAudio);
+	mWindow.attach(&mKeyboard);
+	mWindow.attach(this);
 }
 
 /*************************************************************************************************/
 CMachine::~CMachine() {
-	mWindow->detach(this);
-	mWindow->detach(mKeyboard.get());
+	mWindow.detach(this);
+	mWindow.detach(&mKeyboard);
 }
 
 /*************************************************************************************************/
 // Receiving keyboard notification from event loop
-void CMachine::notify(SDL_KeyboardEvent* e) {
-	if (e->state == SDL_PRESSED) {
-		switch (e->keysym.sym) {
+void CMachine::notify(SDL_KeyboardEvent& e) {
+	if (e.state == SDL_PRESSED) {
+		switch (e.keysym.sym) {
 		case SDLK_F5:
-			mBus->resetAll();
+			mBus.resetAll();
 			break;
+
 		case SDLK_F6:
-			mTape->play();
+			mTape.play();
 			break;
 		}
 	}
@@ -66,13 +53,11 @@ void CMachine::notify(SDL_KeyboardEvent* e) {
 
 /*************************************************************************************************/
 bool CMachine::setTapeFile(const char *filename) {
-	assert(mTape != nullptr);
-	return mTape->insertCt2(filename);
+	return mTape.insertCt2(filename);
 }
 
 /*************************************************************************************************/
 bool CMachine::loop() {
-	assert(mCpu != nullptr);
 
 	//Main loop flag
 	bool quit = false;
@@ -83,16 +68,16 @@ bool CMachine::loop() {
 		std::chrono::time_point<std::chrono::high_resolution_clock> previous, now;
 		while (!quit) {
 			previous = std::chrono::high_resolution_clock::now();
-			const unsigned long cyclesToRun = (unsigned long)((double)usToRun / (1000000.0 / mCpu->getClock()));
-			const unsigned long long actualCycles = mCpu->getCumulativeCycles();
-			while ((mCpu->getCumulativeCycles() - actualCycles) < cyclesToRun) {
-				mCpu->executeOpcode();
+			const unsigned long cyclesToRun = (unsigned long)((double)usToRun / (1000000.0 / mCpu.getClock()));
+			const unsigned long long actualCycles = mCpu.getCumulativeCycles();
+			while ((mCpu.getCumulativeCycles() - actualCycles) < cyclesToRun) {
+				mCpu.executeOpcode();
 			}
 			// Do updates
-			mBus->updateAll();
+			mBus.updateAll(mCpu.getCumulativeCycles());
 			now = std::chrono::high_resolution_clock::now();
 			auto timePast = now - previous;
-			if (!mCpu->getFullSpeed() && timePast < std::chrono::microseconds(usToRun)) {
+			if (!mCpu.getFullSpeed() && timePast < std::chrono::microseconds(usToRun)) {
 				std::this_thread::sleep_for(std::chrono::microseconds(usToRun) - timePast);
 			}
 		}
@@ -100,9 +85,9 @@ bool CMachine::loop() {
 
 	//While application is running
 	while (!quit) {
-		quit = mWindow->loop();
+		quit = mWindow.loop();
 		// Render screen
-		mWindow->render();
+		mWindow.render();
 	}
 	cpuThread.join();
 	return true;

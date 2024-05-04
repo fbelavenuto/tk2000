@@ -30,29 +30,24 @@ struct SCh {
 #pragma pack(pop)
 
 /*************************************************************************************************/
-CTape::CTape(TBus bus, TCpu cpu) : mCpu(cpu) {
-	assert(bus != nullptr);
-	assert(mCpu != nullptr);
-
-	bus->addDevice("tape", this);
-	bus->registerAddr("tape", 0xC010, 0xC01F);
-	bus->registerAddr("tape", 0xC020, 0xC02F);
-	bus->registerAddr("tape", 0xC052, 0xC053);
-	bus->registerAddr("tape", 0xC056, 0xC057);
+CTape::CTape(CBus& bus) : 
+	mCpu(static_cast<CCpu6502&>(*bus.getDevice("cpu"))),
+	mCyclesNeeded(0)
+{
+	bus.addDevice("tape", this);
+	bus.registerAddr("tape", 0xC010, 0xC01F);
+	bus.registerAddr("tape", 0xC020, 0xC02F);
+	bus.registerAddr("tape", 0xC052, 0xC053);
+	bus.registerAddr("tape", 0xC056, 0xC057);
 }
 
 /*************************************************************************************************/
-CTape::~CTape() {
-
-}
-
-/*************************************************************************************************/
-byte CTape::read(const word addr) {
+byte CTape::read(const word addr, const uint64_t cycles) {
 	if ((addr & 0xF0) == 0x10) {
 		if (!mPlay) {
 			return 0x00;
 		}
-		const unsigned long long actualCycle = mCpu->getCumulativeCycles();
+		const unsigned long long actualCycle = mCpu.getCumulativeCycles();
 		if (mStartCycle == 0 && mQueueCycles.size() > 0) {
 			mStartCycle = actualCycle;
 			mCyclesNeeded = mQueueCycles.front();
@@ -67,21 +62,12 @@ byte CTape::read(const word addr) {
 			} else {
 				mStartCycle = 0;
 				mPlay = false;
-				mCpu->setFullSpeed(false);
+				mCpu.setFullSpeed(false);
 			}
 		}
 	}
 
 	return mCasOut;
-}
-
-/*************************************************************************************************/
-void CTape::write(const word addr, const byte data) {
-}
-
-/*************************************************************************************************/
-void CTape::update() {
-
 }
 
 /*************************************************************************************************/
@@ -93,7 +79,7 @@ void CTape::reset() {
 /*************************************************************************************************/
 void CTape::play() noexcept {
 	mPlay = true;
-	mCpu->setFullSpeed(true);
+	mCpu.setFullSpeed(true);
 }
 
 /*************************************************************************************************/
@@ -101,6 +87,7 @@ void CTape::stop() noexcept {
 	if (mPlay) {
 		mPlay = false;
 	}
+	// std::queue do not have clear() method
 	while (mQueueCycles.size()) {
 		mQueueCycles.pop();
 	}

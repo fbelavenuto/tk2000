@@ -22,20 +22,17 @@
 class CBus final {
 public:
 	CBus();
-	~CBus();
-	byte readByte(const word addr);
-	void writeByte(const word addr, byte data);
-	word readWord(const word addr);
-	void writeWord(const word addr, word data);
+	byte readByte(const word addr, const uint64_t cycles);
+	void writeByte(const word addr, byte data, const uint64_t cycles);
+	word readWord(const word addr, const uint64_t cycles);
+	void writeWord(const word addr, word data, const uint64_t cycles);
 	void addDevice(const char* name, CDevice* dev);
 	CDevice* getDevice(const char* name);
 	void registerAddr(const char* name, const word addr);
 	void registerAddr(const char* name, const word addrStart, const word addrEnd);
 	void resetAll();
-	void updateAll();
+	void updateAll(const uint64_t cycles);
 private:
-	CDevice *mDevices[0x10000][2];
-	std::map<const char*, CDevice*> mMapDevices;
+	CDevice* mDevices[0x10000][2];
+	std::unordered_map<const char*, CDevice*> mMapDevices;
 };
-
-using TBus = std::shared_ptr<CBus>;

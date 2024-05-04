@@ -18,25 +18,20 @@
 #include "Ram.h"
 
 /*************************************************************************************************/
-CRam::CRam(TBus bus) {
+CRam::CRam(CBus& bus) {
 	memset(mRam, 0, 65536);
 	memset(mRam + 0x2000, 0xFF, 0x1000); // Simulates dirty on the screen
 	memset(mRam + 0xA000, 0xFF, 0x1000); // Simulates dirty on the screen
-	bus->addDevice("ram", this);
-	bus->registerAddr("ram", 0x0000, 0xBFFF);
+	bus.addDevice("ram", this);
+	bus.registerAddr("ram", 0x0000, 0xBFFF);
 }
 
 /*************************************************************************************************/
-CRam::~CRam() {
-
-}
-
-/*************************************************************************************************/
-byte CRam::read(const word addr) {
+byte CRam::read(const word addr, const uint64_t cycles) {
 	return mRam[addr];
 }
 
 /*************************************************************************************************/
-void CRam::write(const word addr, const byte data) {
+void CRam::write(const word addr, const byte data, const uint64_t cycles) {
 	mRam[addr] = data;
 }

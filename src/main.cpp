@@ -29,7 +29,6 @@ int main(int argc, char* argv[]) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL could not initialize! SDL Error: %s\n", SDL_GetError());
 		return EXIT_FAILURE;
 	}
-	// Initialize SDL TTF
 	if (TTF_Init() < 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL TTF could not initialize! TTF Error: %s\n", TTF_GetError());
 		return EXIT_FAILURE;
@@ -41,11 +40,11 @@ int main(int argc, char* argv[]) {
 
 	auto theMachine = std::make_unique<CMachine>();
 
-	if (argc > 1) {
+	if (argc == 2) {
 		if (!theMachine->setTapeFile(argv[1])) {
 			char temp[200];
 			sprintf(temp, "Error inserting %s tape file\n", argv[1]);
-			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Warning", temp, nullptr);
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "ERROR", temp, nullptr);
 		}
 	}
 	theMachine->loop();

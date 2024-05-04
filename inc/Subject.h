@@ -36,14 +36,11 @@ public:
 		}
 	}
 protected:
-	void notify(T* val) {
-		for (auto i : mObservers) {
+	void notify(T& val) {
+		for (auto& i : mObservers) {
 			i->notify(val);
 		}
 	}
 private:
 	std::vector<CObserver<T>*> mObservers;
 };
-
-template <typename T>
-using TSubject = std::shared_ptr<CSubject<T>>;

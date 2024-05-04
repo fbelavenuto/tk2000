@@ -19,7 +19,7 @@
 
 
 /*************************************************************************************************/
-CAudioSDL::CAudioSDL(TSubject<sAudioMsg> sub) {
+CAudioSDL::CAudioSDL(CSubject<sAudioMsg>& sub) {
 	//Default audio spec
 	SDL_AudioSpec receivedPlaybackSpec;
 	SDL_AudioSpec desiredPlaybackSpec;
@@ -55,7 +55,7 @@ CAudioSDL::CAudioSDL(TSubject<sAudioMsg> sub) {
 	}
 	SDL_PauseAudioDevice(mPlayDevId, SDL_FALSE);
 	//createWaveFile("z.wav");
-	sub->attach(this);
+	sub.attach(this);
 }
 
 /*************************************************************************************************/
@@ -74,16 +74,16 @@ inline int16_t* CAudioSDL::getBufferPtr(int index) {
 }
 
 /*************************************************************************************************/
-void CAudioSDL::notify(sAudioMsg* m) {
-	while (m->count) {
+void CAudioSDL::notify(sAudioMsg& m) {
+	while (m.count) {
 		unsigned long n = BUFSIZE - mWritePos;
-		if (n > m->count)
-			n = m->count;
+		if (n > m.count)
+			n = m.count;
 
-		memcpy(getBufferPtr(mIdxWriteBuffer) + mWritePos, m->bufferPtr, n * sizeof(int16_t));
-		m->bufferPtr += n;
+		memcpy(getBufferPtr(mIdxWriteBuffer) + mWritePos, m.bufferPtr, n * sizeof(int16_t));
+		m.bufferPtr += n;
 		mWritePos += n;
-		m->count -= n;
+		m.count -= n;
 
 		if (mWritePos >= BUFSIZE) {
 			mWritePos = 0;

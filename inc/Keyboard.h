@@ -22,17 +22,16 @@
 
 class CKeyboard final : public CDevice, public CObserver<SDL_KeyboardEvent> {
 public:
-	CKeyboard(TBus bus);
+	CKeyboard(CBus& bus);
 	// CDevice
-	~CKeyboard() override;
-	byte read(const word addr) override;
-	void write(const word addr, const byte data) override;
-	void update() override;
+	byte read(const word addr, const uint64_t cycles) override;
+	void write(const word addr, const byte data, const uint64_t cycles) override;
+	void update(const uint64_t cycles) override {};
 	void reset() override;
 	// CObserver
-	void notify(SDL_KeyboardEvent*) override;
+	void notify(SDL_KeyboardEvent&) override;
 private:
-	byte mMatrix[8];
+	byte mMatrix[8]{ 0 };
 	bool mCtrl{ false };
 	bool mShift{ false };
 	byte mKbOut{ 0 };

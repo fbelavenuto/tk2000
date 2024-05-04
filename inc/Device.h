@@ -21,8 +21,9 @@
 class CDevice {
 public:
 	virtual ~CDevice() {};
-	virtual byte read(const word addr) = 0;
-	virtual void write(const word addr, const byte data) = 0;
+	virtual byte read(const word addr, const uint64_t cycles) = 0;
+	virtual void write(const word addr, const byte data, const uint64_t cycles) = 0;
 	virtual void reset() = 0;
-	virtual void update() = 0;
+	virtual void update(const uint64_t cycles) = 0;
 };
+

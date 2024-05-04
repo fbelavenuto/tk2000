@@ -35,21 +35,14 @@
 
 
 /*************************************************************************************************/
-CKeyboard::CKeyboard(TBus bus) :
-	mMatrix()
-{
-	bus->addDevice("keyboard", this);
-	bus->registerAddr("keyboard", 0xC000, 0xC01F);
-	bus->registerAddr("keyboard", 0xC05E, 0xC05F);
+CKeyboard::CKeyboard(CBus& bus) {
+	bus.addDevice("keyboard", this);
+	bus.registerAddr("keyboard", 0xC000, 0xC01F);
+	bus.registerAddr("keyboard", 0xC05E, 0xC05F);
 }
 
 /*************************************************************************************************/
-CKeyboard::~CKeyboard() {
-
-}
-
-/*************************************************************************************************/
-byte CKeyboard::read(const word addr) {
+byte CKeyboard::read(const word addr, const uint64_t cycles) {
 	if (mKbOut == 1 && mShift) {
 		return 1;
 	}
@@ -63,7 +56,7 @@ byte CKeyboard::read(const word addr) {
 }
 
 /*************************************************************************************************/
-void CKeyboard::write(const word addr, byte data) {
+void CKeyboard::write(const word addr, byte data, const uint64_t cycles) {
 	if (addr == 0xC05E) {
 		mKbOutCtrl = false;
 		return;
@@ -77,11 +70,6 @@ void CKeyboard::write(const word addr, byte data) {
 }
 
 /*************************************************************************************************/
-void CKeyboard::update() {
-
-}
-
-/*************************************************************************************************/
 void CKeyboard::reset() {
 	for (int i = 0; i < 8; i++) {
 		mMatrix[i] = 0;
@@ -92,14 +80,14 @@ void CKeyboard::reset() {
 
 /*************************************************************************************************/
 // Receiving keyboard notification from event loop
-void CKeyboard::notify(SDL_KeyboardEvent* e) {
-	if (e->repeat) {
+void CKeyboard::notify(SDL_KeyboardEvent& e) {
+	if (e.repeat) {
 		return;
 	}
-	mShift = e->keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT);
-	bool down = e->state == SDL_PRESSED;
+	mShift = e.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT);
+	bool down = e.state == SDL_PRESSED;
 
-	switch (e->keysym.sym){
+	switch (e.keysym.sym){
 
 	case SDLK_LCTRL:
 	case SDLK_RCTRL:

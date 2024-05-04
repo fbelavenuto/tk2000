@@ -23,26 +23,24 @@
 
 class CAudio final : public CDevice, public CSubject<sAudioMsg> {
 public:
-	CAudio(TBus bus, TCpu cpu);
-	~CAudio();
+	CAudio(CBus& bus, CCpu6502& cpu);
 	// CDevice
-	byte read(const word addr) override;
-	void write(const word addr, const byte data) override;
-	void update() override;
+	byte read(const word addr, const uint64_t cycles) override;
+	void write(const word addr, const byte data, const uint64_t cycles) override;
+	void update(const uint64_t cycles) override;
 	void reset() override;
 	// Native
 	int getSampleRate() const;
 private:
-	TCpu mCpu;
+	CCpu6502& mCpu;
 	int mSampleRate{ SAMPLERATE };
-	unsigned long long mLastCycle{ 0 };
+	uint64_t mLastCycle{ 0 };
 	int16_t mSoundPos{ -32767 };
 	bool mMuted{ false };
 	bool mSpeakToggled{ false };
 	unsigned long long mQuietCycle{ 0 };
-	void makeSamples();
-	int16_t mBuffer[NUMSAMPLESPERUPDATE];
+	int16_t mBuffer[NUMSAMPLESPERUPDATE]{ 0 };
 	unsigned int mPos{ 0 };
+private:
+	void makeSamples(uint64_t cycles);
 };
-
-using TAudio = std::shared_ptr<CAudio>;

@@ -28,11 +28,10 @@ struct sRGB {
 
 class CVideo final : public CDevice {
 public:
-	CVideo(TBus bus, byte* ramPtr);
-	~CVideo() override;
-	byte read(const word addr) override;
-	void write(const word addr, const byte data) override;
-	void update() override;
+	CVideo(CBus& bus, byte* ramPtr);
+	byte read(const word addr, const uint64_t cycles) override;
+	void write(const word addr, const byte data, const uint64_t cycles) override;
+	void update(const uint64_t cycles) override {};
 	void reset() override;
 	//
 	sRGB* getFrameBuffer();
@@ -44,5 +43,3 @@ private:
 	void drawMono();
 	void drawColor();
 };
-
-using TVideo = std::shared_ptr<CVideo>;
