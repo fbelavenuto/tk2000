@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
 
 	auto theMachine = std::make_unique<CMachine>();
 
-	if (argc == 2) {
+	if (argc > 1) {
 		if (!theMachine->setTapeFile(argv[1])) {
 			char temp[200];
 			sprintf(temp, "Error inserting %s tape file\n", argv[1]);

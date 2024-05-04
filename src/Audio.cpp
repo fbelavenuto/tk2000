@@ -24,10 +24,10 @@ void CAudio::makeSamples() {
 	unsigned int numSamples = (int)((double)cycleDiff / CLOCKSPERSAMPLE);
 	unsigned int nCyclesRemaining = (int)((double)cycleDiff - (double)numSamples * CLOCKSPERSAMPLE);
 
-	while (numSamples-- && mPos < SAMPLERATE) {
+	while (numSamples-- && mPos < NUMSAMPLESPERUPDATE) {
 		mBuffer[mPos++] = mMuted ? 0 : mSoundPos;
 	}
-	mLastCycle = mCpu->getCumulativeCycles();
+	mLastCycle = mCpu->getCumulativeCycles() - nCyclesRemaining;
 }
 
 /*************************************************************************************************/
