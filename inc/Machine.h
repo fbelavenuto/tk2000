@@ -40,12 +40,12 @@ public:
 	bool setTapeFile(const char *filename);
 	bool loop();
 private:
-	std::unique_ptr<CCpu6502> mCpu{};
-	std::unique_ptr<CVideo> mVideo{};
-	std::unique_ptr<CBus> mBus{};
+	TBus mBus{};
+	TCpu mCpu{};
+	TVideo mVideo{};
+	TAudio mAudio{};
 	std::unique_ptr<CRam> mRam{};
 	std::unique_ptr<CRom> mRom{};
-	std::unique_ptr<CAudio> mAudio{};
 	std::unique_ptr<CKeyboard> mKeyboard{};
 	std::unique_ptr<CTape> mTape{};
 	std::unique_ptr<CWindowSDL> mWindow{};

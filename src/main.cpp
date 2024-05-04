@@ -38,7 +38,9 @@ int main(int argc, char* argv[]) {
 
 	if (argc == 2) {
 		if (!theMachine->setTapeFile(argv[1])) {
-			printf("Error inserting %s tape file\n", argv[1]);
+			char temp[200];
+			sprintf(temp, "Error inserting %s tape file\n", argv[1]);
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Warning", temp, nullptr);
 		}
 	}
 	theMachine->loop();

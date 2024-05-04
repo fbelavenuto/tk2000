@@ -28,7 +28,7 @@ struct sRGB {
 
 class CVideo final : public CDevice {
 public:
-	CVideo(CBus *bus, byte* ramPtr);
+	CVideo(TBus bus, byte* ramPtr);
 	~CVideo() override;
 	byte read(const word addr) override;
 	void write(const word addr, const byte data) override;
@@ -44,3 +44,5 @@ private:
 	void drawMono();
 	void drawColor();
 };
+
+using TVideo = std::shared_ptr<CVideo>;

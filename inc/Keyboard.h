@@ -22,7 +22,7 @@
 
 class CKeyboard final : public CDevice, public CObserver<SDL_KeyboardEvent> {
 public:
-	CKeyboard(CBus *bus);
+	CKeyboard(TBus bus);
 	// CDevice
 	~CKeyboard() override;
 	byte read(const word addr) override;

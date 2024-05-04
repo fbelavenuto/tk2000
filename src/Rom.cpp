@@ -1046,7 +1046,7 @@ const byte romImage[16384] = {
 };
 
 /*************************************************************************************************/
-CRom::CRom(CBus *bus) {
+CRom::CRom(TBus bus) {
 	bus->addDevice("rom", this);
 	bus->registerAddr("rom", 0xC100, 0xFFFF);
 }

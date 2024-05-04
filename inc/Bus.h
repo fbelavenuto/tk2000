@@ -37,3 +37,5 @@ private:
 	CDevice *mDevices[0x10000][2];
 	std::map<const char*, CDevice*> mMapDevices;
 };
+
+using TBus = std::shared_ptr<CBus>;

@@ -124,9 +124,9 @@ void CVideo::drawColor() {
 
 
 /*****************************************************************************/
-CVideo::CVideo(CBus *bus, byte* ramPtr) :
-	mRamPtr(ramPtr) {
-
+CVideo::CVideo(TBus bus, byte* ramPtr) :
+	mRamPtr(ramPtr)
+{
 	assert(bus != nullptr);
 	assert(ramPtr != nullptr);
 	bus->addDevice("video", this);

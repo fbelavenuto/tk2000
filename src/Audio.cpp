@@ -31,7 +31,10 @@ void CAudio::makeSamples() {
 }
 
 /*************************************************************************************************/
-CAudio::CAudio(CBus* bus, CCpu6502* cpu) : mCpu(cpu) {
+CAudio::CAudio(TBus bus, TCpu cpu) : 
+	mCpu(cpu),
+	mBuffer()
+{
 	assert(bus != nullptr);
 	assert(mCpu != nullptr);
 

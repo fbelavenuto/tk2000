@@ -20,27 +20,27 @@
 /*************************************************************************************************/
 CMachine::CMachine() {
 	// First create Bus
-	mBus = std::make_unique<CBus>();
+	mBus = std::make_shared<CBus>();
 	// After devices
-	mCpu = std::make_unique<CCpu6502>(mBus.get());
-	mRom = std::make_unique<CRom>(mBus.get());
-	mRam = std::make_unique<CRam>(mBus.get());
-	mKeyboard = std::make_unique<CKeyboard>(mBus.get());
-	mAudio = std::make_unique<CAudio>(mBus.get(), mCpu.get());
-	mVideo = std::make_unique<CVideo>(mBus.get(), mRam->mRam);
-	mTape = std::make_unique<CTape>(mBus.get(), mCpu.get());
+	mCpu = std::make_shared<CCpu6502>(mBus);
+	mRam = std::make_unique<CRam>(mBus);
+	mVideo = std::make_shared<CVideo>(mBus, mRam->mRam);
+	mAudio = std::make_shared<CAudio>(mBus, mCpu);
+	mRom = std::make_unique<CRom>(mBus);
+	mKeyboard = std::make_unique<CKeyboard>(mBus);
+	mTape = std::make_unique<CTape>(mBus, mCpu);
 
 	// Reset all devices
 	mBus->resetAll();
 
 	// Make window
-	mWindow = std::make_unique<CWindowSDL>(mVideo.get());
+	mWindow = std::make_unique<CWindowSDL>(mVideo);
 	// Attach observers
 	mWindow->attach(mKeyboard.get());
 	mWindow->attach(this);
 
 	// Make AudioSDL
-	mAudioSDL = std::make_unique<CAudioSDL>(mAudio.get());
+	mAudioSDL = std::make_unique<CAudioSDL>(mAudio);
 }
 
 /*************************************************************************************************/

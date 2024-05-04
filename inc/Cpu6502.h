@@ -32,7 +32,7 @@ union uReg16bit {
 /*************************************************************************************************/
 class CCpu6502 final : public CDevice {
 public:
-	CCpu6502(CBus *bus);
+	CCpu6502(TBus bus);
 	~CCpu6502() override;
 	byte read(const word addr) override;
 	void write(const word addr, const byte data) override;
@@ -47,7 +47,7 @@ public:
 	double getClockRate() const;
 	void executeOpcode();
 private:
-	CBus *mBus{};
+	TBus mBus{};
 	unsigned long mClock{ CPU_CLOCK };
 	bool mFullSpeed{ false };
 	unsigned long long mCumulativeCycles{ 0 };
@@ -250,3 +250,5 @@ private:
 		accCycles(1);
 	}
 };
+
+using TCpu = std::shared_ptr<CCpu6502>;
