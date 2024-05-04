@@ -104,8 +104,8 @@
     <ClInclude Include="..\inc\AudioSDL.h">
       <Filter>Arquivos de Cabeçalho</Filter>
     </ClInclude>
-    <ClInclude Include="..\inc\_debug.h">
-      <Filter>Arquivos de Cabeçalho</Filter>
-    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

@@ -28,4 +28,4 @@
 #include <mutex>
 #include <memory>
 #include <stdexcept>
-#include <SDL2/SDL.h>
+#include <SDL.h>
