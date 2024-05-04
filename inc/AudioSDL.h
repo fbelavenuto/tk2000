@@ -23,7 +23,7 @@
 /*************************************************************************************************/
 class CAudioSDL final : public CObserver<sAudioMsg> {
 public:
-	CAudioSDL(CSubject<sAudioMsg>*);
+	CAudioSDL(TSubject<sAudioMsg>);
 	~CAudioSDL();
 	// CObserver
 	void notify(sAudioMsg*);

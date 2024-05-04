@@ -22,7 +22,7 @@
 
 class CRam final : public CDevice {
 public:
-	CRam(CBus *bus);
+	CRam(TBus bus);
 	~CRam() override;
 	byte read(const word addr) override;
 	void write(const word addr, const byte data) override;

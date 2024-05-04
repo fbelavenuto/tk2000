@@ -23,7 +23,7 @@
 
 class CAudio final : public CDevice, public CSubject<sAudioMsg> {
 public:
-	CAudio(CBus *bus, CCpu6502* cpu);
+	CAudio(TBus bus, TCpu cpu);
 	~CAudio();
 	// CDevice
 	byte read(const word addr) override;
@@ -33,7 +33,7 @@ public:
 	// Native
 	int getSampleRate() const;
 private:
-	CCpu6502* mCpu;
+	TCpu mCpu;
 	int mSampleRate{ SAMPLERATE };
 	unsigned long long mLastCycle{ 0 };
 	int16_t mSoundPos{ -32767 };
@@ -44,3 +44,5 @@ private:
 	int16_t mBuffer[NUMSAMPLESPERUPDATE];
 	unsigned int mPos{ 0 };
 };
+
+using TAudio = std::shared_ptr<CAudio>;

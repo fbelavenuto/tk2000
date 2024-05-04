@@ -44,3 +44,6 @@ protected:
 private:
 	std::vector<CObserver<T>*> mObservers;
 };
+
+template <typename T>
+using TSubject = std::shared_ptr<CSubject<T>>;

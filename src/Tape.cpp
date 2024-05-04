@@ -30,7 +30,7 @@ struct SCh {
 #pragma pack(pop)
 
 /*************************************************************************************************/
-CTape::CTape(CBus *bus, CCpu6502* cpu) : mCpu(cpu) {
+CTape::CTape(TBus bus, TCpu cpu) : mCpu(cpu) {
 	assert(bus != nullptr);
 	assert(mCpu != nullptr);
 

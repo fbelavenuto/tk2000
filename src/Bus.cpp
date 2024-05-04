@@ -66,7 +66,7 @@ void CBus::writeWord(const word addr, const word data) {
 }
 
 /*************************************************************************************************/
-void CBus::addDevice(const char* name, CDevice *dev) {
+void CBus::addDevice(const char* name, CDevice* dev) {
 	assert(name != nullptr);
 	assert(dev != nullptr);
 	mMapDevices.emplace(name, dev);
@@ -102,14 +102,14 @@ void CBus::registerAddr(const char* name, const word addrStart, const word addrE
 
 /*************************************************************************************************/
 void CBus::resetAll() {
-	for (auto& dev : mMapDevices) {
-		dev.second->reset();
+	for (auto& [name, dev] : mMapDevices) {
+		dev->reset();
 	}
 }
 
 /*************************************************************************************************/
 void CBus::updateAll() {
-	for (auto& dev : mMapDevices) {
-		dev.second->update();
+	for (auto& [name, dev] : mMapDevices) {
+		dev->update();
 	}
 }

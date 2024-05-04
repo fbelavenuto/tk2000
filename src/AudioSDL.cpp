@@ -19,7 +19,7 @@
 
 
 /*************************************************************************************************/
-CAudioSDL::CAudioSDL(CSubject<sAudioMsg>* sub) {
+CAudioSDL::CAudioSDL(TSubject<sAudioMsg> sub) {
 	//Default audio spec
 	SDL_AudioSpec receivedPlaybackSpec;
 	SDL_AudioSpec desiredPlaybackSpec;

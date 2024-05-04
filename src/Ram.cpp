@@ -18,7 +18,7 @@
 #include "Ram.h"
 
 /*************************************************************************************************/
-CRam::CRam(CBus *bus) {
+CRam::CRam(TBus bus) {
 	memset(mRam, 0, 65536);
 	memset(mRam + 0x2000, 0xFF, 0x1000); // Simulates dirty on the screen
 	memset(mRam + 0xA000, 0xFF, 0x1000); // Simulates dirty on the screen

@@ -22,7 +22,7 @@
 
 class CRom final : public CDevice {
 public:
-	CRom(CBus *bus);
+	CRom(TBus bus);
 	~CRom() override;
 	byte read(const word addr) override;
 	void write(const word addr, const byte data) override;

@@ -35,7 +35,9 @@
 
 
 /*************************************************************************************************/
-CKeyboard::CKeyboard(CBus *bus) {
+CKeyboard::CKeyboard(TBus bus) :
+	mMatrix()
+{
 	bus->addDevice("keyboard", this);
 	bus->registerAddr("keyboard", 0xC000, 0xC01F);
 	bus->registerAddr("keyboard", 0xC05E, 0xC05F);
