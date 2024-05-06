@@ -22,11 +22,10 @@
 
 class CRom final : public CDevice {
 public:
-	CRom(TBus bus);
-	~CRom() override;
-	byte read(const word addr) override;
-	void write(const word addr, const byte data) override;
-	void update() override {}
+	CRom(CBus& bus);
+	byte read(const word addr, const uint64_t cycles) override;
+	void write(const word addr, const byte data, const uint64_t cycles) override {};
+	void update(const uint64_t cycles) override {}
 	void reset() override {}
 private:
 };

@@ -32,14 +32,15 @@ union uReg16bit {
 /*************************************************************************************************/
 class CCpu6502 final : public CDevice {
 public:
-	CCpu6502(TBus bus);
-	~CCpu6502() override;
-	byte read(const word addr) override;
-	void write(const word addr, const byte data) override;
-	void update() override;
+	CCpu6502(CBus& bus);
+	byte read(const word addr, const uint64_t cycles) override {
+		return 0xFF;
+	};
+	void write(const word addr, const byte data, const uint64_t cycles) override {};
+	void update(const uint64_t cycles) override {};
 	void reset() override;
 	//
-	unsigned long long getCumulativeCycles() const;
+	uint64_t getCumulativeCycles() const;
 	void setClock(const unsigned long clock);
 	unsigned long getClock() const;
 	void setFullSpeed(const bool val);
@@ -47,26 +48,26 @@ public:
 	double getClockRate() const;
 	void executeOpcode();
 private:
-	TBus mBus{};
+	CBus& mBus;
 	unsigned long mClock{ CPU_CLOCK };
 	bool mFullSpeed{ false };
-	unsigned long long mCumulativeCycles{ 0 };
+	uint64_t mCumulativeCycles{ 0 };
 	int interruptFlags{ 0 };
 
 	inline byte readByte(word address) const {
-		return mBus->readByte(address);
+		return mBus.readByte(address, mCumulativeCycles);
 	}
 
 	inline word readWord(word address) const {
-		return mBus->readWord(address);
+		return mBus.readWord(address, mCumulativeCycles);
 	}
 
 	inline void writeByte(word address, byte value) const {
-		mBus->writeByte(address, value);
+		mBus.writeByte(address, value, mCumulativeCycles);
 	}
 
 	inline void writeWord(word address, word value) const {
-		mBus->writeWord(address, value);
+		mBus.writeWord(address, value, mCumulativeCycles);
 	}
 
 	// Flags Interrupts
@@ -251,4 +252,3 @@ private:
 	}
 };
 
-using TCpu = std::shared_ptr<CCpu6502>;

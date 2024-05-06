@@ -29,6 +29,10 @@ int main(int argc, char* argv[]) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL could not initialize! SDL Error: %s\n", SDL_GetError());
 		return EXIT_FAILURE;
 	}
+	if (TTF_Init() < 0) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL TTF could not initialize! TTF Error: %s\n", TTF_GetError());
+		return EXIT_FAILURE;
+	}
 	//Set texture filtering to linear
 	if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0")) {	// 0 = Nearest pixel sampling
 		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Warning: SDL_HINT_RENDER_SCALE_QUALITY error!");
@@ -36,13 +40,15 @@ int main(int argc, char* argv[]) {
 
 	auto theMachine = std::make_unique<CMachine>();
 
-	if (argc > 1) {
+	if (argc == 2) {
 		if (!theMachine->setTapeFile(argv[1])) {
 			char temp[200];
 			sprintf(temp, "Error inserting %s tape file\n", argv[1]);
-			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Warning", temp, nullptr);
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "ERROR", temp, nullptr);
 		}
 	}
 	theMachine->loop();
-	return 0;
+	TTF_Quit();
+	SDL_Quit();
+	return EXIT_SUCCESS;
 }

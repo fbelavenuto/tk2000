@@ -35,19 +35,19 @@ public:
 	CMachine();
 	~CMachine();
 	// CObserver
-	void notify(SDL_KeyboardEvent*) override;
+	void notify(SDL_KeyboardEvent&) override;
 	// Native
 	bool setTapeFile(const char *filename);
 	bool loop();
 private:
-	TBus mBus{};
-	TCpu mCpu{};
-	TVideo mVideo{};
-	TAudio mAudio{};
-	std::unique_ptr<CRam> mRam{};
-	std::unique_ptr<CRom> mRom{};
-	std::unique_ptr<CKeyboard> mKeyboard{};
-	std::unique_ptr<CTape> mTape{};
-	std::unique_ptr<CWindowSDL> mWindow{};
-	std::unique_ptr<CAudioSDL> mAudioSDL{};
+	CBus mBus{};
+	CCpu6502 mCpu{ mBus };
+	CRom mRom{ mBus };
+	CRam mRam{ mBus };
+	CVideo mVideo{ mBus, mRam.mRam };
+	CAudio mAudio{ mBus, mCpu };
+	CKeyboard mKeyboard{ mBus };
+	CTape mTape{ mBus };
+	CWindowSDL mWindow{ mVideo };
+	CAudioSDL mAudioSDL{ mAudio };
 };

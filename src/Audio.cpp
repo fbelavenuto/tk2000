@@ -19,57 +19,48 @@
 
 
 /*************************************************************************************************/
-void CAudio::makeSamples() {
-	unsigned long long cycleDiff = mCpu->getCumulativeCycles() - mLastCycle;
+void CAudio::makeSamples(uint64_t cycles) {
+	uint64_t cycleDiff = cycles - mLastCycle;
 	unsigned int numSamples = (int)((double)cycleDiff / CLOCKSPERSAMPLE);
 	unsigned int nCyclesRemaining = (int)((double)cycleDiff - (double)numSamples * CLOCKSPERSAMPLE);
 
 	while (numSamples-- && mPos < NUMSAMPLESPERUPDATE) {
 		mBuffer[mPos++] = mMuted ? 0 : mSoundPos;
 	}
-	mLastCycle = mCpu->getCumulativeCycles() - nCyclesRemaining;
+	mLastCycle = cycles - nCyclesRemaining;
 }
 
 /*************************************************************************************************/
-CAudio::CAudio(TBus bus, TCpu cpu) : 
-	mCpu(cpu),
-	mBuffer()
+CAudio::CAudio(CBus& bus, CCpu6502& cpu) :
+	mCpu(cpu)
 {
-	assert(bus != nullptr);
-	assert(mCpu != nullptr);
-
-	bus->addDevice("audio", this);
-	bus->registerAddr("audio", 0xC030, 0xC03F);
+	bus.addDevice("audio", this);
+	bus.registerAddr("audio", 0xC030, 0xC03F);
 }
 
 /*************************************************************************************************/
-CAudio::~CAudio() {
-}
-
-/*************************************************************************************************/
-byte CAudio::read(const word addr) {
-	if (mCpu->getClockRate() != 1.0) {
+byte CAudio::read(const word addr, const uint64_t cycles) {
+	if (mCpu.getClockRate() != 1.0) {
 		return 0xFF;
 	}
 	mSpeakToggled = true;
 	mMuted = false;
-	makeSamples();
+	makeSamples(cycles);
 	mSoundPos = -mSoundPos;
 	return 0xFF;
 }
 
 /*************************************************************************************************/
-void CAudio::write(word addr, byte data) {
-	read(addr);
+void CAudio::write(word addr, byte data, const uint64_t cycles) {
+	read(addr, cycles);
 }
 
 /*************************************************************************************************/
-void CAudio::update() {
-	auto actualCycle = mCpu->getCumulativeCycles();
+void CAudio::update(uint64_t cycles) {
 	if (!mSpeakToggled) {
 		if (!mQuietCycle) {
-			mQuietCycle = mCpu->getCumulativeCycles();
-		} else if (actualCycle - mQuietCycle > CYCLESIN50US) {
+			mQuietCycle = cycles;
+		} else if (cycles - mQuietCycle > CYCLESIN50US) {
 			// After 50us, mute audio
 			mMuted = true;
 		}
@@ -78,10 +69,10 @@ void CAudio::update() {
 		mQuietCycle = 0;
 	}
 
-	makeSamples();
-	if (mCpu->getClockRate() == 1.0) {
+	makeSamples(cycles);
+	if (mCpu.getClockRate() == 1.0) {
 		sAudioMsg m = { mBuffer, mPos };
-		notify(&m);
+		notify(m);
 	}
 	mPos = 0;
 }

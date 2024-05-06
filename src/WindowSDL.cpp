@@ -156,10 +156,9 @@ const byte icon[] = {
 };
 
 /*************************************************************************************************/
-CWindowSDL::CWindowSDL(TVideo video) :
-	mVideo(video)
+CWindowSDL::CWindowSDL(CVideo& video)
+	: mVideo(video)
 {
-
 	mWindow = SDL_CreateWindow("TK2000 Emulator", SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED, VIDEOWIDTH * 2, VIDEOHEIGHT * 2, SDL_WINDOW_SHOWN);
 
@@ -168,7 +167,7 @@ CWindowSDL::CWindowSDL(TVideo video) :
 		error.append(SDL_GetError());
 		throw std::runtime_error(error);
 	}
-	SDL_Surface *sIcon{};
+	SDL_Surface* sIcon{};
 	sIcon = SDL_LoadBMP_RW(SDL_RWFromConstMem(icon, sizeof(icon)), 1);
 	if (sIcon) {
 		SDL_SetColorKey(sIcon, SDL_TRUE, SDL_MapRGB(sIcon->format, 255, 0, 255));
@@ -191,6 +190,12 @@ CWindowSDL::CWindowSDL(TVideo video) :
 		error.append(SDL_GetError());
 		throw std::runtime_error(error);
 	}
+	mFont = TTF_OpenFont("..\\data\\arial.ttf", 20);	// TODO: put font in correct place
+	if (!mFont) {
+		std::string error{ "Error creating font! TTF Error: " };
+		error.append(TTF_GetError());
+		throw std::runtime_error(error);
+	}
 }
 
 /*************************************************************************************************/
@@ -198,7 +203,7 @@ CWindowSDL::~CWindowSDL() {
 	SDL_DestroyTexture(mScreen);
 	SDL_DestroyRenderer(mRenderer);		//Free resources and close SDL
 	SDL_DestroyWindow(mWindow);			//Destroy window
-	SDL_Quit();							//Quit SDL subsystems
+	//TTF_CloseFont(mFont);
 }
 
 /*****************************************************************************/
@@ -206,7 +211,7 @@ void CWindowSDL::render() {
 	SDL_SetRenderTarget(mRenderer, nullptr);
 	SDL_SetRenderDrawColor(mRenderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(mRenderer);
-	char* fb = (char*)mVideo->getFrameBuffer();
+	char* fb = (char*)mVideo.getFrameBuffer();
 	char* ptr;
 	int pitch;
 	SDL_LockTexture(mScreen, nullptr, (void **)&ptr, &pitch);
@@ -225,6 +230,14 @@ void CWindowSDL::render() {
 	SDL_GetRendererOutputSize(mRenderer, &w, &h);
 	SDL_Rect r{ 0, 0, w, h };
 	SDL_RenderCopy(mRenderer, mScreen, NULL, &r);
+	if (mInMenu) {
+		SDL_Surface* text = TTF_RenderText_Shaded(mFont, "Teste", { 255, 200, 0, SDL_ALPHA_OPAQUE }, { 0, 0, 0, 32 });
+		SDL_Texture* texture = SDL_CreateTextureFromSurface(mRenderer, text);
+		SDL_Rect textRect{ (w - text->w) / 2, (h - text->h) / 2, text->w, text->h };
+		SDL_RenderCopy(mRenderer, texture, nullptr, &textRect);
+		SDL_DestroyTexture(texture);
+		SDL_FreeSurface(text);
+	}
 	SDL_RenderPresent(mRenderer);
 }
 
@@ -246,19 +259,28 @@ bool CWindowSDL::loop() {
 			break;
 
 		case SDL_KEYDOWN:
-			if (e.key.keysym.sym == SDLK_F7) {
+			switch (e.key.keysym.sym) {
+			case SDLK_F2:
+				mInMenu = !mInMenu;
+				break;
+
+			case SDLK_F7:
 				setScanline(!mScanLines);
-			} else if (e.key.keysym.sym == SDLK_F8) {
+				break;
+
+			case SDLK_F8:
 				setFullScreen(!mFullScreen);
-			} else {
+				break;
+
+			default:
 				// Notify all observers
-				notify(&e.key);
+				notify(e.key);
 			}
 			break;
 
 		case SDL_KEYUP:
 			// Notify all observers
-			notify(&e.key);
+			notify(e.key);
 			break;
 
 		}

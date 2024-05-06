@@ -16,16 +16,15 @@
 
 #pragma once
 
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
 #include <cassert>
+#include <cstdint>
 #include <chrono>
 #include <algorithm>
 #include <thread>
+#include <array>
 #include <queue>
-#include <map>
+#include <unordered_map>
 #include <mutex>
 #include <memory>
-#include <stdexcept>
 #include <SDL.h>
+#include <SDL_ttf.h>

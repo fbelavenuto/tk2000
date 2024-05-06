@@ -124,23 +124,17 @@ void CVideo::drawColor() {
 
 
 /*****************************************************************************/
-CVideo::CVideo(TBus bus, byte* ramPtr) :
-	mRamPtr(ramPtr)
-{
-	assert(bus != nullptr);
+CVideo::CVideo(CBus& bus, byte* ramPtr) :
+	mRamPtr(ramPtr) {
+
 	assert(ramPtr != nullptr);
-	bus->addDevice("video", this);
-	bus->registerAddr("video", 0xC050, 0xC051);
-	bus->registerAddr("video", 0xC054, 0xC055);
+	bus.addDevice("video", this);
+	bus.registerAddr("video", 0xC050, 0xC051);
+	bus.registerAddr("video", 0xC054, 0xC055);
 }
 
 /*****************************************************************************/
-CVideo::~CVideo() {
-}
-
-
-/*****************************************************************************/
-byte CVideo::read(const word addr) {
+byte CVideo::read(const word addr, const uint64_t cycles) {
 	switch (addr & 0x00FF) {
 	case 0x50:
 		mVideoMono = false;
@@ -163,18 +157,14 @@ byte CVideo::read(const word addr) {
 }
 
 /*****************************************************************************/
-void CVideo::write(const word addr, const byte data) {
-	read(addr);
+void CVideo::write(const word addr, const byte data, const uint64_t cycles) {
+	read(addr, cycles);
 }
 
 /*****************************************************************************/
 void CVideo::reset() {
 	mVideoMono = false;
 	mSecondPage = false;
-}
-
-/*****************************************************************************/
-void CVideo::update() {
 }
 
 /*****************************************************************************/

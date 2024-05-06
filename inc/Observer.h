@@ -20,5 +20,5 @@
 template <typename T>
 class CObserver {
 public:
-	virtual void notify(T* msg) = 0;
+	virtual void notify(T& msg) = 0;
 };

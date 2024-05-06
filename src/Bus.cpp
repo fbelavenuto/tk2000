@@ -28,41 +28,36 @@ CBus::CBus() {
 }
 
 /*************************************************************************************************/
-CBus::~CBus() {
-
-}
-
-/*************************************************************************************************/
-byte CBus::readByte(const word addr) {
+byte CBus::readByte(const word addr, const uint64_t cycles) {
 	if (mDevices[addr][0] == nullptr) {
 		return 0xFF;
 	}
-	byte result = mDevices[addr][0]->read(addr);
+	byte result = mDevices[addr][0]->read(addr, cycles);
 	if (mDevices[addr][1] != nullptr) {
-		result |= mDevices[addr][1]->read(addr);
+		result |= mDevices[addr][1]->read(addr, cycles);
 	}
 	return result;
 }
 
 /*************************************************************************************************/
-void CBus::writeByte(const word addr, const byte data) {
+void CBus::writeByte(const word addr, const byte data, const uint64_t cycles) {
 	if (mDevices[addr][0] != nullptr) {
-		mDevices[addr][0]->write(addr, data);
+		mDevices[addr][0]->write(addr, data, cycles);
 	}
 	if (mDevices[addr][1] != nullptr) {
-		mDevices[addr][1]->write(addr, data);
+		mDevices[addr][1]->write(addr, data, cycles);
 	}
 }
 
 /*************************************************************************************************/
-word CBus::readWord(const word addr) {
-	return readByte(addr) | readByte(addr + 1) << 8;
+word CBus::readWord(const word addr, const uint64_t cycles) {
+	return readByte(addr, cycles) | readByte(addr + 1, cycles) << 8;
 }
 
 /*************************************************************************************************/
-void CBus::writeWord(const word addr, const word data) {
-	writeByte(addr, data & 0xFF);
-	writeByte(addr + 1, data >> 8);
+void CBus::writeWord(const word addr, const word data, const uint64_t cycles) {
+	writeByte(addr, data & 0xFF, cycles);
+	writeByte(addr + 1, data >> 8, cycles);
 }
 
 /*************************************************************************************************/
@@ -74,7 +69,7 @@ void CBus::addDevice(const char* name, CDevice* dev) {
 
 /*************************************************************************************************/
 CDevice* CBus::getDevice(const char* name) {
-	return mMapDevices[name];
+	return mMapDevices.at(name);
 }
 
 /*************************************************************************************************/
@@ -108,8 +103,8 @@ void CBus::resetAll() {
 }
 
 /*************************************************************************************************/
-void CBus::updateAll() {
+void CBus::updateAll(const uint64_t cycles) {
 	for (auto& [name, dev] : mMapDevices) {
-		dev->update();
+		dev->update(cycles);
 	}
 }
