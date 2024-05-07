@@ -17,6 +17,7 @@
 #include "pch.h"
 #include "WindowSDL.h"
 #include "Video.h"
+#include "Menu.h"
 
 /* Constants */
 
@@ -157,7 +158,8 @@ const byte icon[] = {
 
 /*************************************************************************************************/
 CWindowSDL::CWindowSDL(CVideo& video)
-	: mVideo(video)
+	: mVideo(video),
+	mMainMenu({"CPU speed", "Insert tape", "Play tape (F6)", "Rewind tape"})
 {
 	mWindow = SDL_CreateWindow("TK2000 Emulator", SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED, VIDEOWIDTH * 2, VIDEOHEIGHT * 2, SDL_WINDOW_SHOWN);
@@ -184,16 +186,9 @@ CWindowSDL::CWindowSDL(CVideo& video)
 
 	mScreen = SDL_CreateTexture(mRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING,
 		VIDEOWIDTH, VIDEOHEIGHT * 2);
-
 	if (!mScreen) {
 		std::string error{ "Error creating screen texture! SDL Error: " };
 		error.append(SDL_GetError());
-		throw std::runtime_error(error);
-	}
-	mFont = TTF_OpenFont("..\\data\\arial.ttf", 20);	// TODO: put font in correct place
-	if (!mFont) {
-		std::string error{ "Error creating font! TTF Error: " };
-		error.append(TTF_GetError());
 		throw std::runtime_error(error);
 	}
 }
@@ -203,14 +198,13 @@ CWindowSDL::~CWindowSDL() {
 	SDL_DestroyTexture(mScreen);
 	SDL_DestroyRenderer(mRenderer);		//Free resources and close SDL
 	SDL_DestroyWindow(mWindow);			//Destroy window
-	//TTF_CloseFont(mFont);
 }
 
 /*****************************************************************************/
 void CWindowSDL::render() {
 	SDL_SetRenderTarget(mRenderer, nullptr);
-	SDL_SetRenderDrawColor(mRenderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-	SDL_RenderClear(mRenderer);
+	SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 128);
+	SDL_SetRenderDrawBlendMode(mRenderer, SDL_BLENDMODE_BLEND);
 	char* fb = (char*)mVideo.getFrameBuffer();
 	char* ptr;
 	int pitch;
@@ -231,12 +225,8 @@ void CWindowSDL::render() {
 	SDL_Rect r{ 0, 0, w, h };
 	SDL_RenderCopy(mRenderer, mScreen, NULL, &r);
 	if (mInMenu) {
-		SDL_Surface* text = TTF_RenderText_Shaded(mFont, "Teste", { 255, 200, 0, SDL_ALPHA_OPAQUE }, { 0, 0, 0, 32 });
-		SDL_Texture* texture = SDL_CreateTextureFromSurface(mRenderer, text);
-		SDL_Rect textRect{ (w - text->w) / 2, (h - text->h) / 2, text->w, text->h };
-		SDL_RenderCopy(mRenderer, texture, nullptr, &textRect);
-		SDL_DestroyTexture(texture);
-		SDL_FreeSurface(text);
+		CMenu menu(mRenderer, mActualMenu);
+		menu.render(mMenuIdx);
 	}
 	SDL_RenderPresent(mRenderer);
 }
@@ -245,6 +235,7 @@ void CWindowSDL::render() {
 bool CWindowSDL::loop() {
 	//Event handler
 	SDL_Event e;
+	bool processed = false;
 
 	//Handle events on queue
 	while (SDL_PollEvent(&e) != 0) {
@@ -260,19 +251,44 @@ bool CWindowSDL::loop() {
 
 		case SDL_KEYDOWN:
 			switch (e.key.keysym.sym) {
-			case SDLK_F2:
-				mInMenu = !mInMenu;
+			case SDLK_UP:
+				if (mInMenu) {
+					processed = true;
+					if (mMenuIdx > 0) {
+						--mMenuIdx;
+					}
+				}
+				break;
+
+			case SDLK_DOWN:
+				if (mInMenu) {
+					processed = true;
+					if (mMenuIdx < mActualMenu.size()-1) {
+						++mMenuIdx;
+					}
+				}
+				break;
+
+			case SDLK_RETURN:
+			case SDLK_KP_ENTER:
+				if (mInMenu) {
+					processed = true;
+					mMenuIdx = 0;
+				}
 				break;
 
 			case SDLK_F7:
 				setScanline(!mScanLines);
+				processed = true;
 				break;
 
 			case SDLK_F8:
 				setFullScreen(!mFullScreen);
+				processed = true;
 				break;
 
-			default:
+			}
+			if (!processed) {
 				// Notify all observers
 				notify(e.key);
 			}
@@ -286,6 +302,16 @@ bool CWindowSDL::loop() {
 		}
 	}
 	return false;
+}
+
+/*****************************************************************************/
+void CWindowSDL::toogleMenu() noexcept {
+	mInMenu = !mInMenu;
+}
+
+/*****************************************************************************/
+bool CWindowSDL::getMenuEn() const {
+	return mInMenu;
 }
 
 /*****************************************************************************/

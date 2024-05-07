@@ -29,10 +29,6 @@ int main(int argc, char* argv[]) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL could not initialize! SDL Error: %s\n", SDL_GetError());
 		return EXIT_FAILURE;
 	}
-	if (TTF_Init() < 0) {
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL TTF could not initialize! TTF Error: %s\n", TTF_GetError());
-		return EXIT_FAILURE;
-	}
 	//Set texture filtering to linear
 	if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0")) {	// 0 = Nearest pixel sampling
 		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Warning: SDL_HINT_RENDER_SCALE_QUALITY error!");
@@ -48,7 +44,6 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	theMachine->loop();
-	TTF_Quit();
 	SDL_Quit();
 	return EXIT_SUCCESS;
 }

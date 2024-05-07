@@ -39,6 +39,7 @@ public:
 	// Native
 	bool setTapeFile(const char *filename);
 	bool loop();
+	void setCpuPause(bool pause);
 private:
 	CBus mBus{};
 	CCpu6502 mCpu{ mBus };
@@ -50,4 +51,5 @@ private:
 	CTape mTape{ mBus };
 	CWindowSDL mWindow{ mVideo };
 	CAudioSDL mAudioSDL{ mAudio };
+	bool mCpuPaused = true;
 };

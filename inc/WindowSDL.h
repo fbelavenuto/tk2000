@@ -30,15 +30,19 @@ public:
 	// Native
 	void render();
 	bool loop();
+	void toogleMenu() noexcept;
+	bool getMenuEn() const;
 private:
 	SDL_Window* mWindow{};
 	SDL_Renderer* mRenderer{};
 	SDL_Texture* mScreen{};
-	TTF_Font* mFont{};
 	bool mInMenu = false;
 	bool mScanLines{ false };
 	CVideo& mVideo;
 	bool mFullScreen{ false };
+	std::vector<std::string> mMainMenu;
+	std::vector<std::string>& mActualMenu = mMainMenu;
+	int mMenuIdx = 0;
 private:
 	void setScanline(bool val) noexcept;
 	void setFullScreen(bool val) noexcept;

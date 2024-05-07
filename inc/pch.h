@@ -27,4 +27,3 @@
 #include <mutex>
 #include <memory>
 #include <SDL.h>
-#include <SDL_ttf.h>

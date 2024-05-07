@@ -35,7 +35,7 @@ private:
 	CCpu6502& mCpu;
 	int mSampleRate{ SAMPLERATE };
 	uint64_t mLastCycle{ 0 };
-	int16_t mSoundPos{ -32767 };
+	int16_t mSoundPos{ -16383 };
 	bool mMuted{ false };
 	bool mSpeakToggled{ false };
 	unsigned long long mQuietCycle{ 0 };

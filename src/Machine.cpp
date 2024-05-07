@@ -25,22 +25,31 @@ CMachine::CMachine() {
 	mBus.resetAll();
 
 	// Attach observers
-	mWindow.attach(&mKeyboard);
 	mWindow.attach(this);
 }
 
 /*************************************************************************************************/
 CMachine::~CMachine() {
 	mWindow.detach(this);
-	mWindow.detach(&mKeyboard);
 }
 
 /*************************************************************************************************/
 // Receiving keyboard notification from event loop
 void CMachine::notify(SDL_KeyboardEvent& e) {
+	bool inMenu = mWindow.getMenuEn();
+	if (!inMenu) {
+		mKeyboard.keyEvent(e);
+	}
 	if (e.state == SDL_PRESSED) {
 		switch (e.keysym.sym) {
+
+		case SDLK_F2:
+			mWindow.toogleMenu();
+			mCpuPaused = mWindow.getMenuEn();
+			break;
+
 		case SDLK_F5:
+			mCpuPaused = false;
 			mBus.resetAll();
 			break;
 
@@ -68,13 +77,15 @@ bool CMachine::loop() {
 		std::chrono::time_point<std::chrono::high_resolution_clock> previous, now;
 		while (!quit) {
 			previous = std::chrono::high_resolution_clock::now();
-			const unsigned long cyclesToRun = (unsigned long)((double)usToRun / (1000000.0 / mCpu.getClock()));
-			const unsigned long long actualCycles = mCpu.getCumulativeCycles();
-			while ((mCpu.getCumulativeCycles() - actualCycles) < cyclesToRun) {
-				mCpu.executeOpcode();
+			if (!mCpuPaused) {
+				const unsigned long cyclesToRun = (unsigned long)((double)usToRun / (1000000.0 / mCpu.getClock()));
+				const unsigned long long actualCycles = mCpu.getCumulativeCycles();
+				while ((mCpu.getCumulativeCycles() - actualCycles) < cyclesToRun) {
+					mCpu.executeOpcode();
+				}
+				// Do updates
+				mBus.updateAll(mCpu.getCumulativeCycles());
 			}
-			// Do updates
-			mBus.updateAll(mCpu.getCumulativeCycles());
 			now = std::chrono::high_resolution_clock::now();
 			auto timePast = now - previous;
 			if (!mCpu.getFullSpeed() && timePast < std::chrono::microseconds(usToRun)) {
@@ -93,3 +104,7 @@ bool CMachine::loop() {
 	return true;
 }
 
+/*************************************************************************************************/
+void CMachine::setCpuPause(bool pause) {
+	mCpuPaused = pause;
+}

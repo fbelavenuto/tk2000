@@ -20,7 +20,7 @@
 #include "Device.h"
 #include "Bus.h"
 
-struct sRGB {
+struct SRGB {
 	byte red;
 	byte green;
 	byte blue;
@@ -34,12 +34,12 @@ public:
 	void update(const uint64_t cycles) override {};
 	void reset() override;
 	//
-	sRGB* getFrameBuffer();
+	SRGB* getFrameBuffer();
 private:
 	byte* mRamPtr = nullptr;
 	bool mVideoMono{ false };
 	bool mSecondPage{ false };
-	sRGB mFrameBuffer[VIDEOWIDTH * VIDEOHEIGHT];
+	SRGB mFrameBuffer[VIDEOWIDTH * VIDEOHEIGHT]{ 0 };
 	void drawMono();
 	void drawColor();
 };
