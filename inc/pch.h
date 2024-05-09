@@ -26,4 +26,5 @@
 #include <unordered_map>
 #include <mutex>
 #include <memory>
+#include <filesystem>
 #include <SDL.h>

@@ -3,9 +3,10 @@
 #include "Menu.h"
 
 /*****************************************************************************/
-CMenu::CMenu(SDL_Renderer* renderer, std::vector<std::string>& menuLst) :
+CMenu::CMenu(TMenuLst& menuLst, SDL_Renderer* renderer, std::string title) :
+	mMenuLst(menuLst),
 	mRenderer(renderer),
-	mMenuLst(menuLst)
+	mTitle(title)
 {
 	SDL_Surface* font = SDL_LoadBMP("..\\data\\16x32.bmp");
 	if (!font) {
@@ -28,33 +29,86 @@ CMenu::~CMenu() {
 }
 
 /*****************************************************************************/
-void CMenu::render(int selected) {
+std::string& CMenu::getTitle() {
+	return mTitle;
+}
+
+/*****************************************************************************/
+TMenuLst& CMenu::getMenuLst() const {
+	return mMenuLst;
+}
+
+/*****************************************************************************/
+void CMenu::setMenuLst(TMenuLst& lst) {
+	mMenuLst = lst;
+	mSelected = 0;
+	mFirst = 0;
+}
+
+/*****************************************************************************/
+int CMenu::getSelected() const {
+	return mSelected;
+}
+
+/*****************************************************************************/
+void CMenu::render() {
 	int w, h;
 	SDL_GetRendererOutputSize(mRenderer, &w, &h);
-	int menuLen = (int)mMenuLst.size();
-	int yPos = (h - menuLen * 32) / 2;
-	int y = 0;
-	for (auto& item : mMenuLst) {
-		int len = (int)item.size();
-		int xPos = (w - len * 16) / 2;
+	int max = std::min((int)mMenuLst.size(), MAX_ITEMS);
+	int yPos = (h - max * FONT_HEIGHT) / 2;
+	if (mSelected > mFirst + max) {
+		mSelected = mFirst;
+	}
+	auto renderText = [&](std::string& str, int top, SDL_Color& color) {
+		int len = (int)str.size();
+		int xPos = (w - len * FONT_WIDTH) / 2;
+		if (xPos < 0) {
+			xPos = w - len * FONT_WIDTH;		// Align to right
+		}
 		for (int x = 0; x < len; x++) {
-			const char c = item[x];
-			SDL_Rect textRect{};
-			textRect.w = 16;
-			textRect.h = 32;
-			textRect.x = (c % 16) * textRect.w;
-			textRect.y = (c / 16) * textRect.h;
+			const char c = str[x];
+			SDL_Rect fontRect{};
+			fontRect.w = FONT_WIDTH;
+			fontRect.h = FONT_HEIGHT;
+			fontRect.x = (c % FONT_WIDTH) * fontRect.w;
+			fontRect.y = (c / FONT_WIDTH) * fontRect.h;
 			SDL_Rect destRect{};
-			destRect.w = 16;
-			destRect.h = 32;
+			destRect.w = FONT_WIDTH;
+			destRect.h = FONT_HEIGHT;
 			destRect.x = xPos + x * destRect.w;
-			destRect.y = yPos + y * destRect.h;
+			destRect.y = top;
 			SDL_RenderFillRect(mRenderer, &destRect);
 			SDL_SetTextureBlendMode(mFont, SDL_BLENDMODE_BLEND);
-			SDL_Color* color = (y == selected) ? &mSel : &mNotSel;
-			SDL_SetTextureColorMod(mFont, color->r, color->g, color->b);
-			SDL_RenderCopy(mRenderer, mFont, &textRect, &destRect);
+			SDL_SetTextureColorMod(mFont, color.r, color.g, color.b);
+			SDL_RenderCopy(mRenderer, mFont, &fontRect, &destRect);
 		}
-		++y;
+
+	};
+	renderText(mTitle, 10, mTitleColor);
+	for (int y = 0; y < max; y++) {
+		std::string& str = mMenuLst[mFirst + y];
+		SDL_Color& color = (mFirst + y == mSelected) ? mSelColor : mNotSelColor;
+		renderText(str, yPos + y * FONT_HEIGHT, color);
+	}
+}
+
+/*****************************************************************************/
+void CMenu::up() {
+	if (mSelected > 0) {
+		--mSelected;
+		if (mSelected < mFirst) {
+			--mFirst;
+		}
+	}
+}
+
+/*****************************************************************************/
+void CMenu::down() {
+	int max = std::min((int)mMenuLst.size(), MAX_ITEMS);
+	if (mSelected < mMenuLst.size() - 1) {
+		++mSelected;
+		if (mSelected >= mFirst + max) {
+			++mFirst;
+		}
 	}
 }

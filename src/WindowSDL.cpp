@@ -17,7 +17,6 @@
 #include "pch.h"
 #include "WindowSDL.h"
 #include "Video.h"
-#include "Menu.h"
 
 /* Constants */
 
@@ -156,10 +155,28 @@ const byte icon[] = {
 	0x1F, 0x7C, 0x1F, 0x7C, 0x1F, 0x7C, 0x00, 0x00
 };
 
+/*****************************************************************************/
+void CWindowSDL::setScanline(bool val) noexcept {
+	mScanLines = val;
+}
+
+/*************************************************************************************************/
+void CWindowSDL::setFullScreen(bool val) noexcept {
+	mFullScreen = val;
+	if (mFullScreen) {
+		SDL_DisplayMode dm;
+		SDL_GetDesktopDisplayMode(0, &dm);
+		SDL_SetWindowSize(mWindow, dm.w, dm.h);
+		SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN);
+	} else {
+		SDL_SetWindowFullscreen(mWindow, 0);
+		SDL_SetWindowSize(mWindow, VIDEOWIDTH * 2, VIDEOHEIGHT * 2);
+	}
+}
+
 /*************************************************************************************************/
 CWindowSDL::CWindowSDL(CVideo& video)
-	: mVideo(video),
-	mMainMenu({"CPU speed", "Insert tape", "Play tape (F6)", "Rewind tape"})
+	: mVideo(video)
 {
 	mWindow = SDL_CreateWindow("TK2000 Emulator", SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED, VIDEOWIDTH * 2, VIDEOHEIGHT * 2, SDL_WINDOW_SHOWN);
@@ -183,7 +200,6 @@ CWindowSDL::CWindowSDL(CVideo& video)
 		error.append(SDL_GetError());
 		throw std::runtime_error(error);
 	}
-
 	mScreen = SDL_CreateTexture(mRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING,
 		VIDEOWIDTH, VIDEOHEIGHT * 2);
 	if (!mScreen) {
@@ -224,9 +240,8 @@ void CWindowSDL::render() {
 	SDL_GetRendererOutputSize(mRenderer, &w, &h);
 	SDL_Rect r{ 0, 0, w, h };
 	SDL_RenderCopy(mRenderer, mScreen, NULL, &r);
-	if (mInMenu) {
-		CMenu menu(mRenderer, mActualMenu);
-		menu.render(mMenuIdx);
+	if (mMenu) {
+		mMenu->render();
 	}
 	SDL_RenderPresent(mRenderer);
 }
@@ -252,28 +267,24 @@ bool CWindowSDL::loop() {
 		case SDL_KEYDOWN:
 			switch (e.key.keysym.sym) {
 			case SDLK_UP:
-				if (mInMenu) {
+				if (mMenu) {
 					processed = true;
-					if (mMenuIdx > 0) {
-						--mMenuIdx;
-					}
+					mMenu->up();
 				}
 				break;
 
 			case SDLK_DOWN:
-				if (mInMenu) {
+				if (mMenu) {
 					processed = true;
-					if (mMenuIdx < mActualMenu.size()-1) {
-						++mMenuIdx;
-					}
+					mMenu->down();
 				}
 				break;
 
 			case SDLK_RETURN:
 			case SDLK_KP_ENTER:
-				if (mInMenu) {
+				if (mMenu) {
 					processed = true;
-					mMenuIdx = 0;
+					mMenuSel = mMenu->getSelected();
 				}
 				break;
 
@@ -305,30 +316,22 @@ bool CWindowSDL::loop() {
 }
 
 /*****************************************************************************/
-void CWindowSDL::toogleMenu() noexcept {
-	mInMenu = !mInMenu;
+SDL_Renderer* CWindowSDL::getRenderer() const {
+	return mRenderer;
 }
 
 /*****************************************************************************/
-bool CWindowSDL::getMenuEn() const {
-	return mInMenu;
+CMenu* CWindowSDL::getMenu() const {
+	return mMenu;
 }
 
 /*****************************************************************************/
-void CWindowSDL::setScanline(bool val) noexcept {
-	mScanLines = val;
+void CWindowSDL::setMenu(CMenu* menu) {
+	mMenu = menu;
+	mMenuSel = -1;
 }
 
-/*************************************************************************************************/
-void CWindowSDL::setFullScreen(bool val) noexcept {
-	mFullScreen = val;
-	if (mFullScreen) {
-		SDL_DisplayMode dm;
-		SDL_GetDesktopDisplayMode(0, &dm);
-		SDL_SetWindowSize(mWindow, dm.w, dm.h);
-		SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN);
-	} else {
-		SDL_SetWindowFullscreen(mWindow, 0);
-		SDL_SetWindowSize(mWindow, VIDEOWIDTH * 2, VIDEOHEIGHT * 2);
-	}
+/*****************************************************************************/
+int CWindowSDL::getMenuSel() const {
+	return mMenuSel;
 }

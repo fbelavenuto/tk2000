@@ -51,5 +51,11 @@ private:
 	CTape mTape{ mBus };
 	CWindowSDL mWindow{ mVideo };
 	CAudioSDL mAudioSDL{ mAudio };
+	CMenu* mMainMenu = nullptr;
+	CMenu* mCpuMenu = nullptr;
+	CMenu* mFilesMenu = nullptr;
 	bool mCpuPaused = true;
+private:
+	void fillFilesLst();
+
 };

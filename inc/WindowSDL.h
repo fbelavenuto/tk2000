@@ -17,6 +17,7 @@
 #pragma once
 
 #include "Subject.h"
+#include "Menu.h"
 
 /* Prototypes */
 
@@ -24,26 +25,26 @@ class CVideo;
 
 /*************************************************************************************************/
 class CWindowSDL final : public CSubject<SDL_KeyboardEvent> {
+private:
+	SDL_Window* mWindow{};
+	SDL_Renderer* mRenderer{};
+	SDL_Texture* mScreen{};
+	bool mScanLines{ false };
+	CVideo& mVideo;
+	bool mFullScreen{ false };
+	CMenu* mMenu = nullptr;
+	int mMenuSel = -1;
+private:
+	void setScanline(bool val) noexcept;
+	void setFullScreen(bool val) noexcept;
 public:
 	CWindowSDL(CVideo& video);
 	~CWindowSDL();
 	// Native
 	void render();
 	bool loop();
-	void toogleMenu() noexcept;
-	bool getMenuEn() const;
-private:
-	SDL_Window* mWindow{};
-	SDL_Renderer* mRenderer{};
-	SDL_Texture* mScreen{};
-	bool mInMenu = false;
-	bool mScanLines{ false };
-	CVideo& mVideo;
-	bool mFullScreen{ false };
-	std::vector<std::string> mMainMenu;
-	std::vector<std::string>& mActualMenu = mMainMenu;
-	int mMenuIdx = 0;
-private:
-	void setScanline(bool val) noexcept;
-	void setFullScreen(bool val) noexcept;
+	SDL_Renderer* getRenderer() const;
+	CMenu* getMenu() const;
+	void setMenu(CMenu* menu);
+	int getMenuSel() const;
 };
