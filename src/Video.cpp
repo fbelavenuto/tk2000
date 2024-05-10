@@ -114,9 +114,9 @@ CVideo::CVideo(CBus& bus, byte* ramPtr) :
 	mRamPtr(ramPtr)
 {
 	assert(ramPtr != nullptr);
-	bus.addDevice("video", this);
-	bus.registerAddr("video", 0xC050, 0xC051);
-	bus.registerAddr("video", 0xC054, 0xC055);
+	bus.addDevice(EDevices::VIDEO, this);
+	bus.registerAddr(EDevices::VIDEO, 0xC050, 0xC051);
+	bus.registerAddr(EDevices::VIDEO, 0xC054, 0xC055);
 }
 
 /*****************************************************************************/

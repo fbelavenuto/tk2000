@@ -19,31 +19,53 @@
 
 /* Constants */
 
-TMenuLst mainLst{ "Start", "Reset (F5)", "CPU speed", "Insert tape", "Play tape (F6)", "Rewind tape" };
+TMenuLst mainLst{ "Start", "Soft Reset (F5)", "Hard reset", "CPU speed", "Insert tape", "Play tape (F6)", "Rewind tape" };
 TMenuLst cpuSpeedLst{ "1 MHz", "2 MHz", "Full speed" };
 TMenuLst filesLst{ "." };
 
 namespace fs = std::filesystem;
+std::string curpath = fs::current_path().string();
 
 /*************************************************************************************************/
 void CMachine::fillFilesLst() {
-	auto p{ fs::current_path() };
+	
 	std::vector<std::string> dirs, files;
-	if (p.string().length() > 3) {
-		dirs.emplace_back("[..]");
+	// workaroud for windows, show drive letters
+	if (curpath.empty()) {
+		std::string t = "a:/";
+		for (char l = 'a'; l <= 'z'; l++) {
+			t[0] = l;
+			try {
+				if (fs::exists(t)) {
+					dirs.emplace_back(t);
+				}
+			} catch (std::exception& e) {
+				// do nothing
+			}
+		}
 	}
-	for (auto& entry : fs::directory_iterator(p)) {
-		auto filename = entry.path().filename();
-		auto status = entry.status();
-		if (fs::is_directory(status)) {
-			dirs.emplace_back("[" + filename.string() + "]");
-		} else {
-			if (filename.extension().string() == ".ct2")
-				files.emplace_back(filename.string());
+	if (fs::exists(curpath)) {
+		for (auto& entry : fs::directory_iterator(curpath)) {
+			auto filename = entry.path().filename();
+			auto status = entry.status();
+			if (fs::is_directory(status)) {
+				dirs.emplace_back("[" + filename.string() + "]");
+			} else {
+				if (filename.extension().string() == ".ct2")
+					files.emplace_back(filename.string());
+			}
 		}
 	}
 	std::sort(dirs.begin(), dirs.end());
 	std::sort(files.begin(), files.end());
+#ifdef _WIN32
+	if (!curpath.empty())
+#else
+	if (curpath.length() > 3)
+#endif
+	{
+		dirs.insert(dirs.begin(), "[..]");
+	}
 	auto& lst = mFilesMenu->getMenuLst();
 	lst.clear();
 	for (auto& d : dirs) {
@@ -52,7 +74,11 @@ void CMachine::fillFilesLst() {
 	for (auto& d : files) {
 		lst.emplace_back(d);
 	}
-	mFilesMenu->getTitle() = fs::current_path().string();
+	if (curpath.length() == 0) {
+		mFilesMenu->getTitle() = "[DRIVES]";
+	} else {
+		mFilesMenu->getTitle() = curpath;
+	}
 	mFilesMenu->setMenuLst(lst);
 }
 
@@ -157,7 +183,7 @@ bool CMachine::loop() {
 	while (!quit) {
 		quit = mWindow.loop();
 		// Render screen
-		mWindow.render();
+		mWindow.render(mCpuPaused == false, mTape.getPlayState());
 		int menuSel = mWindow.getMenuSel();
 		if (menuSel != -1) {
 			CMenu* menu = nullptr;
@@ -168,27 +194,32 @@ bool CMachine::loop() {
 					mCpuPaused = !mCpuPaused;
 					break;
 
-				case 1:								// Reset
+				case 1:								// Soft Reset
 					mCpuPaused = false;
 					mBus.resetAll();
 					break;
 
-				case 2:								// CPU speed
+				case 2:								// Hard Reset
+					mCpuPaused = false;
+					mRam.init();
+					mBus.resetAll();
+					break;
+
+				case 3:								// CPU speed
 					menu = mCpuMenu;
 					break;
 
-				case 3:								// Insert tape
+				case 4:								// Insert tape
 					fillFilesLst();
 					menu = mFilesMenu;
 					break;
 
-				case 4:								// Play tape
+				case 5:								// Play tape
 					mTape.play();
-					mCpuPaused = false;
 					break;
 
-				case 5:								// Rewind tape
-					mCpuPaused = false;
+				case 6:								// Rewind tape
+					mTape.rewind();
 					break;
 				}
 			} else if (mWindow.getMenu() == mCpuMenu) {
@@ -196,35 +227,46 @@ bool CMachine::loop() {
 				case 0:								// 1x
 					mCpu.setFullSpeed(false);
 					mCpu.setClock(CPU_CLOCK);
-					mCpuPaused = false;
 					break;
 
 				case 1:								// 2x
 					mCpu.setFullSpeed(false);
 					mCpu.setClock(CPU_CLOCK*2);
-					mCpuPaused = false;
 					break;
 
 				case 2:								// Full
 					mCpu.setFullSpeed(true);
 					mCpu.setClock(CPU_CLOCK);
-					mCpuPaused = false;
 					break;
 
 				}
 			} else if (mWindow.getMenu() == mFilesMenu) {
 				const std::string& cur = mFilesMenu->getMenuLst()[menuSel];
-				if (cur == "[..]") {
+				if (cur == "[..]") {				// Up dir
 					std::error_code error;
-					fs::current_path(fs::current_path().parent_path(), error);
+#ifdef _WIN32
+					if (curpath.length() == 3) {
+						curpath.clear();
+					} else
+#endif
+					{
+						fs::current_path(fs::current_path().parent_path(), error);
+						curpath = fs::current_path().string();
+					}
 					fillFilesLst();
 					menu = mFilesMenu;
-				} else if (cur[0] == '[') {
+				} else if (cur[0] == '[') {			// Into in dir
 					fs::current_path(fs::current_path().append(cur.substr(1, cur.length()-2)));
+					curpath = fs::current_path().string();
+					fillFilesLst();
+					menu = mFilesMenu;
+				} else if (curpath.length() == 0) {
+					curpath = cur;
+					fs::current_path(curpath);
 					fillFilesLst();
 					menu = mFilesMenu;
 				} else {
-					mTape.insertCt2(cur.c_str());
+					mTape.insertCt2(cur.c_str());	// Load file
 				}
 			}
 			mWindow.setMenu(menu);

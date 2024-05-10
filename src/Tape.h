@@ -16,23 +16,30 @@
 
 #pragma once
 
-#include "Common.h"
 #include "Device.h"
+#include "Bus.h"
+#include "Cpu6502.h"
 
-class CBus final {
+class CTape final : public CDevice {
 public:
-	CBus();
-	byte readByte(const word addr, const uint64_t cycles);
-	void writeByte(const word addr, byte data, const uint64_t cycles);
-	word readWord(const word addr, const uint64_t cycles);
-	void writeWord(const word addr, word data, const uint64_t cycles);
-	void addDevice(const char* name, CDevice* dev);
-	CDevice* getDevice(const char* name);
-	void registerAddr(const char* name, const word addr);
-	void registerAddr(const char* name, const word addrStart, const word addrEnd);
-	void resetAll();
-	void updateAll(const uint64_t cycles);
+	CTape(CBus& bus, CCpu6502& cpu);
+	// CDevice
+	byte read(const word addr, const uint64_t cycles) override;
+	void write(const word addr, const byte data, const uint64_t cycles) override {};
+	void update(const uint64_t cycles) override {};
+	void reset() override;
+	// Native
+	void play() noexcept;
+	void stop() noexcept;
+	void rewind() noexcept;
+	bool getPlayState() const noexcept;
+	bool insertCt2(const char *fileName);
 private:
-	CDevice* mDevices[0x10000][2];
-	std::unordered_map<const char*, CDevice*> mMapDevices;
+	CCpu6502& mCpu;
+	unsigned long long mStartCycle{ 0 };
+	std::vector<word> mQueueCycles;
+	std::vector<word>::iterator mQueueIt;
+	word mCyclesNeeded;
+	byte mCasOut{ 0 };
+	bool mPlay{ false };
 };

@@ -36,9 +36,9 @@
 
 /*************************************************************************************************/
 CKeyboard::CKeyboard(CBus& bus) {
-	bus.addDevice("keyboard", this);
-	bus.registerAddr("keyboard", 0xC000, 0xC01F);
-	bus.registerAddr("keyboard", 0xC05E, 0xC05F);
+	bus.addDevice(EDevices::KEYBOARD, this);
+	bus.registerAddr(EDevices::KEYBOARD, 0xC000, 0xC01F);
+	bus.registerAddr(EDevices::KEYBOARD, 0xC05E, 0xC05F);
 }
 
 /*************************************************************************************************/

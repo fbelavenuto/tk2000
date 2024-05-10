@@ -1,6 +1,0 @@
-Menus:
-
-Velocidade da CPU -> 1Mhz, 2Mhz, Full Speed
-Inserir tape -> (lista de arquivos)
-Play tape
-Rebobinar tape

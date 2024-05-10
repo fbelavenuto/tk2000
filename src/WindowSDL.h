@@ -16,46 +16,38 @@
 
 #pragma once
 
-#include "Common.h"
-#include "Bus.h"
-#include "Cpu6502.h"
-#include "Video.h"
-#include "Ram.h"
-#include "Rom.h"
-#include "Audio.h"
-#include "Keyboard.h"
-#include "Tape.h"
-#include "WindowSDL.h"
-#include "Observer.h"
-#include "AudioSDL.h"
+#include "Subject.h"
+#include "Menu.h"
+
+/* Prototypes */
+
+class CVideo;
 
 /*************************************************************************************************/
-class CMachine final : public CObserver<SDL_KeyboardEvent> {
+class CWindowSDL final : public CSubject<SDL_KeyboardEvent> {
+private:
+	SDL_Window* mWindow{};
+	SDL_Renderer* mRenderer{};
+	SDL_Texture* mScreen{};
+	bool mScanLines{ false };
+	CVideo& mVideo;
+	bool mFullScreen{ false };
+	CMenu* mMenu = nullptr;
+	int mMenuSel = -1;
+	SDL_Texture* mCpuIcon{};
+	SDL_Texture* mTapeIcon{};
+private:
+	void setScanline(bool val) noexcept;
+	void setFullScreen(bool val) noexcept;
 public:
-	CMachine();
-	~CMachine();
-	// CObserver
-	void notify(SDL_KeyboardEvent&) override;
+	CWindowSDL(CVideo& video);
+	~CWindowSDL();
 	// Native
-	bool setTapeFile(const char *filename);
+	void render(bool cpuState, bool tapeState);
 	bool loop();
-	void setCpuPause(bool pause);
-private:
-	CBus mBus{};
-	CCpu6502 mCpu{ mBus };
-	CRom mRom{ mBus };
-	CRam mRam{ mBus };
-	CVideo mVideo{ mBus, mRam.mRam };
-	CAudio mAudio{ mBus, mCpu };
-	CKeyboard mKeyboard{ mBus };
-	CTape mTape{ mBus };
-	CWindowSDL mWindow{ mVideo };
-	CAudioSDL mAudioSDL{ mAudio };
-	CMenu* mMainMenu = nullptr;
-	CMenu* mCpuMenu = nullptr;
-	CMenu* mFilesMenu = nullptr;
-	bool mCpuPaused = true;
-private:
-	void fillFilesLst();
-
+	SDL_Window* getWindow() const;
+	SDL_Renderer* getRenderer() const;
+	CMenu* getMenu() const;
+	void setMenu(CMenu* menu);
+	int getMenuSel() const;
 };

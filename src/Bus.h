@@ -18,17 +18,21 @@
 
 #include "Common.h"
 #include "Device.h"
-#include "Bus.h"
 
-class CRam final : public CDevice {
+class CBus final {
 public:
-	CRam(CBus& bus);
-	byte read(const word addr, const uint64_t cycles) override;
-	void write(const word addr, const byte data, const uint64_t cycles) override;
-	void reset() override {}
-	void update(const uint64_t cycles) override {}
-	//
+	CBus();
+	byte readByte(const word addr, const uint64_t cycles);
+	void writeByte(const word addr, byte data, const uint64_t cycles);
+	word readWord(const word addr, const uint64_t cycles);
+	void writeWord(const word addr, word data, const uint64_t cycles);
+	void addDevice(EDevices t, CDevice* dev);
+	CDevice* getDevice(EDevices dev);
+	void registerAddr(EDevices dev, const word addr);
+	void registerAddr(EDevices dev, const word addrStart, const word addrEnd);
+	void resetAll();
+	void updateAll(const uint64_t cycles);
 private:
-	friend class CMachine;
-	byte mRam[0x10000];
+	CDevice* mDevices[0x10000][2];
+	std::unordered_map<EDevices, CDevice*> mMapDevices;
 };

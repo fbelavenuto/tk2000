@@ -34,7 +34,7 @@ CCpu6502::CCpu6502(CBus& bus) :
 		m_BCDTableSub[i] -= ((m_BCDTableSub[i] & 0xf0) <= 0x90) ? 0 : 0x60;
 	}
 
-	mBus.addDevice("cpu", this);
+	mBus.addDevice(EDevices::CPU, this);
 }
 
 /*************************************************************************************************/

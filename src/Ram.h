@@ -16,15 +16,20 @@
 
 #pragma once
 
-#include <cassert>
-#include <cstdint>
-#include <chrono>
-#include <algorithm>
-#include <thread>
-#include <array>
-#include <queue>
-#include <unordered_map>
-#include <mutex>
-#include <memory>
-#include <filesystem>
-#include <SDL.h>
+#include "Common.h"
+#include "Device.h"
+#include "Bus.h"
+
+class CRam final : public CDevice {
+public:
+	CRam(CBus& bus);
+	byte read(const word addr, const uint64_t cycles) override;
+	void write(const word addr, const byte data, const uint64_t cycles) override;
+	void reset() override {}
+	void update(const uint64_t cycles) override {}
+	//
+	void init();
+private:
+	friend class CMachine;
+	byte mRam[0x10000];
+};

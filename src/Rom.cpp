@@ -1047,8 +1047,8 @@ const byte romImage[16384] = {
 
 /*************************************************************************************************/
 CRom::CRom(CBus& bus) {
-	bus.addDevice("rom", this);
-	bus.registerAddr("rom", 0xC100, 0xFFFF);
+	bus.addDevice(EDevices::ROM, this);
+	bus.registerAddr(EDevices::ROM, 0xC100, 0xFFFF);
 }
 
 /*************************************************************************************************/

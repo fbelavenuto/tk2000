@@ -1,6 +1,7 @@
 
 #include "pch.h"
 #include "Menu.h"
+#include "media.h"
 
 /*****************************************************************************/
 CMenu::CMenu(TMenuLst& menuLst, SDL_Renderer* renderer, std::string title) :
@@ -8,7 +9,7 @@ CMenu::CMenu(TMenuLst& menuLst, SDL_Renderer* renderer, std::string title) :
 	mRenderer(renderer),
 	mTitle(title)
 {
-	SDL_Surface* font = SDL_LoadBMP("..\\data\\16x32.bmp");
+	SDL_Surface* font = SDL_LoadBMP_RW(SDL_RWFromConstMem(fontBMP, sizeof(fontBMP)), true);
 	if (!font) {
 		std::string error{ "Error loading font file! SDL Error: " };
 		error.append(SDL_GetError());
@@ -55,7 +56,7 @@ void CMenu::render() {
 	int w, h;
 	SDL_GetRendererOutputSize(mRenderer, &w, &h);
 	int max = std::min((int)mMenuLst.size(), MAX_ITEMS);
-	int yPos = (h - max * FONT_HEIGHT) / 2;
+	int yPos = (h - (max-1) * FONT_HEIGHT) / 2;		// -1 to skip title
 	if (mSelected > mFirst + max) {
 		mSelected = mFirst;
 	}
@@ -70,8 +71,8 @@ void CMenu::render() {
 			SDL_Rect fontRect{};
 			fontRect.w = FONT_WIDTH;
 			fontRect.h = FONT_HEIGHT;
-			fontRect.x = (c % FONT_WIDTH) * fontRect.w;
-			fontRect.y = (c / FONT_WIDTH) * fontRect.h;
+			fontRect.x = (c % FONT_CHARS_PER_LINE) * fontRect.w;
+			fontRect.y = (c / FONT_CHARS_PER_LINE) * fontRect.h;
 			SDL_Rect destRect{};
 			destRect.w = FONT_WIDTH;
 			destRect.h = FONT_HEIGHT;

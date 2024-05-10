@@ -30,15 +30,15 @@ struct SCh {
 #pragma pack(pop)
 
 /*************************************************************************************************/
-CTape::CTape(CBus& bus) : 
-	mCpu(static_cast<CCpu6502&>(*bus.getDevice("cpu"))),
+CTape::CTape(CBus& bus, CCpu6502& cpu) :
+	mCpu(cpu),
 	mCyclesNeeded(0)
 {
-	bus.addDevice("tape", this);
-	bus.registerAddr("tape", 0xC010, 0xC01F);
-	bus.registerAddr("tape", 0xC020, 0xC02F);
-	bus.registerAddr("tape", 0xC052, 0xC053);
-	bus.registerAddr("tape", 0xC056, 0xC057);
+	bus.addDevice(EDevices::TAPE, this);
+	bus.registerAddr(EDevices::TAPE, 0xC010, 0xC02F);
+	bus.registerAddr(EDevices::TAPE, 0xC052, 0xC053);
+	bus.registerAddr(EDevices::TAPE, 0xC056, 0xC057);
+	mQueueIt = mQueueCycles.end();
 }
 
 /*************************************************************************************************/
@@ -48,17 +48,15 @@ byte CTape::read(const word addr, const uint64_t cycles) {
 			return 0x00;
 		}
 		const unsigned long long actualCycle = mCpu.getCumulativeCycles();
-		if (mStartCycle == 0 && mQueueCycles.size() > 0) {
+		if (mStartCycle == 0 && mQueueIt != mQueueCycles.end()) {
 			mStartCycle = actualCycle;
-			mCyclesNeeded = mQueueCycles.front();
-			mQueueCycles.pop();
+			mCyclesNeeded = (*mQueueIt);
 		}
 		if (actualCycle - mStartCycle > mCyclesNeeded) {
 			mStartCycle = actualCycle;
 			mCasOut ^= 0x80;
-			if (mQueueCycles.size() > 0) {
-				mCyclesNeeded = mQueueCycles.front();
-				mQueueCycles.pop();
+			if (mQueueIt != mQueueCycles.end()) {
+				mCyclesNeeded = *(mQueueIt++);
 			} else {
 				mStartCycle = 0;
 				mPlay = false;
@@ -78,19 +76,23 @@ void CTape::reset() {
 
 /*************************************************************************************************/
 void CTape::play() noexcept {
-	mPlay = true;
-	mCpu.setFullSpeed(true);
+	if (mQueueIt != mQueueCycles.end()) {
+		mPlay = true;
+		mCpu.setFullSpeed(true);
+	}
 }
 
 /*************************************************************************************************/
 void CTape::stop() noexcept {
 	if (mPlay) {
 		mPlay = false;
+		mQueueIt = mQueueCycles.end();
 	}
-	// std::queue do not have clear() method
-	while (mQueueCycles.size()) {
-		mQueueCycles.pop();
-	}
+}
+
+/*************************************************************************************************/
+void CTape::rewind() noexcept {
+	mQueueIt = mQueueCycles.begin();
 }
 
 /*************************************************************************************************/
@@ -109,7 +111,7 @@ bool CTape::insertCt2(const char *fileName) {
 	if (memcmp(&magic, CT2_MAGIC, sizeof(dword)) != 0) {
 		return false;
 	}
-	stop();
+	mQueueCycles.clear();
 	SCh ch;
 	while (true) {
 		rlen = fread(&ch, 1, sizeof(SCh), fileTape);
@@ -118,18 +120,18 @@ bool CTape::insertCt2(const char *fileName) {
 		}
 		if (memcmp(ch.ID, CT2_CAB_A, sizeof(word)) == 0) {
 			for (int i = 0; i < 500; i++) {
-				mQueueCycles.emplace(500);
-				mQueueCycles.emplace(500);
+				mQueueCycles.emplace_back(500);
+				mQueueCycles.emplace_back(500);
 			}
 		} else if (memcmp(ch.ID, CT2_CAB_B, sizeof(word)) == 0) {
-			mQueueCycles.emplace(464);
-			mQueueCycles.emplace(679);
+			mQueueCycles.emplace_back(464);
+			mQueueCycles.emplace_back(679);
 			for (int i = 0; i < 32; i++) {
-				mQueueCycles.emplace(679);
-				mQueueCycles.emplace(679);
+				mQueueCycles.emplace_back(679);
+				mQueueCycles.emplace_back(679);
 			}
-			mQueueCycles.emplace(199);
-			mQueueCycles.emplace(250);
+			mQueueCycles.emplace_back(199);
+			mQueueCycles.emplace_back(250);
 		} else if (memcmp(ch.ID, CT2_DATA, sizeof(word)) == 0) {
 			byte b;
 			for (int i = 0; i < ch.size; i++) {
@@ -138,16 +140,17 @@ bool CTape::insertCt2(const char *fileName) {
 					int mask = 1 << (7 - j);
 					if ((mask & b) == mask) {
 						// 1
-						mQueueCycles.emplace(500);
-						mQueueCycles.emplace(500);
+						mQueueCycles.emplace_back(500);
+						mQueueCycles.emplace_back(500);
 					} else {
 						// 0
-						mQueueCycles.emplace(250);
-						mQueueCycles.emplace(250);
+						mQueueCycles.emplace_back(250);
+						mQueueCycles.emplace_back(250);
 					}
 				}
 			}
 		}
 	}
+	mQueueIt = mQueueCycles.begin();	// Update iterator
 	return true;
 }

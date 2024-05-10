@@ -5,9 +5,10 @@ using TMenuLst = std::vector<std::string>;
 
 class CMenu final {
 private:
-	const int MAX_ITEMS = 10;
-	const int FONT_WIDTH = 16;
-	const int FONT_HEIGHT = 32;
+	const int FONT_WIDTH = 9;
+	const int FONT_HEIGHT = 16;
+	const int FONT_CHARS_PER_LINE = 16;
+	const int MAX_ITEMS = 21;
 	std::string mTitle;
 	TMenuLst& mMenuLst;
 	SDL_Renderer* mRenderer;
