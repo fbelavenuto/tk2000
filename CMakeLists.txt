@@ -1,4 +1,19 @@
-﻿
+﻿# Copyright (c) 2024 FBLabs
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
 cmake_minimum_required (VERSION 3.8)
 
 project ("tk2000")
@@ -61,12 +76,8 @@ endif()
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 find_package(SDL2 REQUIRED)
-find_package(SDL2IMAGE REQUIRED)
-find_package(SDL2TTF REQUIRED)
 
 include_directories(${SDL2_INCLUDE_DIR})
-include_directories(${SDL2TTF_INCLUDE_DIR})
-include_directories(${SDL2_IMAGE_INCLUDE_DIR})
 
 if (UNIX)
   find_package (Threads)

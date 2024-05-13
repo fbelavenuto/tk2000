@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FBLabs
+// Copyright (c) 2024 FBLabs
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,8 +15,6 @@
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #pragma once
-
-/* Defines */
 
 /* Enums */
 
