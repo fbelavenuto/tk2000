@@ -17,6 +17,9 @@
 #include "pch.h"
 #include "Video.h"
 
+static bool pixels[VIDEOWIDTH][VIDEOHEIGHT];
+static bool colorMod[VIDEOWIDTH / 7][VIDEOHEIGHT];
+
 /*****************************************************************************/
 void CVideo::drawMono() {
 	word memAddr = (mSecondPage ? 0xA000 : 0x2000);
@@ -47,8 +50,6 @@ void CVideo::drawMono() {
 void CVideo::drawColor() {
 	word memAddr = (mSecondPage ? 0xA000 : 0x2000);
 	byte *ptr;
-	bool pixels[VIDEOWIDTH][VIDEOHEIGHT];
-	bool colorMod[VIDEOWIDTH / 7][VIDEOHEIGHT];
 	for (int y = 0; y < VIDEOHEIGHT; y++) {
 		int offset = ((y & 7) << 10) + ((y & 0x38) << 4) + (y >> 6) * 40;
 		ptr = mRamPtr + memAddr + offset;
@@ -60,14 +61,11 @@ void CVideo::drawColor() {
 			}
 		}
 	}
-
 	for (int y = 0; y < VIDEOHEIGHT; y++) {
 		for (int x = 0; x < VIDEOWIDTH; x += 2) {
 			const int index = y * VIDEOWIDTH + x;
 			const bool cm = colorMod[x / 7][y];
-			//bool prev = (x == 0 ? false : pixels[x - 1][y]);
 			byte actual = (pixels[x][y] ? 2 : 0) | (pixels[x + 1][y] ? 1 : 0);
-			//bool next = (x == VIDEOWIDTH - 2) ? false : pixels[x - 2][y];
 			switch (actual) {
 			case 0:	// 00 black
 				mFrameBuffer[index].red = 0;
@@ -79,33 +77,21 @@ void CVideo::drawColor() {
 				break;
 
 			case 1:	// 01 red / blue
-				/*if (next) {
-					mFrameBuffer[index + 1].red = 255;
-					mFrameBuffer[index + 1].green = 255;
-					mFrameBuffer[index + 1].blue = 255;
-				} else*/ {
-					mFrameBuffer[index].red = cm ? 250 : 0;
-					mFrameBuffer[index].green = cm ? 16 : 128;
-					mFrameBuffer[index].blue = cm ? 0 : 255;
-					mFrameBuffer[index + 1].red = cm ? 250 : 0;
-					mFrameBuffer[index + 1].green = cm ? 16 : 128;
-					mFrameBuffer[index + 1].blue = cm ? 0 : 255;
-				}
+				mFrameBuffer[index].red       = cm ? 250 : 0;
+				mFrameBuffer[index].green     = cm ? 16  : 128;
+				mFrameBuffer[index].blue      = cm ? 0   : 255;
+				mFrameBuffer[index + 1].red   = cm ? 250 : 0;
+				mFrameBuffer[index + 1].green = cm ? 16  : 128;
+				mFrameBuffer[index + 1].blue  = cm ? 0   : 255;
 				break;
 
 			case 2:	// 10 cyan / green
-				/*if (prev) {
-					mFrameBuffer[index].red = 255;
-					mFrameBuffer[index].green = 255;
-					mFrameBuffer[index].blue = 255;
-				} else */{
-					mFrameBuffer[index].red = cm ? 32 : 32;
-					mFrameBuffer[index].green = cm ? 176 : 192;
-					mFrameBuffer[index].blue = cm ? 176 : 0;
-					mFrameBuffer[index + 1].red = cm ? 32 : 32;
-					mFrameBuffer[index + 1].green = cm ? 176 : 192;
-					mFrameBuffer[index + 1].blue = cm ? 176 : 0;
-				}
+				mFrameBuffer[index].red = cm ? 32 : 32;
+				mFrameBuffer[index].green = cm ? 176 : 192;
+				mFrameBuffer[index].blue = cm ? 176 : 0;
+				mFrameBuffer[index + 1].red = cm ? 32 : 32;
+				mFrameBuffer[index + 1].green = cm ? 176 : 192;
+				mFrameBuffer[index + 1].blue = cm ? 176 : 0;
 				break;
 
 			case 3:	// 11
@@ -125,12 +111,12 @@ void CVideo::drawColor() {
 
 /*****************************************************************************/
 CVideo::CVideo(CBus& bus, byte* ramPtr) :
-	mRamPtr(ramPtr) {
-
+	mRamPtr(ramPtr)
+{
 	assert(ramPtr != nullptr);
-	bus.addDevice("video", this);
-	bus.registerAddr("video", 0xC050, 0xC051);
-	bus.registerAddr("video", 0xC054, 0xC055);
+	bus.addDevice(EDevices::VIDEO, this);
+	bus.registerAddr(EDevices::VIDEO, 0xC050, 0xC051);
+	bus.registerAddr(EDevices::VIDEO, 0xC054, 0xC055);
 }
 
 /*****************************************************************************/
@@ -168,8 +154,8 @@ void CVideo::reset() {
 }
 
 /*****************************************************************************/
-sRGB* CVideo::getFrameBuffer() {
+SRGB* CVideo::getFrameBuffer() {
 	memset(mFrameBuffer, 0, sizeof(mFrameBuffer));
 	mVideoMono ? drawMono() : drawColor();
-	return (sRGB*)mFrameBuffer;
+	return mFrameBuffer;
 }

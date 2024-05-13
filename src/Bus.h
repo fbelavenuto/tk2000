@@ -16,24 +16,23 @@
 
 #pragma once
 
+#include "Common.h"
 #include "Device.h"
-#include "Bus.h"
-#include "Observer.h"
 
-class CKeyboard final : public CDevice, public CObserver<SDL_KeyboardEvent> {
+class CBus final {
 public:
-	CKeyboard(CBus& bus);
-	// CDevice
-	byte read(const word addr, const uint64_t cycles) override;
-	void write(const word addr, const byte data, const uint64_t cycles) override;
-	void update(const uint64_t cycles) override {};
-	void reset() override;
-	// CObserver
-	void notify(SDL_KeyboardEvent&) override;
+	CBus();
+	byte readByte(const word addr, const uint64_t cycles);
+	void writeByte(const word addr, byte data, const uint64_t cycles);
+	word readWord(const word addr, const uint64_t cycles);
+	void writeWord(const word addr, word data, const uint64_t cycles);
+	void addDevice(EDevices t, CDevice* dev);
+	CDevice* getDevice(EDevices dev);
+	void registerAddr(EDevices dev, const word addr);
+	void registerAddr(EDevices dev, const word addrStart, const word addrEnd);
+	void resetAll();
+	void updateAll(const uint64_t cycles);
 private:
-	byte mMatrix[8]{ 0 };
-	bool mCtrl{ false };
-	bool mShift{ false };
-	byte mKbOut{ 0 };
-	bool mKbOutCtrl{ 0 };
+	CDevice* mDevices[0x10000][2];
+	std::unordered_map<EDevices, CDevice*> mMapDevices;
 };

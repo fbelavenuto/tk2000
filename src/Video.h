@@ -16,15 +16,30 @@
 
 #pragma once
 
-#include <cassert>
-#include <cstdint>
-#include <chrono>
-#include <algorithm>
-#include <thread>
-#include <array>
-#include <queue>
-#include <unordered_map>
-#include <mutex>
-#include <memory>
-#include <SDL.h>
-#include <SDL_ttf.h>
+#include "Common.h"
+#include "Device.h"
+#include "Bus.h"
+
+struct SRGB {
+	byte red;
+	byte green;
+	byte blue;
+};
+
+class CVideo final : public CDevice {
+public:
+	CVideo(CBus& bus, byte* ramPtr);
+	byte read(const word addr, const uint64_t cycles) override;
+	void write(const word addr, const byte data, const uint64_t cycles) override;
+	void update(const uint64_t cycles) override {};
+	void reset() override;
+	//
+	SRGB* getFrameBuffer();
+private:
+	byte* mRamPtr = nullptr;
+	bool mVideoMono{ false };
+	bool mSecondPage{ false };
+	SRGB mFrameBuffer[VIDEOWIDTH * VIDEOHEIGHT]{ 0 };
+	void drawMono();
+	void drawColor();
+};

@@ -34,8 +34,8 @@ void CAudio::makeSamples(uint64_t cycles) {
 CAudio::CAudio(CBus& bus, CCpu6502& cpu) :
 	mCpu(cpu)
 {
-	bus.addDevice("audio", this);
-	bus.registerAddr("audio", 0xC030, 0xC03F);
+	bus.addDevice(EDevices::AUDIO, this);
+	bus.registerAddr(EDevices::AUDIO, 0xC030, 0xC03F);
 }
 
 /*************************************************************************************************/

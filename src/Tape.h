@@ -16,19 +16,30 @@
 
 #pragma once
 
-#include "Common.h"
 #include "Device.h"
 #include "Bus.h"
+#include "Cpu6502.h"
 
-class CRam final : public CDevice {
+class CTape final : public CDevice {
 public:
-	CRam(CBus& bus);
+	CTape(CBus& bus, CCpu6502& cpu);
+	// CDevice
 	byte read(const word addr, const uint64_t cycles) override;
-	void write(const word addr, const byte data, const uint64_t cycles) override;
-	void reset() override {}
-	void update(const uint64_t cycles) override {}
-	//
+	void write(const word addr, const byte data, const uint64_t cycles) override {};
+	void update(const uint64_t cycles) override {};
+	void reset() override;
+	// Native
+	void play() noexcept;
+	void stop() noexcept;
+	void rewind() noexcept;
+	bool getPlayState() const noexcept;
+	bool insertCt2(const char *fileName);
 private:
-	friend class CMachine;
-	byte mRam[0x10000];
+	CCpu6502& mCpu;
+	unsigned long long mStartCycle{ 0 };
+	std::vector<word> mQueueCycles;
+	std::vector<word>::iterator mQueueIt;
+	word mCyclesNeeded;
+	byte mCasOut{ 0 };
+	bool mPlay{ false };
 };

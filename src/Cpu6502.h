@@ -21,7 +21,7 @@
 
 /* Typedefs */
 
-union uReg16bit {
+union UReg16bit {
 	struct {
 		byte low;
 		byte hi;
@@ -39,7 +39,7 @@ public:
 	void write(const word addr, const byte data, const uint64_t cycles) override {};
 	void update(const uint64_t cycles) override {};
 	void reset() override;
-	//
+public:
 	uint64_t getCumulativeCycles() const;
 	void setClock(const unsigned long clock);
 	unsigned long getClock() const;
@@ -53,7 +53,7 @@ private:
 	bool mFullSpeed{ false };
 	uint64_t mCumulativeCycles{ 0 };
 	int interruptFlags{ 0 };
-
+private:
 	inline byte readByte(word address) const {
 		return mBus.readByte(address, mCumulativeCycles);
 	}
@@ -69,7 +69,7 @@ private:
 	inline void writeWord(word address, word value) const {
 		mBus.writeWord(address, value, mCumulativeCycles);
 	}
-
+private:
 	// Flags Interrupts
 	const byte INT_NMI{ (1 << 0) };
 	const byte INT_IRQ{ (1 << 1) };
@@ -93,7 +93,7 @@ private:
 	byte mRegY{ 0 };
 	byte mRegS{ 0xFF };
 	byte mRegFlags{ 0x20 };	// On an 6502, bit 5 always must be 1
-	uReg16bit mRegPC{ 0 };
+	UReg16bit mRegPC{ 0 };
 
 	// Stack macros
 

@@ -16,30 +16,23 @@
 
 #pragma once
 
-#include "Common.h"
 #include "Device.h"
 #include "Bus.h"
+#include "Observer.h"
 
-struct sRGB {
-	byte red;
-	byte green;
-	byte blue;
-};
-
-class CVideo final : public CDevice {
+class CKeyboard final : public CDevice {
 public:
-	CVideo(CBus& bus, byte* ramPtr);
+	CKeyboard(CBus& bus);
+	// CDevice
 	byte read(const word addr, const uint64_t cycles) override;
 	void write(const word addr, const byte data, const uint64_t cycles) override;
 	void update(const uint64_t cycles) override {};
 	void reset() override;
-	//
-	sRGB* getFrameBuffer();
+	void keyEvent(SDL_KeyboardEvent&);
 private:
-	byte* mRamPtr = nullptr;
-	bool mVideoMono{ false };
-	bool mSecondPage{ false };
-	sRGB mFrameBuffer[VIDEOWIDTH * VIDEOHEIGHT];
-	void drawMono();
-	void drawColor();
+	byte mMatrix[8]{ 0 };
+	bool mCtrl{ false };
+	bool mShift{ false };
+	byte mKbOut{ 0 };
+	bool mKbOutCtrl{ 0 };
 };

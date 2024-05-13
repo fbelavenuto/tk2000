@@ -18,6 +18,17 @@
 
 /* Defines */
 
+/* Enums */
+
+enum class EDevices {
+	CPU,
+	KEYBOARD,
+	RAM,
+	ROM,
+	TAPE,
+	VIDEO,
+	AUDIO,
+};
 
 /* Constants */
 
